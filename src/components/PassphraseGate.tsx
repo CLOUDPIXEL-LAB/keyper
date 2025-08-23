@@ -164,7 +164,8 @@ useEffect(() => {
       return;
     }
     
-    if (!passphrase || passphrase.length < 8) {
+    const trimmedPassphrase = passphrase.trim();
+    if (!trimmedPassphrase || trimmedPassphrase.length < 8) {
       setError("Passphrase must be at least 8 characters long");
       return;
     }
@@ -185,10 +186,10 @@ useEffect(() => {
       
       if (isFirstTime) {
         console.log('🆕 Creating new vault...');
-        await vaultManager.createVault(passphrase);
+        await vaultManager.createVault(trimmedPassphrase);
       } else {
         console.log('🔓 Unlocking existing vault...');
-        await vaultManager.unlockVault(passphrase);
+        await vaultManager.unlockVault(trimmedPassphrase);
       }
       // Vault event handler will update UI state
     } catch (error) {

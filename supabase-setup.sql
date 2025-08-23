@@ -8,7 +8,7 @@
 -- Run this ENTIRE script in your Supabase SQL Editor.
 -- 
 -- Made with ❤️ by Pink Pixel ✨
--- Date: August 1, 2025
+-- Date: August 23, 2025 (Security Enhanced)
 -- =====================================================
 
 -- ============================================================================
@@ -92,14 +92,18 @@ CREATE INDEX IF NOT EXISTS idx_categories_name ON categories(name);
 -- 3. CREATE AUTOMATIC TRIGGERS
 -- ============================================================================
 
--- Function to update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+-- Function to update updated_at timestamp (SECURE)
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''  -- CRITICAL: Set empty search path for security
+AS $$
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- Create triggers for updated_at
 DROP TRIGGER IF EXISTS update_credentials_updated_at ON credentials;
@@ -209,14 +213,18 @@ CREATE POLICY "categories_delete_policy" ON categories
 -- 7. CREATE HELPER FUNCTIONS
 -- ============================================================================
 
--- Function to get credential statistics
-CREATE OR REPLACE FUNCTION get_credential_stats()
+-- Function to get credential statistics (SECURE)
+CREATE OR REPLACE FUNCTION public.get_credential_stats()
 RETURNS TABLE(
   total_credentials BIGINT,
   by_type JSONB,
   by_category JSONB,
   recent_count BIGINT
-) AS $$
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''  -- CRITICAL: Set empty search path for security
+AS $$
 BEGIN
   RETURN QUERY
   SELECT 
@@ -231,20 +239,24 @@ BEGIN
       created_at,
       COUNT(*) OVER (PARTITION BY credential_type) as type_count,
       COUNT(*) OVER (PARTITION BY COALESCE(category, 'Uncategorized')) as cat_count
-    FROM credentials
+    FROM public.credentials  -- Fully qualified schema reference
     WHERE user_id = 'self-hosted-user'
   ) stats;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
--- Function to check RLS configuration
-CREATE OR REPLACE FUNCTION check_rls_status()
+-- Function to check RLS configuration (SECURE)
+CREATE OR REPLACE FUNCTION public.check_rls_status()
 RETURNS TABLE(
   table_name TEXT,
   rls_enabled BOOLEAN,
   policy_count BIGINT,
   status TEXT
-) AS $$
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''  -- CRITICAL: Set empty search path for security
+AS $$
 BEGIN
   RETURN QUERY
   SELECT 
@@ -258,10 +270,11 @@ BEGIN
       ELSE '❓ UNKNOWN'
     END as status
   FROM information_schema.tables t
-  LEFT JOIN pg_class c ON c.relname = t.table_name AND c.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')
+  LEFT JOIN pg_catalog.pg_class c ON c.relname = t.table_name 
+    AND c.relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = 'public')
   LEFT JOIN (
     SELECT tablename, COUNT(*) as policy_count
-    FROM pg_policies 
+    FROM pg_catalog.pg_policies 
     WHERE schemaname = 'public'
     GROUP BY tablename
   ) p ON p.tablename = t.table_name
@@ -269,7 +282,7 @@ BEGIN
     AND t.table_name IN ('credentials', 'vault_config', 'categories')
     AND t.table_type = 'BASE TABLE';
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 -- ============================================================================
 -- 8. INSERT DEFAULT CATEGORIES
@@ -355,6 +368,25 @@ SELECT COUNT(*) as total_categories FROM categories WHERE user_id = 'self-hosted
 -- - All sensitive data is stored encrypted in secret_blob column
 -- - Zero-knowledge architecture: your passphrase never leaves your device
 -- - RLS policies prevent unauthorized access
+--
+-- SECURITY VERIFICATION:
+-- Verify all functions have secure search_path settings:
+--
+-- SELECT 
+--   routine_name as function_name,
+--   CASE 
+--     WHEN prosecdef THEN '✅ SECURITY DEFINER'
+--     ELSE '❌ SECURITY INVOKER'
+--   END as security_mode,
+--   CASE 
+--     WHEN proconfig::text LIKE '%search_path%' THEN '✅ SEARCH PATH SECURED'
+--     ELSE '❌ SEARCH PATH NOT SET'
+--   END as search_path_status
+-- FROM information_schema.routines r
+-- JOIN pg_catalog.pg_proc p ON p.proname = r.routine_name
+-- WHERE r.routine_schema = 'public'
+--   AND r.routine_name IN ('update_updated_at_column', 'get_credential_stats', 'check_rls_status')
+-- ORDER BY r.routine_name;
 --
 -- TROUBLESHOOTING:
 -- Run these queries if you encounter issues:
