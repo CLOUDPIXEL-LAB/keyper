@@ -1,7 +1,7 @@
 # Wrangler configuration for Keyper - Cloudflare Pages deployment
 # Made with ❤️ by Pink Pixel
 
-name = "keyper"
+name = "keyper-prod"
 compatibility_date = "2024-11-01"
 pages_build_output_dir = "dist"
 
