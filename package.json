@@ -1,6 +1,6 @@
 {
   "name": "@pinkpixel/keyper",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "🔐 Modern self-hosted credential manager with zero-knowledge encryption, multi-user support, and emergency recovery. Store API keys, passwords, and secrets securely with your own Supabase database.",
   "type": "module",
   "main": "dist/index.html",
