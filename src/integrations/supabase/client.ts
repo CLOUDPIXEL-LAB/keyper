@@ -130,11 +130,39 @@ export const createTestSupabaseClient = (url: string, key: string) => {
   // Validate URL format
   try {
     const urlObj = new URL(url);
-    if (!urlObj.hostname.includes('supabase')) {
-      console.warn('URL does not appear to be a Supabase URL');
+    
+    // Check if it's a valid HTTP/HTTPS URL
+    if (!['http:', 'https:'].includes(urlObj.protocol)) {
+      throw new Error('URL must use http:// or https:// protocol');
     }
+    
+    // Flexible validation - allow localhost, IPs, and supabase URLs
+    const hostname = urlObj.hostname.toLowerCase();
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.') || hostname.startsWith('10.') || hostname.startsWith('172.');
+    const isSupabaseCloud = hostname.includes('supabase.co') || hostname.includes('supabase.com');
+    const isCustomDomain = hostname.includes('supabase') || isLocalhost;
+    
+    if (!isSupabaseCloud && !isCustomDomain && !isLocalhost) {
+      console.warn('URL does not appear to be a Supabase instance. Supported formats:', {
+        'Supabase Cloud': 'https://your-project.supabase.co',
+        'Self-hosted': 'http://localhost:54321 or https://supabase.yourdomain.com',
+        'Local network': 'http://192.168.1.100:54321'
+      });
+    }
+    
+    console.log('Supabase URL validation passed:', {
+      url: url,
+      hostname: hostname,
+      isLocalhost,
+      isSupabaseCloud,
+      isCustomDomain
+    });
+    
   } catch (error) {
-    throw new Error('Invalid URL format');
+    if (error instanceof TypeError) {
+      throw new Error(`Invalid URL format: ${url}. Please ensure it includes the protocol (http:// or https://)`);
+    }
+    throw error;
   }
 
   // Create test client
