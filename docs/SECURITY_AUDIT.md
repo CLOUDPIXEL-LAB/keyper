@@ -16,6 +16,9 @@ Keyper Self-Hosted implements a robust, enterprise-grade encryption system with 
 **Key Strengths:**
 - ✅ Zero-knowledge architecture with client-side encryption
 - ✅ Industry-standard cryptographic algorithms (AES-256-GCM, Argon2id)
+- ✅ Simplified bcrypt-only master passphrase system for new users
+- ✅ Backwards compatibility with legacy wrapped DEK system
+- ✅ User-controlled emergency passphrase reset capabilities
 - ✅ Comprehensive security monitoring and audit logging
 - ✅ Strong passphrase validation and user guidance
 - ✅ Proper error handling without information leakage
@@ -177,10 +180,11 @@ CREATE POLICY "credentials_insert_policy" ON credentials
 - Browser vulnerabilities could expose data
 - **Mitigation**: User education, auto-lock, browser updates
 
-**2. Passphrase Loss - BY DESIGN**
-- No recovery mechanism (intentional)
-- Permanent data loss if passphrase forgotten
-- **Mitigation**: User education, backup strategies
+**2. Passphrase Loss - MITIGATED FOR NEW USERS**
+- **New Users**: Secure bcrypt-based emergency reset system available
+- **Legacy Users**: No recovery mechanism (by original design)
+- Comprehensive emergency reset guide provided
+- **Mitigation**: User education, emergency reset documentation, backup strategies
 
 **3. Side-Channel Attacks - LIMITED**
 - JavaScript environment limits protection

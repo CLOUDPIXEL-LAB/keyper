@@ -5,13 +5,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
-import { canShowReset } from "@/security/HatchGate";
 
 // Lazy load main route components
 const SelfHostedDashboard = React.lazy(() => import("@/components/SelfHostedDashboard").then(module => ({ default: module.SelfHostedDashboard })));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
-const ResetKeyper = React.lazy(() => import("./pages/ResetKeyper"));
-
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -37,17 +34,6 @@ const App = () => (
             <Routes>
               {/* Self-hosted version - single route */}
               <Route path="/" element={<SelfHostedDashboard />} />
-              {/* Hidden reset route - only accessible when armed */}
-              <Route 
-                path="/reset" 
-                element={
-                  canShowReset(false) ? (
-                    <ResetKeyper />
-                  ) : (
-                    <NotFound />
-                  )
-                } 
-              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

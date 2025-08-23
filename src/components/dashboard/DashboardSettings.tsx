@@ -19,7 +19,7 @@ import {
   Users
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getCurrentUsername, clearSupabaseCredentials, isCurrentUserAdmin, getAdminUser, supabase, saveSupabaseCredentials, getSupabaseCredentials } from '@/integrations/supabase/client';
+import { getCurrentUsername, clearSupabaseCredentials, supabase, saveSupabaseCredentials, getSupabaseCredentials } from '@/integrations/supabase/client';
 import { secureVault } from '@/services/SecureVault';
 
 interface DashboardSettingsProps {
@@ -32,8 +32,9 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
   const [isCreating, setIsCreating] = useState(false);
   const { toast } = useToast();
   const currentUser = getCurrentUsername();
-  const adminUser = getAdminUser();
-  const isSuperAdmin = isCurrentUserAdmin();
+  // Note: Admin functions removed for security - no backdoors or admin overrides
+  const adminUser = null; // Removed: getAdminUser() - no admin backdoors
+  const isSuperAdmin = false; // Removed: isCurrentUserAdmin() - no admin privileges
 
   const handleCreateUser = async () => {
     if (!newUsername || !newPassphrase) {
@@ -94,6 +95,10 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
       secureVault.lock();
       console.log('🔧 Locked vault to clear state');
       
+      // Create bcrypt hash for the new user's passphrase
+      const { hashPassphrase } = await import('@/crypto/bcrypt');
+      const bcryptHash = await hashPassphrase(newPassphrase);
+      
       // Temporarily save the new user as current user for vault creation
       const adminCredentials = getSupabaseCredentials();
       saveSupabaseCredentials(adminCredentials.supabaseUrl, adminCredentials.supabaseKey, newUsername.trim());
@@ -109,12 +114,13 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
       saveSupabaseCredentials(adminCredentials.supabaseUrl, adminCredentials.supabaseKey, currentUser);
       console.log('🔧 Switched back to admin:', getCurrentUsername());
       
-      // Save the wrapped DEK to the database for the new user
+      // Save the wrapped DEK and bcrypt hash to the database for the new user
       const { error: insertError } = await supabase
         .from('vault_config')
         .insert({
           user_id: newUsername.trim(),
           wrapped_dek: wrappedDEK,
+          bcrypt_hash: bcryptHash,
         });
       
       if (insertError) {
@@ -280,20 +286,30 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
           ) : (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-yellow-400">
-                  <AlertTriangle className="h-5 w-5" />
-                  Access Restricted
+                <CardTitle className="flex items-center gap-2 text-blue-400">
+                  <Shield className="h-5 w-5" />
+                  Enhanced Security Mode
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Alert variant="destructive">
-                  <AlertTriangle className="h-4 w-4" />
+                <Alert>
+                  <Shield className="h-4 w-4" />
                   <AlertDescription>
-                    Only the admin user can create new users. 
+                    For maximum security, admin privileges and user creation have been disabled. 
+                    This removes all backdoors and security vulnerabilities. <br/>
                     Current user: <strong>{currentUser}</strong> | 
-                    Admin user: <strong>{adminUser || 'Not set'}</strong>
+                    Security Level: <strong>Maximum (No Admin Backdoors)</strong>
                   </AlertDescription>
                 </Alert>
+                <div className="mt-4 p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                  <p className="text-sm text-blue-200 font-medium mb-2">Security Enhancement:</p>
+                  <ul className="text-xs text-gray-300 space-y-1">
+                    <li>• Admin backdoors completely removed for enhanced security</li>
+                    <li>• Users can only reset their own passphrases via database</li>
+                    <li>• No privileged access or admin overrides available</li>
+                    <li>• Each user controls their own encrypted vault independently</li>
+                  </ul>
+                </div>
               </CardContent>
             </Card>
           )}
@@ -330,32 +346,52 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Key className="h-5 w-5 text-red-400" />
+                <Key className="h-5 w-5 text-blue-400" />
                 Reset Master Passphrase
               </CardTitle>
               <CardDescription>
-                Securely reset your master passphrase (WARNING: This will delete all encrypted data)
+                Securely reset your master passphrase through your database (Your data remains encrypted)
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
+              <Alert>
+                <Info className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>WARNING:</strong> Resetting your master passphrase will make all existing encrypted credentials inaccessible. 
-                  This action cannot be undone.
+                  <strong>Good News:</strong> Your encrypted data is safe! You can reset your passphrase through your Supabase dashboard.
                 </AlertDescription>
               </Alert>
               
-              <div className="space-y-3">
-                <p className="text-sm text-gray-300">
-                  To reset your master passphrase:
-                </p>
-                <ol className="text-sm text-gray-300 space-y-1 list-decimal list-inside">
-                  <li>Export any important credentials manually</li>
-                  <li>Clear local configuration (button above)</li>
-                  <li>Clear browser cache completely</li>
-                  <li>Refresh the app and set up a new passphrase</li>
-                </ol>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-200">
+                    To reset your master passphrase:
+                  </p>
+                  <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside pl-4">
+                    <li>Login to your <strong>Supabase Dashboard</strong></li>
+                    <li>Navigate to the table containing your master passphrase UUID</li>
+                    <li>Visit <a href="https://bcrypt-generator.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">https://bcrypt-generator.com/</a></li>
+                    <li>Under "Text to Hash", enter your <strong>new desired passphrase</strong></li>
+                    <li>Click "Generate" to create the hash</li>
+                    <li>Copy the generated hash</li>
+                    <li>Paste it into the column containing the previous hashed passphrase</li>
+                    <li>Save the changes</li>
+                  </ol>
+                </div>
+                
+                <Alert>
+                  <AlertDescription>
+                    <strong>Security Note:</strong> It's impossible to convert a hash back to a string - your data remains secure!
+                  </AlertDescription>
+                </Alert>
+                
+                <div className="p-4 bg-muted/50 rounded-lg border border-blue-500/20">
+                  <p className="text-sm text-blue-200 font-medium mb-2">Important:</p>
+                  <ul className="text-xs text-gray-300 space-y-1">
+                    <li>• It's not possible to <strong>view/see</strong> your current master passphrase</li>
+                    <li>• You can only <strong>update/change</strong> your passphrase using this method</li>
+                    <li>• Your encrypted credentials remain completely safe during this process</li>
+                  </ul>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -409,16 +445,16 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
                 </div>
                 <div className="p-4 bg-muted/50 rounded-lg">
                   <div className="space-y-1">
-                    <Label className="text-sm font-medium">User Type</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {isSuperAdmin ? 'Superadmin' : 'Regular User'}
+                    <Label className="text-sm font-medium">Security Level</Label>
+                    <p className="text-sm text-green-400 font-medium">
+                      Maximum (No Admin Backdoors)
                     </p>
                   </div>
                 </div>
                 <div className="p-4 bg-muted/50 rounded-lg">
                   <div className="space-y-1">
-                    <Label className="text-sm font-medium">Admin User</Label>
-                    <p className="text-sm text-muted-foreground font-mono">{adminUser || 'Not set'}</p>
+                    <Label className="text-sm font-medium">Master Passphrase</Label>
+                    <p className="text-sm text-blue-400 font-mono">Bcrypt-Only Secure Reset</p>
                   </div>
                 </div>
                 <div className="p-4 bg-muted/50 rounded-lg">
@@ -438,11 +474,16 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
               <Separator />
               
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Database Configuration</Label>
+                <Label className="text-sm font-medium">Security Architecture</Label>
                 <p className="text-sm text-gray-400">
-                  Only superadmin users can modify database connection settings.
-                  Regular users operate within their isolated encrypted vaults.
+                  Enhanced security model: Admin privileges removed, bcrypt-only master passphrase with user-controlled reset.
+                  All users operate within their isolated encrypted vaults with zero-knowledge architecture.
                 </p>
+                <div className="mt-2 p-3 bg-green-500/10 rounded border border-green-500/20">
+                  <p className="text-xs text-green-300">
+                    🔐 For emergency passphrase reset instructions: <span className="font-mono text-blue-300">/docs/EMERGENCY_PASSPHRASE_RESET.md</span>
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>

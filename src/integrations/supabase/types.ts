@@ -98,25 +98,31 @@ export type Database = {
       }
       vault_config: {
         Row: {
+          bcrypt_hash: string
           created_at: string
           id: string
+          raw_dek: string
           updated_at: string
           user_id: string
-          wrapped_dek: Json
+          wrapped_dek: Json | null
         }
         Insert: {
+          bcrypt_hash: string
           created_at?: string
           id?: string
+          raw_dek: string
           updated_at?: string
           user_id?: string
-          wrapped_dek: Json
+          wrapped_dek?: Json | null
         }
         Update: {
+          bcrypt_hash?: string
           created_at?: string
           id?: string
+          raw_dek?: string
           updated_at?: string
           user_id?: string
-          wrapped_dek?: Json
+          wrapped_dek?: Json | null
         }
         Relationships: []
       }

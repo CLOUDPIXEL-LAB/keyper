@@ -38,11 +38,13 @@ CREATE TABLE IF NOT EXISTS credentials (
   encrypted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Vault configuration table for secure key management
+-- Vault configuration table for secure key management (simplified bcrypt-only architecture)
 CREATE TABLE IF NOT EXISTS vault_config (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id TEXT NOT NULL DEFAULT 'self-hosted-user',
-  wrapped_dek JSONB NOT NULL,
+  wrapped_dek JSONB, -- Legacy field for backwards compatibility
+  raw_dek TEXT, -- Raw DEK (base64) for simplified architecture (nullable for legacy users)
+  bcrypt_hash TEXT, -- Bcrypt hash of master passphrase for secure reset (nullable for legacy users)
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   
@@ -309,7 +311,9 @@ COMMENT ON TABLE categories IS 'Categories for organizing credentials';
 
 COMMENT ON COLUMN credentials.secret_blob IS 'Encrypted JSON blob containing all secret data';
 COMMENT ON COLUMN credentials.encrypted_at IS 'Timestamp when the credential was encrypted';
-COMMENT ON COLUMN vault_config.wrapped_dek IS 'Wrapped data encryption key for vault security';
+COMMENT ON COLUMN vault_config.wrapped_dek IS 'Legacy wrapped DEK for backwards compatibility';
+COMMENT ON COLUMN vault_config.raw_dek IS 'Raw data encryption key (base64) for simplified bcrypt-only architecture';
+COMMENT ON COLUMN vault_config.bcrypt_hash IS 'Bcrypt hash of master passphrase for secure reset functionality';
 
 COMMENT ON FUNCTION get_credential_stats IS 'Get comprehensive statistics about stored credentials';
 COMMENT ON FUNCTION check_rls_status IS 'Check Row Level Security configuration status';

@@ -13,7 +13,6 @@ const DEFAULT_SUPABASE_KEY = "your-anon-key";
 export const SUPABASE_URL_KEY = 'keyper-supabase-url';
 export const SUPABASE_KEY_KEY = 'keyper-supabase-key';
 export const SUPABASE_USERNAME_KEY = 'keyper-username';
-export const KEYPER_ADMIN_USER_KEY = 'keyper-admin-user';
 
 
 // Helper function to get the current Supabase URL and key
@@ -73,8 +72,6 @@ export const saveSupabaseCredentials = (url: string, key: string, username?: str
     localStorage.setItem(SUPABASE_KEY_KEY, key);
     if (username) {
       localStorage.setItem(SUPABASE_USERNAME_KEY, username);
-      // Set the first user as admin if no admin exists yet
-      setInitialAdminUser(username);
     }
     console.log("Supabase credentials saved to localStorage");
     return true;
@@ -84,51 +81,6 @@ export const saveSupabaseCredentials = (url: string, key: string, username?: str
   }
 };
 
-// Admin user management functions
-export const getAdminUser = (): string | null => {
-  try {
-    return localStorage.getItem(KEYPER_ADMIN_USER_KEY);
-  } catch (error) {
-    console.error("Error retrieving admin user from localStorage:", error);
-    return null;
-  }
-};
-
-export const setInitialAdminUser = (username: string): boolean => {
-  try {
-    // Only set admin if no admin exists yet
-    const existingAdmin = getAdminUser();
-    if (!existingAdmin) {
-      localStorage.setItem(KEYPER_ADMIN_USER_KEY, username);
-      console.log(`🔐 Initial admin user set: ${username}`);
-      return true;
-    }
-    return false; // Admin already exists
-  } catch (error) {
-    console.error("Error setting initial admin user:", error);
-    return false;
-  }
-};
-
-export const isCurrentUserAdmin = (): boolean => {
-  try {
-    const currentUser = getCurrentUsername();
-    const adminUser = getAdminUser();
-    
-    // If no admin is set, treat the current user as admin (backward compatibility)
-    if (!adminUser) {
-      // Also set them as admin for future use
-      setInitialAdminUser(currentUser);
-      return true;
-    }
-    
-    // Check if current user is the admin
-    return currentUser === adminUser;
-  } catch (error) {
-    console.error("Error checking admin status:", error);
-    return false;
-  }
-};
 
 // Create Supabase client with current credentials
 let supabaseClient: ReturnType<typeof createClient<Database>>;

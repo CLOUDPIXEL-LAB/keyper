@@ -8,10 +8,11 @@
  */
 
 import { secureVault } from './SecureVault';
-import { getVaultConfig, saveVaultConfig, deleteVaultConfig, isVaultInitialized } from './VaultStorage';
+import { getVaultConfig, saveVaultConfig, deleteVaultConfig, isVaultInitialized, isLegacyVaultConfig, isNewVaultConfig } from './VaultStorage';
 import { supabase } from '@/integrations/supabase/client';
-import type { WrappedDEK, VaultEvent } from './SecureVault';
+import type { VaultEvent } from './SecureVault';
 import { CryptoError, CryptoErrorType } from '@/crypto/types';
+import { hashPassphrase, verifyPassphrase } from '@/crypto/bcrypt';
 
 export class VaultManager {
   private initialized = false;
@@ -27,10 +28,18 @@ export class VaultManager {
       const vaultInitialized = await isVaultInitialized();
       
       if (vaultInitialized) {
-        // Load wrapped DEK from database
+        // Load vault configuration from database
         const config = await getVaultConfig();
-        if (config?.wrapped_dek) {
-          await secureVault.initializeWithWrappedDEK(config.wrapped_dek);
+        if (config) {
+          if (isNewVaultConfig(config)) {
+            // New format: raw_dek + bcrypt_hash
+            console.log('🔧 Initializing with new vault format (raw DEK)');
+            await secureVault.initializeWithRawDEK(config.raw_dek);
+          } else if (isLegacyVaultConfig(config)) {
+            // Legacy format: wrapped_dek
+            console.log('🔧 Initializing with legacy vault format (wrapped DEK)');
+            await secureVault.initializeWithWrappedDEK(config.wrapped_dek);
+          }
         }
       }
 
@@ -67,11 +76,14 @@ export class VaultManager {
     await this.initialize();
 
     try {
-      // Create new vault with fresh DEK
-      const wrappedDEK = await secureVault.createNewVault(masterPassphrase);
+      // Create bcrypt hash of master passphrase for secure reset
+      const bcryptHash = await hashPassphrase(masterPassphrase);
       
-      // Save wrapped DEK to database
-      await saveVaultConfig(wrappedDEK);
+      // Create new vault with fresh DEK (no passphrase needed for DEK creation)
+      const rawDEK = await secureVault.createNewVault();
+      
+      // Save raw DEK and bcrypt hash to database
+      await saveVaultConfig(rawDEK, bcryptHash);
       
     } catch (error) {
       console.error('Error creating vault:', error);
@@ -86,8 +98,42 @@ export class VaultManager {
     await this.initialize();
 
     try {
-      // Attempt to unlock vault
-      await secureVault.unlock(masterPassphrase);
+      // Get vault config
+      const config = await getVaultConfig();
+      if (!config) {
+        throw new CryptoError(
+          CryptoErrorType.VAULT_NOT_INITIALIZED,
+          'Vault not initialized. Please set up encryption first.'
+        );
+      }
+
+      if (isNewVaultConfig(config)) {
+        // New format: use bcrypt verification only
+        console.log('🔓 Unlocking new format vault (bcrypt-only)');
+        
+        const isValidPassphrase = await verifyPassphrase(masterPassphrase, config.bcrypt_hash);
+        if (!isValidPassphrase) {
+          throw new CryptoError(
+            CryptoErrorType.INVALID_PASSPHRASE,
+            'Invalid master passphrase. Please try again.'
+          );
+        }
+        
+        // Passphrase is valid, unlock vault with stored DEK
+        await secureVault.unlockWithStoredDEK();
+        
+      } else if (isLegacyVaultConfig(config)) {
+        // Legacy format: use the old wrapped DEK system
+        console.log('🔓 Unlocking legacy format vault (wrapped DEK)');
+        
+        // For legacy vaults, use the original unlock method
+        await secureVault.unlock(masterPassphrase);
+      } else {
+        throw new CryptoError(
+          CryptoErrorType.VAULT_NOT_INITIALIZED,
+          'Invalid vault configuration found.'
+        );
+      }
       
     } catch (error) {
       console.error('Error unlocking vault:', error);
@@ -110,7 +156,33 @@ export class VaultManager {
    */
   async testPassphrase(passphrase: string): Promise<boolean> {
     await this.initialize();
-    return await secureVault.testPassphrase(passphrase);
+    
+    try {
+      // Get vault config
+      const config = await getVaultConfig();
+      if (!config) {
+        return false;
+      }
+
+      if (isNewVaultConfig(config)) {
+        // New format: test against bcrypt hash
+        return await verifyPassphrase(passphrase, config.bcrypt_hash);
+      } else if (isLegacyVaultConfig(config)) {
+        // Legacy format: test against wrapped DEK (if bcrypt_hash exists, prefer it)
+        if (config.bcrypt_hash) {
+          return await verifyPassphrase(passphrase, config.bcrypt_hash);
+        } else {
+          // Fall back to testing wrapped DEK decryption
+          return await secureVault.testPassphrase(passphrase);
+        }
+      }
+      
+      return false;
+      
+    } catch (error) {
+      console.error('Error testing passphrase:', error);
+      return false;
+    }
   }
 
   /**

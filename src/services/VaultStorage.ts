@@ -1,8 +1,8 @@
 /**
- * VaultStorage - Manages wrapped DEK storage in Supabase
+ * VaultStorage - Manages DEK storage in Supabase
  * 
- * Stores only the wrapped DEK (encrypted with KEK derived from master passphrase).
- * The server never sees the master passphrase or the unwrapped DEK.
+ * Handles both legacy (wrapped_dek) and new (raw_dek + bcrypt_hash) configurations
+ * for seamless migration from complex encryption to simple bcrypt-only system.
  * 
  * Made with ❤️ by Pink Pixel ✨
  */
@@ -11,14 +11,46 @@ import { supabase, getCurrentUsername } from '@/integrations/supabase/client';
 import type { WrappedDEK } from './SecureVault';
 
 /**
- * Vault configuration stored in database
+ * Legacy vault configuration (wrapped_dek based)
  */
-export interface VaultConfig {
+export interface LegacyVaultConfig {
   id: string;
   user_id: string;
   wrapped_dek: WrappedDEK;
+  bcrypt_hash?: string;
   created_at: string;
   updated_at: string;
+}
+
+/**
+ * New vault configuration (raw_dek + bcrypt_hash based)
+ */
+export interface NewVaultConfig {
+  id: string;
+  user_id: string;
+  raw_dek: string; // Base64 encoded raw DEK bytes
+  bcrypt_hash: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Union type for vault configurations
+ */
+export type VaultConfig = LegacyVaultConfig | NewVaultConfig;
+
+/**
+ * Type guard to check if config is legacy
+ */
+export function isLegacyVaultConfig(config: VaultConfig): config is LegacyVaultConfig {
+  return 'wrapped_dek' in config && config.wrapped_dek !== null;
+}
+
+/**
+ * Type guard to check if config is new format
+ */
+export function isNewVaultConfig(config: VaultConfig): config is NewVaultConfig {
+  return 'raw_dek' in config && config.raw_dek !== null && config.raw_dek !== undefined;
 }
 
 /**
@@ -49,42 +81,22 @@ export async function getVaultConfig(): Promise<VaultConfig | null> {
       throw error;
     }
 
-    // Validate that we have a proper vault config, not a placeholder
-    if (data && data.wrapped_dek) {
-      const wrappedDek = data.wrapped_dek as any;
-      
-      // Check if this is a placeholder or invalid config
-      if (typeof wrappedDek === 'object' && wrappedDek.placeholder) {
-        console.log('🚫 Found placeholder vault config - treating as not initialized');
-        return null;
+    // Handle both legacy and new vault configurations
+    if (data) {
+      // Check for new format (raw_dek + bcrypt_hash)
+      if (data.raw_dek && data.bcrypt_hash) {
+        console.log('✅ Valid new vault config found with raw DEK and bcrypt hash');
+        return data as NewVaultConfig;
       }
       
-      // Check if it has the required fields for a valid wrapped DEK
-      if (typeof wrappedDek === 'object' && 
-          wrappedDek.v === 1 && 
-          wrappedDek.kdf && 
-          wrappedDek.salt && 
-          wrappedDek.iv && 
-          wrappedDek.ct) {
-        console.log('✅ Valid vault config found with proper wrapped DEK structure');
-        return {
-          ...data,
-          wrapped_dek: wrappedDek as WrappedDEK
-        };
-      } else {
-        console.log('🚫 Invalid vault config structure:', {
-          hasWrappedDek: !!wrappedDek,
-          version: wrappedDek?.v,
-          hasKdf: !!wrappedDek?.kdf,
-          hasSalt: !!wrappedDek?.salt,
-          hasIv: !!wrappedDek?.iv,
-          hasCt: !!wrappedDek?.ct
-        });
-        return null;
+      // Check for legacy format (wrapped_dek)
+      if (data.wrapped_dek) {
+        console.log('✅ Valid legacy vault config found with wrapped DEK');
+        return data as LegacyVaultConfig;
       }
     }
     
-    console.log('🚫 No data or wrapped_dek found');
+    console.log('🚫 No valid vault configuration found');
     return null;
   } catch (error) {
     console.error('💥 Error getting vault config:', error);
@@ -102,10 +114,41 @@ export async function getVaultConfig(): Promise<VaultConfig | null> {
 }
 
 /**
- * Save vault configuration for current user
+ * Save new vault configuration for current user (raw_dek + bcrypt_hash)
  * Fixed: Use instance-based config instead of username-based to avoid conflicts when username changes
  */
-export async function saveVaultConfig(wrappedDEK: WrappedDEK): Promise<VaultConfig> {
+export async function saveVaultConfig(rawDEK: string, bcryptHash: string): Promise<NewVaultConfig> {
+  try {
+    // Use the configured username for vault config
+    const currentUsername = getCurrentUsername();
+    
+    const { data, error } = await supabase
+      .from('vault_config')
+      .upsert({
+        user_id: currentUsername,
+        raw_dek: rawDEK,
+        bcrypt_hash: bcryptHash,
+        wrapped_dek: null, // Explicitly set to null for new configs
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data as NewVaultConfig;
+  } catch (error) {
+    console.error('Error saving vault config:', error);
+    throw new Error(`Failed to save vault configuration: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Save legacy vault configuration (wrapped_dek based) - for backwards compatibility
+ */
+export async function saveLegacyVaultConfig(wrappedDEK: WrappedDEK, bcryptHash?: string): Promise<LegacyVaultConfig> {
   try {
     // Use the configured username for vault config
     const currentUsername = getCurrentUsername();
@@ -115,6 +158,8 @@ export async function saveVaultConfig(wrappedDEK: WrappedDEK): Promise<VaultConf
       .upsert({
         user_id: currentUsername,
         wrapped_dek: wrappedDEK as unknown as any,
+        bcrypt_hash: bcryptHash || null,
+        raw_dek: null, // Explicitly set to null for legacy configs
         updated_at: new Date().toISOString()
       })
       .select()
@@ -127,10 +172,10 @@ export async function saveVaultConfig(wrappedDEK: WrappedDEK): Promise<VaultConf
     return {
       ...data,
       wrapped_dek: data.wrapped_dek as unknown as WrappedDEK
-    };
+    } as LegacyVaultConfig;
   } catch (error) {
-    console.error('Error saving vault config:', error);
-    throw new Error(`Failed to save vault configuration: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error('Error saving legacy vault config:', error);
+    throw new Error(`Failed to save legacy vault configuration: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 

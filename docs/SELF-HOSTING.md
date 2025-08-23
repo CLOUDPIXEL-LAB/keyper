@@ -206,13 +206,35 @@ Keyper works as a Progressive Web App for a native app experience!
 - Check that service worker is registered
 - Try reinstalling the PWA
 
+### Master Passphrase Reset
+
+**Forgot your master passphrase?** Don't worry! Your encrypted data is completely safe and you can securely reset your passphrase.
+
+**Important**: It's not possible to *view* your current master passphrase, but you can *update/change* it using our secure bcrypt-based reset system.
+
+📖 **Complete Reset Guide**: For detailed step-by-step instructions, see our comprehensive [Emergency Passphrase Reset Guide](./docs/EMERGENCY_PASSPHRASE_RESET.md)
+
+**Quick Overview:**
+1. Access your Supabase dashboard and navigate to the `vault_config` table
+2. Generate a new bcrypt hash using your desired new passphrase
+3. Replace the `bcrypt_hash` value in your database
+4. Login with your new passphrase
+
+**Security Benefits:**
+* ✅ **No Backdoors**: Complete elimination of admin override capabilities
+* ✅ **User Control**: Only you can reset your own passphrase
+* ✅ **Data Safety**: Your encrypted credentials remain completely safe
+* ✅ **Industry Standard**: Uses proven bcrypt hashing technology
+* ✅ **Zero Knowledge**: Hash-only storage ensures maximum security
+
 ### Getting Help
 
 1. **Check the SQL Script**: Ensure it ran without errors
 2. **Verify Credentials**: Double-check your Supabase URL and key
 3. **Browser Console**: Check for error messages (F12 → Console)
 4. **Supabase Logs**: Check your Supabase project logs
-5. **GitHub Issues**: Report bugs at [github.com/pinkpixel-dev/keyper](https://github.com/pinkpixel-dev/keyper)
+5. **Master Passphrase**: Use the secure reset process above for password issues
+6. **GitHub Issues**: Report bugs at [github.com/pinkpixel-dev/keyper](https://github.com/pinkpixel-dev/keyper)
 
 ---
 

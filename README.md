@@ -53,7 +53,9 @@
 * **AES-256-GCM Encryption** - Industry-standard authenticated encryption
 * **Argon2id Key Derivation** - Memory-hard, ASIC-resistant (with PBKDF2 fallback)
 * **Auto-Lock Protection** - 15-minute inactivity timeout with activity detection
-* **Master Passphrase Protection** - Single passphrase unlocks your encrypted vault
+* **Simplified Bcrypt Master Passphrase** - Secure bcrypt-only authentication for new users
+* **Backwards Compatibility** - Legacy wrapped DEK system maintained for existing users
+* **User-Controlled Reset** - Secure emergency passphrase reset without admin backdoors
 * **Database-Only Storage** - No localStorage usage except for database config
 * **Professional Security Audit** - EXCELLENT security rating
 
@@ -181,12 +183,16 @@ npm start
 
    * Enter your Supabase URL and anon key
    * Copy and run the complete SQL setup script in Supabase SQL Editor
+   * The script creates tables with the latest security features:
+     - `raw_dek` and `bcrypt_hash` columns for the new simplified security model
+     - Backwards compatibility for existing users with legacy `wrapped_dek` system
    * Test the connection
 
 4. **Master Passphrase**: Create your encryption passphrase
 
    * Choose a strong passphrase (8+ characters recommended)
-   * This encrypts all your credentials client-side
+   * New users get the simplified bcrypt-only authentication system
+   * This encrypts all your credentials client-side with secure emergency reset capabilities
 
 5. **Start Managing**: Add your first encrypted credential! 🎉
 
@@ -262,27 +268,46 @@ Keyper works as a Progressive Web App for a native app experience!
 
 **❌ Stuck in configuration loops or can't access settings**
 
-* Keyper includes advanced diagnostic capabilities for troubleshooting
-* If you're unable to reach the settings page or are stuck in authentication loops
-* Enhanced error recovery system can help resolve configuration conflicts
-* Database health checks available to verify table integrity
+* Clear browser cache and localStorage completely
+* Refresh the page and reconfigure your database connection
+* Ensure your Supabase credentials are correct
+* Use the built-in database health checks to verify table integrity
 
 **❌ Multi-user vault conflicts**
 
-* Use the diagnostic tools to check vault state isolation
-* Clear specific user configurations without affecting others
-* Verify database table health after user switching
-* Professional recovery procedures available for complex scenarios
+* Each user has their own isolated encrypted vault
+* Switch users by changing the username in settings
+* Refresh the page after switching users for proper vault isolation
+* Each user's data is completely separate and encrypted individually
+
+### 🔑 Master Passphrase Reset
+
+**Forgot your master passphrase?** No problem! Your encrypted data is completely safe and you can securely reset your passphrase:
+
+**Important**: It's not possible to *view* your current master passphrase, but you can *update/change* it using our secure bcrypt-based reset system.
+
+📖 **Complete Reset Guide**: For detailed step-by-step instructions, see our comprehensive [Emergency Passphrase Reset Guide](./docs/EMERGENCY_PASSPHRASE_RESET.md)
+
+**Quick Overview:**
+1. Access your Supabase dashboard and navigate to the `vault_config` table
+2. Generate a new bcrypt hash using your desired new passphrase
+3. Replace the `bcrypt_hash` value in your database
+4. Login with your new passphrase
+
+**Security Benefits:**
+* ✅ **No Backdoors**: Complete elimination of admin override capabilities
+* ✅ **User Control**: Only you can reset your own passphrase
+* ✅ **Data Safety**: Your encrypted credentials remain completely safe
+* ✅ **Industry Standard**: Uses proven bcrypt hashing technology
+* ✅ **Zero Knowledge**: Hash-only storage ensures maximum security
 
 ### Getting Help
 
 1. Check the [Self-Hosting Guide](SELF-HOSTING.md)
 2. Review browser console for errors (F12 → Console)
 3. Verify Supabase project logs
-4. Use built-in diagnostic tools for configuration issues
-5. **Advanced diagnostic help is available for administrators; contact support.**
-6. **Enterprise Support**: Advanced troubleshooting procedures available for authorized administrators
-7. Report issues on [GitHub](https://github.com/pinkpixel-dev/keyper/issues)
+4. Use the master passphrase reset process above for password issues
+5. Report issues on [GitHub](https://github.com/pinkpixel-dev/keyper/issues)
 
 ---
 

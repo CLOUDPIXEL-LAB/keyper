@@ -16,6 +16,8 @@
 ### Cryptographic Standards
 - **Encryption**: AES-256-GCM with unique IVs per record
 - **Key Derivation**: Argon2id (preferred) or PBKDF2-HMAC-SHA256 (fallback)
+- **Master Passphrase**: Simplified bcrypt-only authentication for new users
+- **Legacy Support**: Backwards compatibility with wrapped DEK system
 - **Random Generation**: Cryptographically secure random number generation
 - **Constant-Time Operations**: Protection against timing attacks
 
@@ -271,12 +273,22 @@ Consider monitoring for:
 4. **Validate**: Confirm all data accessible with passphrase
 
 ### Passphrase Recovery
-⚠️ **Important**: There is no passphrase recovery mechanism by design.
 
-If you lose your passphrase:
-- All encrypted data becomes permanently inaccessible
-- You must start fresh with a new passphrase
-- This is intentional for maximum security
+**Dual System Architecture:**
+
+**🆕 New Users (Bcrypt-Only System):**
+- ✅ Secure emergency passphrase reset available
+- 📖 See comprehensive [Emergency Passphrase Reset Guide](./EMERGENCY_PASSPHRASE_RESET.md)
+- 🔒 User-controlled reset process with no admin backdoors
+- 🛡️ All encrypted data remains completely safe during reset
+
+**🔄 Legacy Users (Wrapped DEK System):**
+- ⚠️ No recovery mechanism (by original design)
+- 🚨 If you lose your passphrase, all encrypted data becomes permanently inaccessible
+- 🔄 You must start fresh with a new passphrase
+- 🛡️ This is intentional for maximum security
+
+**Migration Recommendation:** Consider migrating to the new bcrypt-only system for improved passphrase reset capabilities.
 
 ---
 

@@ -14,6 +14,8 @@ When you first open Keyper, you'll see the **Migration Wizard** that guides you 
 
 1. **Welcome Screen**: Shows your current credential statistics
 2. **Create Master Passphrase**: Set up your encryption passphrase
+   - **New Users**: Get the simplified bcrypt-only authentication system with secure emergency reset capabilities
+   - **Existing Users**: Legacy wrapped DEK system maintained for backwards compatibility
 3. **Confirm Passphrase**: Verify your passphrase was entered correctly
 4. **Migration Review**: Review credentials that will be encrypted
 5. **Migration Progress**: Watch as your credentials are encrypted
@@ -172,10 +174,16 @@ Keyper supports both encrypted and plaintext credentials:
 4. **Document your passphrase** securely (offline)
 
 **If You Lose Your Passphrase:**
-- 🚨 All encrypted data becomes permanently inaccessible
+
+📖 **Don't Panic!** For users with the new bcrypt-only system, you can securely reset your master passphrase. See our comprehensive [Emergency Passphrase Reset Guide](./EMERGENCY_PASSPHRASE_RESET.md) for detailed step-by-step instructions.
+
+**For Legacy Users:**
+- 🚨 If you're using the older wrapped DEK system, encrypted data becomes permanently inaccessible if you lose your passphrase
 - 🔄 You must start fresh with a new passphrase
 - 📋 Re-enter all credentials manually
 - 🛡️ This is intentional for maximum security
+
+**Migration Recommendation:** Consider migrating to the new bcrypt-only system for improved passphrase reset capabilities.
 
 ---
 

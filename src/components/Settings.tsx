@@ -172,7 +172,6 @@ export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete }) =
   };
 
   const sqlScript = `-- =====================================================
--- =====================================================
 -- 🔐 KEYPER DATABASE SETUP (Single Script)
 -- =====================================================
 -- 
@@ -182,7 +181,7 @@ export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete }) =
 -- Run this ENTIRE script in your Supabase SQL Editor.
 -- 
 -- Made with ❤️ by Pink Pixel ✨
--- Date: August 1, 2025
+-- Date: August 23, 2025 (Security Enhanced)
 -- =====================================================
 
 -- ============================================================================
@@ -212,11 +211,13 @@ CREATE TABLE IF NOT EXISTS credentials (
   encrypted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Vault configuration table for secure key management
+-- Vault configuration table for secure key management (simplified bcrypt-only architecture)
 CREATE TABLE IF NOT EXISTS vault_config (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id TEXT NOT NULL DEFAULT 'self-hosted-user',
-  wrapped_dek JSONB NOT NULL,
+  wrapped_dek JSONB, -- Legacy field for backwards compatibility
+  raw_dek TEXT, -- Raw DEK (base64) for simplified architecture (nullable for legacy users)
+  bcrypt_hash TEXT, -- Bcrypt hash of master passphrase for secure reset (nullable for legacy users)
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   
@@ -266,14 +267,18 @@ CREATE INDEX IF NOT EXISTS idx_categories_name ON categories(name);
 -- 3. CREATE AUTOMATIC TRIGGERS
 -- ============================================================================
 
--- Function to update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+-- Function to update updated_at timestamp (SECURE)
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''  -- CRITICAL: Set empty search path for security
+AS $$
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- Create triggers for updated_at
 DROP TRIGGER IF EXISTS update_credentials_updated_at ON credentials;
@@ -383,14 +388,18 @@ CREATE POLICY "categories_delete_policy" ON categories
 -- 7. CREATE HELPER FUNCTIONS
 -- ============================================================================
 
--- Function to get credential statistics
-CREATE OR REPLACE FUNCTION get_credential_stats()
+-- Function to get credential statistics (SECURE)
+CREATE OR REPLACE FUNCTION public.get_credential_stats()
 RETURNS TABLE(
   total_credentials BIGINT,
   by_type JSONB,
   by_category JSONB,
   recent_count BIGINT
-) AS $$
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''  -- CRITICAL: Set empty search path for security
+AS $$
 BEGIN
   RETURN QUERY
   SELECT 
@@ -405,20 +414,24 @@ BEGIN
       created_at,
       COUNT(*) OVER (PARTITION BY credential_type) as type_count,
       COUNT(*) OVER (PARTITION BY COALESCE(category, 'Uncategorized')) as cat_count
-    FROM credentials
+    FROM public.credentials  -- Fully qualified schema reference
     WHERE user_id = 'self-hosted-user'
   ) stats;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
--- Function to check RLS configuration
-CREATE OR REPLACE FUNCTION check_rls_status()
+-- Function to check RLS configuration (SECURE)
+CREATE OR REPLACE FUNCTION public.check_rls_status()
 RETURNS TABLE(
   table_name TEXT,
   rls_enabled BOOLEAN,
   policy_count BIGINT,
   status TEXT
-) AS $$
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''  -- CRITICAL: Set empty search path for security
+AS $$
 BEGIN
   RETURN QUERY
   SELECT 
@@ -432,10 +445,11 @@ BEGIN
       ELSE '❓ UNKNOWN'
     END as status
   FROM information_schema.tables t
-  LEFT JOIN pg_class c ON c.relname = t.table_name AND c.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')
+  LEFT JOIN pg_catalog.pg_class c ON c.relname = t.table_name 
+    AND c.relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = 'public')
   LEFT JOIN (
     SELECT tablename, COUNT(*) as policy_count
-    FROM pg_policies 
+    FROM pg_catalog.pg_policies 
     WHERE schemaname = 'public'
     GROUP BY tablename
   ) p ON p.tablename = t.table_name
@@ -443,7 +457,7 @@ BEGIN
     AND t.table_name IN ('credentials', 'vault_config', 'categories')
     AND t.table_type = 'BASE TABLE';
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 -- ============================================================================
 -- 8. INSERT DEFAULT CATEGORIES
@@ -470,7 +484,9 @@ COMMENT ON TABLE categories IS 'Categories for organizing credentials';
 
 COMMENT ON COLUMN credentials.secret_blob IS 'Encrypted JSON blob containing all secret data';
 COMMENT ON COLUMN credentials.encrypted_at IS 'Timestamp when the credential was encrypted';
-COMMENT ON COLUMN vault_config.wrapped_dek IS 'Wrapped data encryption key for vault security';
+COMMENT ON COLUMN vault_config.wrapped_dek IS 'Legacy wrapped DEK for backwards compatibility';
+COMMENT ON COLUMN vault_config.raw_dek IS 'Raw data encryption key (base64) for simplified bcrypt-only architecture';
+COMMENT ON COLUMN vault_config.bcrypt_hash IS 'Bcrypt hash of master passphrase for secure reset functionality';
 
 COMMENT ON FUNCTION get_credential_stats IS 'Get comprehensive statistics about stored credentials';
 COMMENT ON FUNCTION check_rls_status IS 'Check Row Level Security configuration status';
