@@ -4,6 +4,7 @@ import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { existsSync } from 'fs';
+import { platform } from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -89,12 +90,26 @@ if (customPort !== '4173') {
 }
 console.log('\x1b[35m🔐 Self-hosted credential management at your fingertips!\x1b[0m');
 
-// Start the preview server
-const vitePreview = spawn('npx', ['vite', 'preview', '--host', '0.0.0.0', '--port', customPort], {
-  cwd: packageRoot,
-  stdio: 'pipe',
-  shell: true
-});
+// Determine the correct command for cross-platform compatibility
+const isWindows = platform() === 'win32';
+let vitePreview;
+
+if (isWindows) {
+  // On Windows, use shell with properly escaped command string
+  const command = `npx vite preview --host 0.0.0.0 --port ${customPort}`;
+  vitePreview = spawn(command, {
+    cwd: packageRoot,
+    stdio: 'pipe',
+    shell: true
+  });
+} else {
+  // On Unix systems, use shell: false for better security
+  vitePreview = spawn('npx', ['vite', 'preview', '--host', '0.0.0.0', '--port', customPort], {
+    cwd: packageRoot,
+    stdio: 'pipe',
+    shell: false
+  });
+}
 
 // Track the actual port being used
 let actualPort = customPort;
