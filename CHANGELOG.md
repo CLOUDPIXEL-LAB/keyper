@@ -5,6 +5,79 @@ All notable changes to Keyper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.6] - 2025-08-28 - 🔧 **Critical Fix: Local Supabase Instance Support**
+
+### 🚨 **Major: Local Database Connection Support**
+- **Fixed** Critical issue preventing local Supabase instances from connecting
+  - **Removed** Overly restrictive URL validation in `createTestSupabaseClient`
+  - **Enhanced** Connection logic to accept any valid HTTP/HTTPS URL
+  - **Added** Comprehensive support for localhost, IP addresses, and custom domains
+  - **Improved** Error messages and debugging information for connection issues
+
+### 🌐 **Universal Database Compatibility**
+- **Added** Support for all local and self-hosted Supabase deployments:
+  - ✅ **Localhost**: `http://localhost:54321`, `https://localhost:8443`
+  - ✅ **IP Addresses**: `http://192.168.1.100:8000`, `http://127.0.0.1:54321`
+  - ✅ **Private Networks**: `http://10.0.0.5:54321`, `http://172.17.0.1:8000`
+  - ✅ **Docker Networks**: Complete support for all Docker IP ranges (172.16-31.*)
+  - ✅ **Custom Domains**: `https://supabase.mydomain.com`, `https://db.company.local`
+  - ✅ **Supabase Cloud**: Existing `*.supabase.co` instances continue to work seamlessly
+
+### 🛡️ **Smart Content Security Policy**
+- **Enhanced** CSP configuration with intelligent environment detection:
+  - **Development**: Fully permissive for maximum flexibility during development
+  - **Self-hosted**: Balanced security with custom domain support for production
+  - **Cloud**: Optimized security for Supabase Cloud deployments
+- **Added** Dynamic CSP selection based on configured database credentials
+- **Improved** Network support for all private IP ranges and custom domains
+
+### 🔧 **Architecture Improvements**
+- **Added** `hasCustomSupabaseCredentials()` helper function for clean configuration detection
+- **Enhanced** Connection validation with informational logging instead of blocking
+- **Improved** Error handling and debugging information throughout connection flow
+- **Refactored** Hardcoded configuration checks to use proper helper functions
+
+### 🏗️ **Technical Enhancements**
+- **Modified** `src/integrations/supabase/client.ts`:
+  - Removed restrictive hostname validation that blocked valid URLs
+  - Added comprehensive IP range support for private networks
+  - Enhanced logging for better debugging experience
+- **Updated** `src/components/SelfHostedDashboard.tsx`:
+  - Replaced hardcoded string comparisons with helper functions
+  - Improved configuration state detection
+- **Enhanced** `src/security/ContentSecurityPolicy.ts`:
+  - Added three-tier CSP system (Development, Self-hosted, Production)
+  - Comprehensive network range support for all deployment scenarios
+  - Dynamic policy selection based on configuration
+
+### ✅ **Connection Support Matrix**
+| Instance Type | Before v1.0.6 | After v1.0.6 |
+|---------------|----------------|---------------|
+| Supabase Cloud (`*.supabase.co`) | ✅ Working | ✅ Working |
+| Localhost (`http://localhost:*`) | ❌ **Blocked** | ✅ **FIXED** |
+| Local IP (`http://192.168.1.100:*`) | ❌ **Blocked** | ✅ **FIXED** |
+| Custom Domain (`https://db.company.com`) | ❌ **Blocked** | ✅ **FIXED** |
+| Docker Network (`http://172.17.*:*`) | ❌ **Blocked** | ✅ **FIXED** |
+
+### 🛡️ **Security & Compatibility**
+- ✅ **Backward Compatible**: All existing Supabase Cloud setups continue working unchanged
+- ✅ **Security Maintained**: Enhanced CSP policies maintain strong security posture
+- ✅ **No Breaking Changes**: Seamless upgrade path with zero configuration changes required
+- ✅ **Enhanced Debugging**: Better error messages and connection diagnostics
+
+### 📚 **Documentation**
+- **Added** `SUPABASE_FIXES.md` - Comprehensive documentation of all fixes applied
+- **Updated** Connection troubleshooting guides with new supported formats
+- **Enhanced** Self-hosting instructions with local instance setup examples
+
+### 🎯 **User Impact**
+- **Resolved** Connection failures for local Supabase instances
+- **Eliminated** "URL does not appear to be a Supabase instance" errors
+- **Enabled** Full self-hosting flexibility with any domain or IP configuration
+- **Improved** Developer experience with better error messages and debugging
+
+---
+
 ## [1.0.4] - 2025-08-23 - 🔐 **Major Security Overhaul: Simplified bcrypt-Only Passphrase System**
 
 ### 🚨 **Revolutionary Passphrase Reset System**
@@ -542,3 +615,22 @@ All public APIs are now considered stable and will follow semantic versioning fo
 
 **Made with ❤️ by Pink Pixel** ✨
 *Dream it, Pixel it*
+## 🔧 Supabase Local Connection Fixes Applied
+
+Fixed critical issues preventing local Supabase instances from connecting:
+
+1. **URL Validation Fixed** - Removed restrictive hostname checks in createTestSupabaseClient
+2. **CSP Updated** - Added support for local/private networks in Content Security Policy  
+3. **Configuration Detection** - Added hasCustomSupabaseCredentials() helper function
+4. **Enhanced Logging** - Better debugging for connection attempts
+
+✅ Now supports: localhost, 192.168.*, 10.*, 172.*, custom domains
+✅ Backward compatible with existing Supabase Cloud instances
+✅ No breaking changes
+
+Files modified:
+- src/integrations/supabase/client.ts
+- src/components/SelfHostedDashboard.tsx  
+- src/security/ContentSecurityPolicy.ts
+
+Applied on Thu, Aug 28, 2025  2:32:01 PM

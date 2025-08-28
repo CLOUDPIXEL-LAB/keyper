@@ -432,12 +432,13 @@ keyper --help             # Show help
 
 ### Version Information
 
-- **Current Version**: 1.0.4
-- **Release Date**: August 16, 2025
-- **Last Updated**: August 23, 2025
+- **Current Version**: 1.0.6
+- **Release Date**: August 28, 2025
+- **Last Updated**: August 28, 2025
 - **Status**: Stable Production Release 🟢
 - **License**: Apache 2.0
 - **Emergency System**: Advanced troubleshooting enabled ⚡
+- **Local Database Support**: Full compatibility with local Supabase instances 🌐
 
 ### Feature Completeness
 

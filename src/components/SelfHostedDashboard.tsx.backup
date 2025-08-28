@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import { getSupabaseCredentials, hasCustomSupabaseCredentials, getCurrentUsername, supabase, refreshSupabaseClient } from '@/integrations/supabase/client';
+import { getSupabaseCredentials, getCurrentUsername, supabase, refreshSupabaseClient } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Settings as SettingsIcon, ArrowLeft, Plus, Shield, RefreshCw, Database, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -97,8 +97,9 @@ export const SelfHostedDashboard: React.FC = () => {
 
   // Check if Supabase is configured on component mount
   useEffect(() => {
-    // Use new helper function to check if credentials are configured
-    const hasCustomCredentials = hasCustomSupabaseCredentials();
+    const credentials = getSupabaseCredentials();
+    const hasCustomCredentials = credentials.supabaseUrl !== "https://your-project.supabase.co" &&
+                                 credentials.supabaseKey !== "your-anon-key";
     setIsConfigured(hasCustomCredentials);
 
     // Always try to fetch data if configured

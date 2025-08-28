@@ -40,13 +40,6 @@ export const getSupabaseCredentials = () => {
   }
 };
 
-// Helper function to check if credentials are configured (non-default)
-export const hasCustomSupabaseCredentials = () => {
-  const credentials = getSupabaseCredentials();
-  return credentials.supabaseUrl !== DEFAULT_SUPABASE_URL && 
-         credentials.supabaseKey !== DEFAULT_SUPABASE_KEY;
-};
-
 // Function to clear custom Supabase credentials and revert to defaults
 export const clearSupabaseCredentials = () => {
   try {
@@ -134,7 +127,7 @@ export const createTestSupabaseClient = (url: string, key: string) => {
     throw new Error('URL and API key are required');
   }
 
-  // Validate URL format - but be much more flexible for local instances
+  // Validate URL format
   try {
     const urlObj = new URL(url);
     
@@ -143,34 +136,27 @@ export const createTestSupabaseClient = (url: string, key: string) => {
       throw new Error('URL must use http:// or https:// protocol');
     }
     
-    // More flexible validation - accept any valid URL
-    // Remove the restrictive hostname checks that were blocking local instances
+    // Flexible validation - allow localhost, IPs, and supabase URLs
     const hostname = urlObj.hostname.toLowerCase();
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.') || hostname.startsWith('10.') || hostname.startsWith('172.');
+    const isSupabaseCloud = hostname.includes('supabase.co') || hostname.includes('supabase.com');
+    const isCustomDomain = hostname.includes('supabase') || isLocalhost;
     
-    console.log('Supabase URL validation - accepting all valid HTTP/HTTPS URLs:', {
+    if (!isSupabaseCloud && !isCustomDomain && !isLocalhost) {
+      console.warn('URL does not appear to be a Supabase instance. Supported formats:', {
+        'Supabase Cloud': 'https://your-project.supabase.co',
+        'Self-hosted': 'http://localhost:54321 or https://supabase.yourdomain.com',
+        'Local network': 'http://192.168.1.100:54321'
+      });
+    }
+    
+    console.log('Supabase URL validation passed:', {
       url: url,
       hostname: hostname,
-      protocol: urlObj.protocol,
-      port: urlObj.port || (urlObj.protocol === 'https:' ? '443' : '80')
+      isLocalhost,
+      isSupabaseCloud,
+      isCustomDomain
     });
-    
-    // Only provide informational logging, don't block any URLs
-    if (hostname.includes('supabase.co') || hostname.includes('supabase.com')) {
-      console.log('✅ Detected Supabase Cloud instance');
-    } else if (hostname === 'localhost' || hostname === '127.0.0.1' || 
-               hostname.startsWith('192.168.') || hostname.startsWith('10.') || 
-               hostname.startsWith('172.16.') || hostname.startsWith('172.17.') || 
-               hostname.startsWith('172.18.') || hostname.startsWith('172.19.') || 
-               hostname.startsWith('172.20.') || hostname.startsWith('172.21.') || 
-               hostname.startsWith('172.22.') || hostname.startsWith('172.23.') || 
-               hostname.startsWith('172.24.') || hostname.startsWith('172.25.') || 
-               hostname.startsWith('172.26.') || hostname.startsWith('172.27.') || 
-               hostname.startsWith('172.28.') || hostname.startsWith('172.29.') || 
-               hostname.startsWith('172.30.') || hostname.startsWith('172.31.')) {
-      console.log('✅ Detected local/private network instance');
-    } else {
-      console.log('✅ Detected custom domain instance');
-    }
     
   } catch (error) {
     if (error instanceof TypeError) {
@@ -179,7 +165,7 @@ export const createTestSupabaseClient = (url: string, key: string) => {
     throw error;
   }
 
-  // Create test client - removed all URL restrictions
+  // Create test client
   return createClient<Database>(url, key, {
     auth: {
       autoRefreshToken: false,

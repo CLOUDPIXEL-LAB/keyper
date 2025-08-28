@@ -232,10 +232,7 @@ Keyper works as a Progressive Web App for a native app experience!
 
 **❌ "Connection failed: Database connection failed"**
 
-* Verify URL format - now supports any valid HTTP/HTTPS URL (v1.0.6+)
-  * ✅ Cloud: `https://your-project.supabase.co`
-  * ✅ Local: `http://localhost:54321`, `http://192.168.1.100:8000`
-  * ✅ Custom: `https://supabase.mydomain.com`
+* Verify Supabase URL format: `https://your-project.supabase.co`
 * Use **anon/public** key, not service\_role
 * Check that your Supabase project is active
 
@@ -253,7 +250,7 @@ Keyper works as a Progressive Web App for a native app experience!
 **❌ Can't enter new credentials after clearing configuration**
 
 * Refresh the page after clearing configuration
-* Ensure you're using a valid HTTP/HTTPS URL (any format supported in v1.0.6+)
+* Ensure you're typing in the correct URL format: `https://your-project.supabase.co`
 * Try clearing browser cache if form inputs appear stuck
 
 **❌ Categories dropdown is empty when using custom username**

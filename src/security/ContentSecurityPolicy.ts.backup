@@ -4,8 +4,6 @@
  * Implements comprehensive CSP headers to protect against XSS attacks,
  * code injection, and other web security vulnerabilities.
  * 
- * Updated for flexible self-hosted Supabase support.
- * 
  * Made with ❤️ by Pink Pixel ✨
  */
 
@@ -30,7 +28,7 @@ export interface CSPConfig {
 }
 
 /**
- * Production CSP configuration - Flexible for self-hosted instances
+ * Production CSP configuration - Most restrictive
  */
 export const PRODUCTION_CSP: CSPConfig = {
   'default-src': ["'self'"],
@@ -58,57 +56,9 @@ export const PRODUCTION_CSP: CSPConfig = {
   ],
   'connect-src': [
     "'self'",
-    // Supabase Cloud instances
-    "https://*.supabase.co", 
-    "wss://*.supabase.co",
-    "https://api.supabase.io",
-    // Self-hosted/local Supabase instances support
-    "http://localhost:*",     // Local development
-    "https://localhost:*",    // Local HTTPS
-    "ws://localhost:*",       // Local WebSocket
-    "wss://localhost:*",      // Local secure WebSocket
-    "http://127.0.0.1:*",     // Explicit localhost IP
-    "https://127.0.0.1:*",    // Explicit localhost IP HTTPS
-    "http://192.168.*:*",     // Local network range
-    "https://192.168.*:*",    // Local network range HTTPS
-    "http://10.*:*",          // Private network range
-    "https://10.*:*",         // Private network range HTTPS
-    "http://172.16.*:*",      // Private network range
-    "https://172.16.*:*",     // Private network range HTTPS
-    "http://172.17.*:*",      // Docker network range
-    "https://172.17.*:*",     // Docker network range HTTPS
-    "http://172.18.*:*",      // Docker network range
-    "https://172.18.*:*",     // Docker network range HTTPS
-    "http://172.19.*:*",      // Docker network range
-    "https://172.19.*:*",     // Docker network range HTTPS
-    "http://172.20.*:*",      // Docker network range
-    "https://172.20.*:*",     // Docker network range HTTPS
-    "http://172.21.*:*",      // Docker network range
-    "https://172.21.*:*",     // Docker network range HTTPS
-    "http://172.22.*:*",      // Docker network range
-    "https://172.22.*:*",     // Docker network range HTTPS
-    "http://172.23.*:*",      // Docker network range
-    "https://172.23.*:*",     // Docker network range HTTPS
-    "http://172.24.*:*",      // Docker network range
-    "https://172.24.*:*",     // Docker network range HTTPS
-    "http://172.25.*:*",      // Docker network range
-    "https://172.25.*:*",     // Docker network range HTTPS
-    "http://172.26.*:*",      // Docker network range
-    "https://172.26.*:*",     // Docker network range HTTPS
-    "http://172.27.*:*",      // Docker network range
-    "https://172.27.*:*",     // Docker network range HTTPS
-    "http://172.28.*:*",      // Docker network range
-    "https://172.28.*:*",     // Docker network range HTTPS
-    "http://172.29.*:*",      // Docker network range
-    "https://172.29.*:*",     // Docker network range HTTPS
-    "http://172.30.*:*",      // Docker network range
-    "https://172.30.*:*",     // Docker network range HTTPS
-    "http://172.31.*:*",      // Docker network range
-    "https://172.31.*:*",     // Docker network range HTTPS
-    // Custom domain support for self-hosted Supabase
-    "https://*",              // Allow any HTTPS connection for custom domains
-    // WebSocket support for custom domains
-    "wss://*",                // Allow any secure WebSocket connection
+    "https://*.supabase.co", // Supabase API endpoints
+    "wss://*.supabase.co",  // Supabase WebSocket connections
+    "https://api.supabase.io", // Supabase management API
   ],
   'media-src': ["'self'"],
   'object-src': ["'none'"], // Prevent Flash, Java, etc.
@@ -157,19 +107,12 @@ export const DEVELOPMENT_CSP: CSPConfig = {
   ],
   'connect-src': [
     "'self'",
-    // Local development
     "http://localhost:*",
     "ws://localhost:*",
     "wss://localhost:*",
-    // Supabase Cloud
     "https://*.supabase.co",
     "wss://*.supabase.co",
     "https://api.supabase.io",
-    // Self-hosted development support - be permissive
-    "http://*",
-    "https://*",
-    "ws://*",
-    "wss://*",
   ],
   'media-src': ["'self'", "http://localhost:*"],
   'object-src': ["'none'"],
@@ -186,54 +129,6 @@ export const DEVELOPMENT_CSP: CSPConfig = {
 };
 
 /**
- * Self-hosted CSP configuration - Balanced security for production self-hosting
- */
-export const SELF_HOSTED_CSP: CSPConfig = {
-  'default-src': ["'self'"],
-  'script-src': [
-    "'self'",
-    "'unsafe-inline'", // Required for Vite in production builds
-    "'unsafe-eval'",   // Required for some React/Vite functionality
-  ],
-  'style-src': [
-    "'self'",
-    "'unsafe-inline'", // Required for styled-components and CSS-in-JS
-    "https://fonts.googleapis.com",
-  ],
-  'img-src': [
-    "'self'",
-    "data:", // For base64 encoded images
-    "blob:", // For generated images
-    "https:", // Allow HTTPS images
-    "http:", // Allow HTTP images for local development
-  ],
-  'font-src': [
-    "'self'",
-    "https://fonts.gstatic.com",
-    "data:", // For base64 encoded fonts
-  ],
-  'connect-src': [
-    "'self'",
-    // Allow all HTTP/HTTPS connections for maximum self-hosting flexibility
-    "http://*",
-    "https://*",
-    "ws://*",
-    "wss://*",
-  ],
-  'media-src': ["'self'"],
-  'object-src': ["'none'"], // Prevent Flash, Java, etc.
-  'child-src': ["'self'"],
-  'worker-src': [
-    "'self'",
-    "blob:", // For Web Workers
-  ],
-  'frame-ancestors': ["'none'"], // Prevent clickjacking
-  'form-action': ["'self'"],
-  'base-uri': ["'self'"],
-  'manifest-src': ["'self'"],
-};
-
-/**
  * Convert CSP config object to CSP header string
  */
 export function buildCSPHeader(config: CSPConfig): string {
@@ -247,16 +142,7 @@ export function buildCSPHeader(config: CSPConfig): string {
  */
 export function getCSPConfig(): CSPConfig {
   const isDevelopment = import.meta.env.DEV || process.env.NODE_ENV === 'development';
-  const isSelfHosted = localStorage.getItem('keyper-supabase-url') && 
-                       localStorage.getItem('keyper-supabase-url') !== "https://your-project.supabase.co";
-  
-  if (isDevelopment) {
-    return DEVELOPMENT_CSP;
-  } else if (isSelfHosted) {
-    return SELF_HOSTED_CSP;
-  } else {
-    return PRODUCTION_CSP;
-  }
+  return isDevelopment ? DEVELOPMENT_CSP : PRODUCTION_CSP;
 }
 
 /**
@@ -363,44 +249,41 @@ export function validateCSP(): {
 
   // Check for unsafe directives
   if (config['script-src'].includes("'unsafe-inline'")) {
-    warnings.push("'unsafe-inline' detected in script-src - consider using nonces or hashes");
+    warnings.push("'unsafe-inline' in script-src reduces XSS protection");
+    recommendations.push("Consider using nonces or hashes instead of 'unsafe-inline'");
   }
 
   if (config['script-src'].includes("'unsafe-eval'")) {
-    warnings.push("'unsafe-eval' detected in script-src - required for Vite but increases XSS risk");
+    warnings.push("'unsafe-eval' in script-src allows code evaluation");
+    recommendations.push("Avoid 'unsafe-eval' if possible, use alternatives for dynamic code");
   }
 
-  // Check for wildcard connections
-  if (config['connect-src'].includes('https://*') || config['connect-src'].includes('http://*')) {
-    recommendations.push('Wildcard connections detected - consider restricting to specific domains when possible');
+  // Check for overly permissive sources
+  if (config['default-src'].includes('*')) {
+    warnings.push("Wildcard (*) in default-src is overly permissive");
+    recommendations.push("Specify explicit sources instead of using wildcards");
   }
 
-  const isValid = warnings.length === 0;
+  // Check for missing important directives
+  if (config['object-src'][0] !== "'none'") {
+    warnings.push("object-src should be set to 'none' to prevent plugin execution");
+    recommendations.push("Set object-src to 'none' unless plugins are required");
+  }
+
+  if (config['frame-ancestors'][0] !== "'none'") {
+    warnings.push("frame-ancestors should be restrictive to prevent clickjacking");
+    recommendations.push("Consider setting frame-ancestors to 'none' or specific origins");
+  }
 
   return {
-    isValid,
+    isValid: warnings.length === 0,
     warnings,
-    recommendations
+    recommendations,
   };
 }
 
 /**
- * Get CSP configuration for specific environment
- */
-export function getCSPForEnvironment(env: 'development' | 'production' | 'self-hosted'): CSPConfig {
-  switch (env) {
-    case 'development':
-      return DEVELOPMENT_CSP;
-    case 'self-hosted':
-      return SELF_HOSTED_CSP;
-    case 'production':
-    default:
-      return PRODUCTION_CSP;
-  }
-}
-
-/**
- * Setup CSP violation reporting
+ * CSP violation reporting (for development and monitoring)
  */
 export function setupCSPReporting(): void {
   // Listen for CSP violations
