@@ -8,18 +8,21 @@ import { existsSync } from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Multi-colored ASCII Art Banner for Keyper
+// Beautiful KEYPER ASCII Art Banner with Gradient Colors
 const banner = `
-\x1b[36m╔═══════════════════════════════════════════════════════════════════════════╗\x1b[0m
-\x1b[36m║\x1b[0m \x1b[35m🔐 \x1b[1;32mK\x1b[1;33mE\x1b[1;34mY\x1b[1;35mP\x1b[1;36mE\x1b[1;31mR\x1b[0m \x1b[32m- Secure Credential Management\x1b[0m                    \x1b[36m║\x1b[0m
-\x1b[36m║\x1b[0m                                                                         \x1b[36m║\x1b[0m
-\x1b[36m║\x1b[0m \x1b[33m✨ Your Credentials. Your Security. Your Rules.\x1b[0m                      \x1b[36m║\x1b[0m
-\x1b[36m║\x1b[0m \x1b[32m🔒 Store API keys, passwords, secrets & more securely\x1b[0m                \x1b[36m║\x1b[0m
-\x1b[36m║\x1b[0m \x1b[34m🏷️  Organize with tags, categories & smart search\x1b[0m                   \x1b[36m║\x1b[0m
-\x1b[36m║\x1b[0m \x1b[35m📱 Progressive Web App with mobile support\x1b[0m                        \x1b[36m║\x1b[0m
-\x1b[36m║\x1b[0m                                                                         \x1b[36m║\x1b[0m
-\x1b[36m║\x1b[0m \x1b[33m💖 Made with ❤️  by Pink Pixel - Dream it, Pixel it ✨\x1b[0m             \x1b[36m║\x1b[0m
-\x1b[36m╚═══════════════════════════════════════════════════════════════════════════╝\x1b[0m
+\x1b[96m██╗  ██╗\x1b[94m███████╗\x1b[36m██╗   ██╗\x1b[34m██████╗ \x1b[96m███████╗\x1b[94m██████╗ \x1b[0m
+\x1b[96m██║ ██╔╝\x1b[94m██╔════╝\x1b[36m╚██╗ ██╔╝\x1b[34m██╔══██╗\x1b[96m██╔════╝\x1b[94m██╔══██╗\x1b[0m
+\x1b[96m█████╔╝ \x1b[94m█████╗  \x1b[36m ╚████╔╝ \x1b[34m██████╔╝\x1b[96m█████╗  \x1b[94m██████╔╝\x1b[0m
+\x1b[96m██╔═██╗ \x1b[94m██╔══╝  \x1b[36m  ╚██╔╝  \x1b[34m██╔═══╝ \x1b[96m██╔══╝  \x1b[94m██╔══██╗\x1b[0m
+\x1b[96m██║  ██╗\x1b[94m███████╗\x1b[36m   ██║   \x1b[34m██║     \x1b[96m███████╗\x1b[94m██║  ██║\x1b[0m
+\x1b[96m╚═╝  ╚═╝\x1b[94m╚══════╝\x1b[36m   ╚═╝   \x1b[34m╚═╝     \x1b[96m╚══════╝\x1b[94m╚═╝  ╚═╝\x1b[0m
+
+\x1b[36m✨ Your Credentials. Your Security. Your Rules.\x1b[0m
+\x1b[32m🔒 Store API keys, passwords, secrets & more securely\x1b[0m
+\x1b[34m🏷️  Organize with tags, categories & smart search\x1b[0m
+\x1b[35m📱 Progressive Web App with mobile support\x1b[0m
+
+\x1b[33m💖 Made with ❤️  by Pink Pixel - Dream it, Pixel it ✨\x1b[0m
 `;
 
 console.log(banner);
