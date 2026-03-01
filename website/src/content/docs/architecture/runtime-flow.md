@@ -1,0 +1,38 @@
+---
+title: Runtime Flow
+description: Step-by-step application behavior from load to credential operations.
+---
+
+## Startup flow
+
+1. `initializeSecurity()` runs from `main.tsx`.
+2. Providers are created in `App.tsx`.
+3. Router renders `SelfHostedDashboard` for `/`.
+
+## Configuration flow
+
+1. `hasCustomSupabaseCredentials()` checks local storage.
+2. If missing, the database configuration UI is shown.
+3. Credentials are tested and then persisted to local storage.
+4. Supabase client is refreshed with new credentials.
+
+## Vault flow
+
+1. `PassphraseGate` checks whether user is first-time (`vault_config` exists or not).
+2. First-time: creates vault (`raw_dek` + `bcrypt_hash`).
+3. Existing user: verifies passphrase via bcrypt for new format or unwraps legacy DEK.
+4. On unlock, dashboard interactions can encrypt/decrypt secrets.
+
+## Credential flow
+
+1. Add/edit modal captures metadata and secret fields.
+2. Secret fields are encrypted via `useEncryption().encryptCredential()`.
+3. Row is inserted/updated in `credentials` with `secret_blob` and `encrypted_at`.
+4. Edit flow can decrypt `secret_blob` via `useEncryption().decryptCredential()` to prefill fields.
+5. The current detail modal still renders legacy plaintext fields (`password`, `api_key`, etc.) and does not yet decrypt `secret_blob` for display.
+
+## Auto-lock behavior
+
+- Vault auto-lock timeout defaults to 15 minutes.
+- Timer resets on vault activity.
+- Lock clears in-memory key references and returns app to locked state.

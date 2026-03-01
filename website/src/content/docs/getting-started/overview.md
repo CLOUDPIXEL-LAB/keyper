@@ -1,0 +1,32 @@
+---
+title: Overview
+description: What Keyper is, who it is for, and how the app is structured.
+---
+
+Keyper is a self-hosted credential manager built as a browser-first application with client-side encryption and Supabase persistence.
+
+## Product goals
+
+- Keep secrets under user control through self-hosted data storage.
+- Encrypt sensitive credential values before they reach the database.
+- Support multiple users on the same instance through `user_id` segmentation.
+- Provide a modern PWA experience with installability and fast startup.
+
+## Core runtime shape
+
+- Frontend framework: React + TypeScript + Vite.
+- UI shell: single-route app (`/`) with lazy-loaded dashboard modules.
+- Data backend: Supabase (Postgres) using direct client SDK calls.
+- Security gate: passphrase-based vault unlock before secret operations.
+
+## Primary modules
+
+- App bootstrap: `src/main.tsx`, `src/App.tsx`
+- Main shell: `src/components/SelfHostedDashboard.tsx`
+- Vault gate: `src/components/PassphraseGate.tsx`
+- Crypto and vault: `src/crypto/*`, `src/services/VaultManager.ts`, `src/services/SecureVault.ts`
+- Supabase integration: `src/integrations/supabase/client.ts`
+
+## Important behavioral note
+
+Current application behavior is driven by active dashboard components (`AddCredentialModal`, `EditCredentialModal`, `CredentialDetailModal`). Some enhanced encrypted components exist in the codebase but are not the primary path in the current UI.

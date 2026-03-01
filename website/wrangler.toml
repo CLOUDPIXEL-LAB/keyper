@@ -1,0 +1,6 @@
+name = "keyper-docs"
+compatibility_date = "2025-12-01"
+pages_build_output_dir = "dist"
+
+# Deploy with:
+# wrangler pages deploy dist --project-name keyper-docs

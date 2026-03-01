@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --sl-font: 'Manrope', 'Segoe UI', sans-serif;
+  --sl-color-accent-low: #052531;
+  --sl-color-accent: #06b6d4;
+  --sl-color-accent-high: #67e8f9;
+  --sl-color-text-accent: #67e8f9;
+  --sl-color-white: #ecfeff;
+  --sl-color-gray-1: #d1f5fb;
+  --sl-color-gray-2: #9ac3cf;
+  --sl-color-gray-3: #6f96a2;
+  --sl-color-gray-4: #45606d;
+  --sl-color-gray-5: #253846;
+  --sl-color-gray-6: #162631;
+  --sl-color-black: #070c13;
+}
+
+html {
+  background: radial-gradient(circle at 20% 0%, #0b2335 0%, #070c13 45%);
+}
+
+[data-theme='light'] {
+  --sl-color-accent-low: #d8f7fb;
+  --sl-color-accent: #0891b2;
+  --sl-color-accent-high: #0e7490;
+}
