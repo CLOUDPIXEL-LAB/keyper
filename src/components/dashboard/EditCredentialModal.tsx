@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useEncryption } from '@/hooks/useVault';
 import {
   X,
   Plus,
@@ -43,6 +44,8 @@ export const EditCredentialModal = ({
     password: string;
     api_key: string;
     secret_value: string;
+    token_value: string;
+    certificate_data: string;
     url: string;
     category: string;
     notes: string;
@@ -56,6 +59,8 @@ export const EditCredentialModal = ({
     password: '',
     api_key: '',
     secret_value: '',
+    token_value: '',
+    certificate_data: '',
     url: '',
     category: '',
     notes: '',
@@ -65,26 +70,47 @@ export const EditCredentialModal = ({
   const [newTag, setNewTag] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { encryptCredential, decryptCredential, isUnlocked } = useEncryption();
 
   useEffect(() => {
     if (credential) {
-      setFormData({
-        title: credential.title,
-        description: credential.description || '',
-        credential_type: credential.credential_type,
-        priority: credential.priority,
-        username: credential.username || '',
-        password: credential.password || '',
-        api_key: credential.api_key || '',
-        secret_value: credential.secret_value || '',
-        url: credential.url || '',
-        category: credential.category || '',
-        notes: credential.notes || '',
-        expires_at: credential.expires_at ? credential.expires_at.split('T')[0] : '',
-      });
-      setTags(credential.tags || []);
+      const populateForm = async () => {
+        let decryptedSecrets: Record<string, string> = {};
+        if (credential.secret_blob && isUnlocked) {
+          try {
+            const result = await decryptCredential(credential.secret_blob);
+            decryptedSecrets = {
+              password: result.password || '',
+              api_key: result.api_key || '',
+              secret_value: result.secret_value || '',
+              token_value: result.token_value || '',
+              certificate_data: result.certificate_data || '',
+            };
+          } catch (e) {
+            console.error('Failed to decrypt credential secrets for editing', e);
+          }
+        }
+        setFormData({
+          title: credential.title,
+          description: credential.description || '',
+          credential_type: credential.credential_type,
+          priority: credential.priority,
+          username: credential.username || '',
+          password: decryptedSecrets.password ?? '',
+          api_key: decryptedSecrets.api_key ?? '',
+          secret_value: decryptedSecrets.secret_value ?? '',
+          token_value: decryptedSecrets.token_value ?? '',
+          certificate_data: decryptedSecrets.certificate_data ?? '',
+          url: credential.url || '',
+          category: credential.category || '',
+          notes: credential.notes || '',
+          expires_at: credential.expires_at ? credential.expires_at.split('T')[0] : '',
+        });
+        setTags(credential.tags || []);
+      };
+      populateForm();
     }
-  }, [credential]);
+  }, [credential, isUnlocked]);
 
   if (!credential) return null;
 
@@ -93,11 +119,41 @@ export const EditCredentialModal = ({
     setLoading(true);
 
     try {
+      // Encrypt any sensitive data that was entered
+      const hasSensitiveData = !!(formData.password.trim() || formData.api_key.trim() ||
+                                   formData.secret_value.trim() || formData.token_value.trim() ||
+                                   formData.certificate_data.trim());
+
+      let newSecretBlob = credential.secret_blob ?? null;
+      let newEncryptedAt = credential.encrypted_at ?? null;
+
+      if (hasSensitiveData) {
+        const encrypted = await encryptCredential({
+          password: formData.password.trim() || undefined,
+          api_key: formData.api_key.trim() || undefined,
+          secret_value: formData.secret_value.trim() || undefined,
+          token_value: formData.token_value.trim() || undefined,
+          certificate_data: formData.certificate_data.trim() || undefined,
+        });
+        newSecretBlob = encrypted.secret_blob;
+        newEncryptedAt = encrypted.encrypted_at;
+      }
+
+      // Only include valid DB columns — never spread formData directly
       const updateData = {
-        ...formData,
-        tags,
+        title: formData.title.trim(),
+        description: formData.description.trim() || null,
+        credential_type: formData.credential_type,
+        priority: formData.priority,
+        username: formData.username.trim() || null,
+        url: formData.url.trim() || null,
+        category: formData.category || null,
+        notes: formData.notes.trim() || null,
         expires_at: formData.expires_at ? new Date(formData.expires_at).toISOString() : null,
+        tags,
         updated_at: new Date().toISOString(),
+        secret_blob: newSecretBlob,
+        encrypted_at: newEncryptedAt,
       };
 
       const { error } = await supabase
@@ -117,7 +173,7 @@ export const EditCredentialModal = ({
     } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || "Failed to update credential",
+        description: (error as Error).message || "Failed to update credential",
         variant: "destructive",
       });
     } finally {
@@ -232,7 +288,7 @@ export const EditCredentialModal = ({
               </div>
             )}
 
-            {(formData.credential_type === 'secret' || formData.credential_type === 'token') && (
+            {formData.credential_type === 'secret' && (
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300">Secret Value</label>
                 <Input
@@ -240,6 +296,31 @@ export const EditCredentialModal = ({
                   value={formData.secret_value}
                   onChange={(e) => setFormData({ ...formData, secret_value: e.target.value })}
                   className="bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+            )}
+
+            {formData.credential_type === 'token' && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Token Value</label>
+                <Input
+                  type="password"
+                  value={formData.token_value}
+                  onChange={(e) => setFormData({ ...formData, token_value: e.target.value })}
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+            )}
+
+            {formData.credential_type === 'certificate' && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Certificate Data</label>
+                <Textarea
+                  value={formData.certificate_data}
+                  onChange={(e) => setFormData({ ...formData, certificate_data: e.target.value })}
+                  className="bg-gray-800 border-gray-700 text-white font-mono text-xs"
+                  rows={5}
+                  placeholder="Paste certificate content here"
                 />
               </div>
             )}

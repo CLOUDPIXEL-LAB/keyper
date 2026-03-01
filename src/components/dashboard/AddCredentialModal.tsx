@@ -22,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useEncryption } from '@/hooks/useVault';
 import { supabase, getCurrentUsername } from '@/integrations/supabase/client';
 import { X, Plus } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Category } from '../SelfHostedDashboard';
 
 interface AddCredentialModalProps {
@@ -58,6 +59,7 @@ export const AddCredentialModal = ({
   });
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+  const [noExpiration, setNoExpiration] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { encryptCredential, isUnlocked } = useEncryption();
@@ -160,6 +162,8 @@ export const AddCredentialModal = ({
       password: '',
       api_key: '',
       secret_value: '',
+      token_value: '',
+      certificate_data: '',
       url: '',
       category: '',
       notes: '',
@@ -167,6 +171,7 @@ export const AddCredentialModal = ({
     });
     setTags([]);
     setTagInput('');
+    setNoExpiration(false);
   };
 
   const addTag = () => {
@@ -310,13 +315,28 @@ export const AddCredentialModal = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="expires_at" className="text-white">Expires At</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="expires_at" className="text-white">Expires At</Label>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="no_expiration"
+                    checked={noExpiration}
+                    onCheckedChange={(checked) => {
+                      setNoExpiration(!!checked);
+                      if (checked) setFormData({ ...formData, expires_at: '' });
+                    }}
+                    className="border-gray-500 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                  />
+                  <Label htmlFor="no_expiration" className="text-gray-400 text-xs cursor-pointer">No expiration</Label>
+                </div>
+              </div>
               <Input
                 id="expires_at"
                 type="date"
                 value={formData.expires_at}
                 onChange={(e) => setFormData({...formData, expires_at: e.target.value})}
-                className="bg-gray-800 border-gray-700 text-white"
+                disabled={noExpiration}
+                className="bg-gray-800 border-gray-700 text-white disabled:opacity-40 disabled:cursor-not-allowed"
               />
             </div>
           </div>
