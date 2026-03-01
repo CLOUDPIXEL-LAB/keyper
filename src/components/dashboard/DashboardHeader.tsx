@@ -2,7 +2,7 @@
 import React from 'react';
 import { User } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
-import { Plus, Shield, RefreshCw } from 'lucide-react';
+import { Plus, Shield, RefreshCw, BookOpen } from 'lucide-react';
 
 interface DashboardHeaderProps {
   user: User;
@@ -19,7 +19,7 @@ export const DashboardHeader = ({ user, onAddCredential, onRefresh }: DashboardH
           <div className="flex items-center space-x-3">
             <div className="p-1 bg-cyan-500/20 rounded-lg border border-cyan-500/30">
               <img
-                src="/public/logo.png"
+                src="/logo.png"
                 alt="Keyper Logo"
                 className="h-11 w-11 rounded-full object-contain"
               />
@@ -44,6 +44,18 @@ export const DashboardHeader = ({ user, onAddCredential, onRefresh }: DashboardH
             >
               <RefreshCw className="h-4 w-4" />
               <span className="hidden sm:inline">Refresh</span>
+            </Button>
+
+            <Button asChild variant="outline" size="sm" className="flex items-center gap-2">
+              <a
+                href="https://keyper-docs.pinkpixel.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open Keyper documentation website"
+              >
+                <BookOpen className="h-4 w-4" />
+                <span className="hidden sm:inline">Docs</span>
+              </a>
             </Button>
 
             <Button
