@@ -45,9 +45,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `electron:build:linux` / `electron:build:win` / `electron:build:mac` – platform-specific builds
 - **Added** `electron-builder.yml` – electron-builder configuration
   - Linux: AppImage (x64/arm64), deb (x64/arm64)
-  - Windows: NSIS installer + portable exe (x64)
   - macOS: DMG + zip (Universal / Intel + Apple Silicon)
 - **Added** `electron` `^33.3.0` and `electron-builder` `^25.1.8` to devDependencies
+
+### 🌐 **Website & Downloads**
+
+- **Added** direct download links for Linux desktop installers (AppImage, deb x86_64, deb ARM64) hosted on Cloudflare R2 via the [Keyper docs site](https://keyper.pinkpixel.dev/getting-started/install-and-run/)
 
 ### 🔧 **Housekeeping**
 

@@ -7,20 +7,17 @@ description: Install Keyper locally and start the app.
 
 ### Option 1: Download a desktop app (no Node required)
 
-Pre-built installers are available on the [GitHub Releases](https://github.com/pinkpixel-dev/keyper/releases/latest) page.
-
-| Platform | Package       | Notes                       |
-| -------- | ------------- | --------------------------- |
-| Linux    | `.AppImage`   | `chmod +x` then run         |
-| Linux    | `.deb`        | `sudo dpkg -i keyper_*.deb` |
-| Windows  | `.exe` (NSIS) | Standard installer wizard   |
-| macOS    | `.dmg`        | Drag to Applications        |
+| Platform              | Package         | Download                                                                                             |
+| --------------------- | --------------- | ---------------------------------------------------------------------------------------------------- |
+| Linux                 | AppImage        | [Keyper-1.1.0.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.0.AppImage)   |
+| Linux (Debian/Ubuntu) | `.deb` (x86_64) | [keyper_1.1.0_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.0_amd64.deb) |
+| Linux (Debian/Ubuntu) | `.deb` (ARM64)  | [keyper_1.1.0_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.0_arm64.deb) |
 
 **Linux AppImage quick start:**
 
 ```bash
-chmod +x Keyper-1.1.0-x86_64.AppImage
-./Keyper-1.1.0-x86_64.AppImage
+chmod +x Keyper-1.1.0.AppImage
+./Keyper-1.1.0.AppImage
 ```
 
 **Linux .deb quick start:**

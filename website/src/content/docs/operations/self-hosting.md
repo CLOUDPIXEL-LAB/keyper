@@ -78,7 +78,7 @@ keyper --port 4173
 
 ### Electron desktop app
 
-See [Install and Run](/getting-started/install-and-run/) for download links and install instructions for the desktop installer packages (AppImage, deb, Windows exe, macOS dmg).
+See [Install and Run](/getting-started/install-and-run/) for download links and install instructions for the desktop installer packages (AppImage, deb, macOS dmg).
 
 ## Operational recommendations
 

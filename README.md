@@ -25,16 +25,13 @@ _A modern, secure, self-hosted credential management application for storing and
 
 ## 📥 Download
 
-| Platform   | Package                                                                                 | Architecture                      |
-| ---------- | --------------------------------------------------------------------------------------- | --------------------------------- |
-| 🐧 Linux   | [Keyper-1.1.0-x86_64.AppImage](https://github.com/pinkpixel-dev/keyper/releases/latest) | x86_64                            |
-| 🐧 Linux   | [Keyper-1.1.0-arm64.AppImage](https://github.com/pinkpixel-dev/keyper/releases/latest)  | ARM64                             |
-| 🐧 Linux   | [keyper_1.1.0_amd64.deb](https://github.com/pinkpixel-dev/keyper/releases/latest)       | x86_64                            |
-| 🐧 Linux   | [keyper_1.1.0_arm64.deb](https://github.com/pinkpixel-dev/keyper/releases/latest)       | ARM64                             |
-| 🪟 Windows | [Keyper-Setup-1.1.0.exe](https://github.com/pinkpixel-dev/keyper/releases/latest)       | x64 NSIS installer                |
-| 🍎 macOS   | [Keyper-1.1.0.dmg](https://github.com/pinkpixel-dev/keyper/releases/latest)             | Universal (Intel + Apple Silicon) |
+Desktop installers are available on the **[Keyper website](https://keyper.pinkpixel.dev/getting-started/install-and-run/)**.
 
-> **Note**: macOS build requires building on macOS. Windows and Linux builds are provided via GitHub Actions on every release.
+| Platform | Package         | Download                                                                                             |
+| -------- | --------------- | ---------------------------------------------------------------------------------------------------- |
+| 🐧 Linux | AppImage        | [Keyper-1.1.0.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.0.AppImage)   |
+| 🐧 Linux | `.deb` (x86_64) | [keyper_1.1.0_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.0_amd64.deb) |
+| 🐧 Linux | `.deb` (ARM64)  | [keyper_1.1.0_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.0_arm64.deb) |
 
 ---
 
@@ -216,7 +213,7 @@ docker run -d -p 8080:80 --name keyper --restart unless-stopped keyper
 
 ### Method 5: ⚡ Electron Desktop App
 
-Run Keyper as a native desktop app on **Linux, Windows, or macOS**!
+Run Keyper as a native desktop app on **Linux or macOS**!
 
 #### Preview (no packaging)
 
@@ -234,8 +231,7 @@ npm run electron:preview
 npm run electron:build
 
 # platform-specific
-npm run electron:build:linux   # AppImage, deb, rpm
-npm run electron:build:win     # NSIS installer + portable
+npm run electron:build:linux   # AppImage + deb
 npm run electron:build:mac     # DMG + zip (Intel & Apple Silicon)
 ```
 

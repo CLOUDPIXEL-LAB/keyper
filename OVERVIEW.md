@@ -183,7 +183,7 @@ keyper/
 │   └── tsconfig.json         # CommonJS TypeScript config
 ├── 📁 electron-dist/          # Compiled Electron output (git-ignored)
 ├── 📁 dist-electron/          # electron-builder output — installers (git-ignored)
-├── 📄 electron-builder.yml    # Packager config (AppImage, deb, NSIS, DMG)
+├── 📄 electron-builder.yml    # Packager config (AppImage, deb, DMG)
 ├── 📄 Dockerfile              # Multi-stage Node→nginx image
 ├── 📄 nginx.conf              # SPA routing, WASM MIME, security headers
 ├── 📄 docker-compose.yml      # Single-command stack launch
@@ -400,7 +400,7 @@ workbox: {
 2. **Direct Download**: GitHub releases with pre-built desktop installers
 3. **Docker Image**: Containerized deployment (nginx-based, production-ready)
 4. **Cloud Deployment**: Cloudflare Pages, Netlify, Vercel support
-5. **Electron Desktop App**: Native app for Linux, Windows, and macOS
+5. **Electron Desktop App**: Native app for Linux and macOS
 
 ### CLI Integration
 
@@ -436,18 +436,16 @@ The container serves the compiled Vite/React SPA on port 80 internally. No Node.
 
 Pre-built installers are available on the [GitHub Releases](https://github.com/pinkpixel-dev/keyper/releases) page:
 
-| Platform | Format                  | Architecture  |
-| -------- | ----------------------- | ------------- |
-| Linux    | AppImage                | x86_64, ARM64 |
-| Linux    | `.deb`                  | x86_64, ARM64 |
-| Windows  | NSIS installer (`.exe`) | x64           |
-| macOS    | DMG                     | Universal     |
+| Platform | Format   | Architecture  |
+| -------- | -------- | ------------- |
+| Linux    | AppImage | x86_64, ARM64 |
+| Linux    | `.deb`   | x86_64, ARM64 |
+| macOS    | DMG      | Universal     |
 
 To build from source:
 
 ```bash
 npm run electron:build:linux   # AppImage + deb
-npm run electron:build:win     # NSIS installer
 npm run electron:build:mac     # DMG (must run on macOS)
 ```
 
