@@ -54,3 +54,4 @@ credentials-to-remove.txt
 docs/SECURITY_IMPROVEMENT_TASKS.md
 test-passphrase-reset.ts
 verify-deployment.js
+keyper-audit.md
