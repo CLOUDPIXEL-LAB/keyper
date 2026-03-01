@@ -228,7 +228,12 @@ export const EditCredentialModal = ({
               <label className="text-sm font-medium text-gray-300">Type *</label>
               <select
                 value={formData.credential_type}
-                onChange={(e) => setFormData({ ...formData, credential_type: e.target.value as any })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    credential_type: e.target.value as Credential['credential_type'],
+                  })
+                }
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white"
                 required
               >
@@ -343,7 +348,12 @@ export const EditCredentialModal = ({
               <label className="text-sm font-medium text-gray-300">Priority</label>
               <select
                 value={formData.priority}
-                onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    priority: e.target.value as Credential['priority'],
+                  })
+                }
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white"
               >
                 <option value="low">Low</option>

@@ -102,9 +102,11 @@ export async function getVaultConfig(): Promise<VaultConfig | null> {
     console.error('💥 Error getting vault config:', error);
     
     // If it's a network/connection error, return null instead of throwing
-    if (error instanceof TypeError || 
-        (error as any)?.message?.includes('fetch') ||
-        (error as any)?.message?.includes('network')) {
+    if (
+      error instanceof TypeError ||
+      (error instanceof Error && error.message.includes('fetch')) ||
+      (error instanceof Error && error.message.includes('network'))
+    ) {
       console.warn('🌐 Network error detected, treating as vault not initialized');
       return null;
     }
@@ -157,7 +159,7 @@ export async function saveLegacyVaultConfig(wrappedDEK: WrappedDEK, bcryptHash?:
       .from('vault_config')
       .upsert({
         user_id: currentUsername,
-        wrapped_dek: wrappedDEK as unknown as any,
+        wrapped_dek: wrappedDEK as unknown,
         bcrypt_hash: bcryptHash || null,
         raw_dek: null, // Explicitly set to null for legacy configs
         updated_at: new Date().toISOString()

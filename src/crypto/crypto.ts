@@ -20,21 +20,12 @@ import type {
 import { CryptoErrorType, CryptoError } from "./types";
 
 // Import argon2 bundled build directly to avoid Vite/WASM issues
-let argon2Module: any = null;
+type Argon2BrowserModule = typeof import("argon2-browser/dist/argon2-bundled.min.js")["default"];
+
+let argon2Module: Argon2BrowserModule | null = null;
 let argon2Available = false;
 
-// Try to import argon2 at module level
-try {
-  // Use dynamic import to handle optional dependency gracefully
-  import('argon2-browser/dist/argon2-bundled.min.js').then(module => {
-    argon2Module = module.default || module;
-    argon2Available = true;
-  }).catch(() => {
-    argon2Available = false;
-  });
-} catch {
-  argon2Available = false;
-}
+const MIN_PASSPHRASE_LENGTH = 8;
 
 // Cryptographic constants
 const IV_LENGTH = 12;           // 96-bit IV for AES-GCM
@@ -55,6 +46,48 @@ const PBKDF2_PARAMS: PBKDF2Params = {
   iterations: PBKDF2_ITERATIONS,
   hashLen: 32           // 256-bit output
 };
+
+function toError(error: unknown): Error | undefined {
+  return error instanceof Error ? error : undefined;
+}
+
+function shouldFallbackToPBKDF2(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  return (
+    error.message.includes("Cannot resolve module") ||
+    error.message.includes("Failed to fetch") ||
+    error.message.includes("Failed to parse URL") ||
+    error.message.includes("not supported")
+  );
+}
+
+async function loadArgon2Module(): Promise<Argon2BrowserModule | null> {
+  if (argon2Module) {
+    return argon2Module;
+  }
+
+  try {
+    const mod = await import("argon2-browser/dist/argon2-bundled.min.js");
+    argon2Module = mod.default ?? mod;
+    argon2Available = true;
+    return argon2Module;
+  } catch {
+    argon2Available = false;
+    return null;
+  }
+}
+
+function assertValidPassphrase(passphrase: string): void {
+  if (passphrase.trim().length < MIN_PASSPHRASE_LENGTH) {
+    throw new CryptoError(
+      CryptoErrorType.INVALID_PASSPHRASE,
+      `Passphrase must be at least ${MIN_PASSPHRASE_LENGTH} characters long`
+    );
+  }
+}
 
 /**
  * Import raw key material as AES-GCM key
@@ -111,22 +144,16 @@ async function deriveKeyPBKDF2(passphrase: string, salt: Uint8Array): Promise<Cr
 async function deriveKeyArgon2(passphrase: string, salt: Uint8Array): Promise<CryptoKey> {
   try {
     // Check if argon2 is available, if not fall back to PBKDF2
-    if (!argon2Available || !argon2Module) {
-      // Try to load it one more time
-      try {
-        const mod: any = await import('argon2-browser/dist/argon2-bundled.min.js');
-        argon2Module = mod.default ?? mod;
-        argon2Available = true;
-      } catch {
-        return await deriveKeyPBKDF2(passphrase, salt);
-      }
+    const loadedModule = await loadArgon2Module();
+    if (!loadedModule) {
+      return await deriveKeyPBKDF2(passphrase, salt);
     }
 
     // Perform Argon2id key derivation
-    const result = await argon2Module.hash({
+    const result = await loadedModule.hash({
       pass: passphrase,
       salt: salt, // Uint8Array
-      type: argon2Module.ArgonType.Argon2id,
+      type: loadedModule.ArgonType.Argon2id,
       time: ARGON2_PARAMS.time,
       mem: ARGON2_PARAMS.mem,
       parallelism: ARGON2_PARAMS.parallelism,
@@ -138,17 +165,13 @@ async function deriveKeyArgon2(passphrase: string, salt: Uint8Array): Promise<Cr
     return await importAesKey(rawKey.buffer);
   } catch (error) {
     // If Argon2 fails, fall back to PBKDF2
-    if (error instanceof Error && (
-      error.message.includes("Cannot resolve module") ||
-      error.message.includes("Failed to fetch") ||
-      error.message.includes("not supported")
-    )) {
+    if (shouldFallbackToPBKDF2(error)) {
       return await deriveKeyPBKDF2(passphrase, salt);
     }
     throw new CryptoError(
       CryptoErrorType.KEY_DERIVATION_FAILED,
       "Argon2id key derivation failed",
-      error as Error
+      toError(error)
     );
   }
 }
@@ -157,6 +180,8 @@ async function deriveKeyArgon2(passphrase: string, salt: Uint8Array): Promise<Cr
  * Derive encryption key with automatic algorithm selection
  */
 export async function deriveKey(passphrase: string, salt: Uint8Array): Promise<KeyDerivationResult> {
+  assertValidPassphrase(passphrase);
+
   try {
     // Try Argon2id first (preferred)
     const key = await deriveKeyArgon2(passphrase, salt);
@@ -203,10 +228,14 @@ export async function encryptString(passphrase: string, plaintext: string): Prom
       ct: bufToBase64(ciphertext)
     };
   } catch (error) {
+    if (error instanceof CryptoError) {
+      throw error;
+    }
+
     throw new CryptoError(
       CryptoErrorType.ENCRYPTION_FAILED,
       "Failed to encrypt string",
-      error as Error
+      toError(error)
     );
   }
 }
@@ -264,16 +293,19 @@ export async function decryptString(passphrase: string, blob: SecretBlobV1): Pro
 /**
  * Validate secret blob format
  */
-export function validateSecretBlob(blob: any): blob is SecretBlobV1 {
+export function validateSecretBlob(blob: unknown): blob is SecretBlobV1 {
+  if (typeof blob !== "object" || blob === null) {
+    return false;
+  }
+
+  const candidate = blob as Record<string, unknown>;
   return (
-    typeof blob === "object" &&
-    blob !== null &&
-    blob.v === 1 &&
-    typeof blob.kdf === "string" &&
-    (blob.kdf === "argon2id" || blob.kdf === "pbkdf2") &&
-    typeof blob.salt === "string" &&
-    typeof blob.iv === "string" &&
-    typeof blob.ct === "string"
+    candidate.v === 1 &&
+    typeof candidate.kdf === "string" &&
+    (candidate.kdf === "argon2id" || candidate.kdf === "pbkdf2") &&
+    typeof candidate.salt === "string" &&
+    typeof candidate.iv === "string" &&
+    typeof candidate.ct === "string"
   );
 }
 

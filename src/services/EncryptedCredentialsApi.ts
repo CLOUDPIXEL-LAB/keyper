@@ -67,6 +67,14 @@ export interface CredentialInput {
   secrets: DecryptedSecrets;
 }
 
+function normalizeEncryptedCredential(row: Record<string, unknown>): EncryptedCredential {
+  return {
+    ...(row as Omit<EncryptedCredential, 'secret_blob' | 'encrypted_at'>),
+    secret_blob: (row.secret_blob as SecretBlobV1 | null) ?? null,
+    encrypted_at: (row.encrypted_at as string | null) ?? null,
+  };
+}
+
 /**
  * Create a new encrypted credential
  */
@@ -148,11 +156,7 @@ export async function createEncryptedCredential(input: CredentialInput): Promise
     throw new Error(`Failed to create credential: ${error.message}`);
   }
 
-  return {
-    ...data,
-    secret_blob: (data as any).secret_blob || null,
-    encrypted_at: (data as any).encrypted_at || null,
-  } as EncryptedCredential;
+  return normalizeEncryptedCredential((data ?? {}) as Record<string, unknown>);
 }
 
 /**
@@ -168,11 +172,9 @@ export async function getEncryptedCredentials(): Promise<EncryptedCredential[]> 
     throw new Error(`Failed to fetch credentials: ${error.message}`);
   }
 
-  return (data || []).map(item => ({
-    ...item,
-    secret_blob: (item as any).secret_blob || null,
-    encrypted_at: (item as any).encrypted_at || null,
-  })) as EncryptedCredential[];
+  return (data || []).map((item) =>
+    normalizeEncryptedCredential(item as Record<string, unknown>)
+  );
 }
 
 /**
@@ -192,11 +194,7 @@ export async function getEncryptedCredential(id: string): Promise<EncryptedCrede
     throw new Error(`Failed to fetch credential: ${error.message}`);
   }
 
-  return {
-    ...data,
-    secret_blob: (data as any).secret_blob || null,
-    encrypted_at: (data as any).encrypted_at || null,
-  } as EncryptedCredential;
+  return normalizeEncryptedCredential((data ?? {}) as Record<string, unknown>);
 }
 
 /**
@@ -247,7 +245,7 @@ export async function updateEncryptedCredential(
   }
 
   // Prepare update data
-  const updateData: any = {};
+  const updateData: Record<string, unknown> = {};
   
   if (input.title !== undefined) updateData.title = input.title.trim();
   if (input.description !== undefined) updateData.description = input.description?.trim() || null;
@@ -315,11 +313,7 @@ export async function updateEncryptedCredential(
     throw new Error(`Failed to update credential: ${error.message}`);
   }
 
-  return {
-    ...data,
-    secret_blob: (data as any).secret_blob || null,
-    encrypted_at: (data as any).encrypted_at || null,
-  } as EncryptedCredential;
+  return normalizeEncryptedCredential((data ?? {}) as Record<string, unknown>);
 }
 
 /**

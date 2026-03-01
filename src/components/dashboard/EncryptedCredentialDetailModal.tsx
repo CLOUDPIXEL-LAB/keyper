@@ -57,7 +57,6 @@ export default function EncryptedCredentialDetailModal({
   onCredentialUpdated,
 }: EncryptedCredentialDetailModalProps) {
   const [loading, setLoading] = useState(false);
-  const [decryptedSecrets, setDecryptedSecrets] = useState<any>(null);
   const { toast } = useToast();
   const vault = useEncryption();
 
@@ -116,10 +115,11 @@ export default function EncryptedCredentialDetailModal({
 
       onCredentialUpdated();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to delete credential";
       toast({
         title: "❌ Delete Failed",
-        description: error.message || "Failed to delete credential",
+        description: message,
         variant: "destructive",
       });
     } finally {

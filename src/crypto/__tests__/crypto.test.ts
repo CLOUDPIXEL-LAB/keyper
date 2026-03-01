@@ -270,7 +270,7 @@ describe('Cryptographic Functions', () => {
 
   describe('Error Handling', () => {
     it('should throw CryptoError for unsupported blob version', async () => {
-      const invalidBlob: any = {
+      const invalidBlob = {
         v: 999,
         kdf: 'pbkdf2',
         salt: bufToBase64(randomBytes(16).buffer),
@@ -278,7 +278,7 @@ describe('Cryptographic Functions', () => {
         ct: bufToBase64(randomBytes(32).buffer)
       };
 
-      await expect(decryptString(testPassphrase, invalidBlob))
+      await expect(decryptString(testPassphrase, invalidBlob as unknown as SecretBlobV1))
         .rejects.toThrow(CryptoError);
     });
 

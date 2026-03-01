@@ -1,10 +1,12 @@
 import React, { useState, useEffect, Suspense } from 'react';
+import type { User } from '@supabase/supabase-js';
 import { getSupabaseCredentials, hasCustomSupabaseCredentials, getCurrentUsername, supabase, refreshSupabaseClient } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Settings as SettingsIcon, ArrowLeft, Plus, Shield, RefreshCw, Database, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PassphraseGate from '@/components/PassphraseGate';
+import type { SecretBlobV1 } from '@/crypto/types';
 
 // Lazy load heavy components
 const Settings = React.lazy(() => import('@/components/Settings').then(module => ({ default: module.Settings })));
@@ -37,7 +39,7 @@ export interface Credential {
   last_accessed?: string;
   expires_at?: string;
   // Encryption fields
-  secret_blob?: any; // SecretBlobV1 | null
+  secret_blob?: SecretBlobV1 | null;
   encrypted_at?: string | null;
 }
 
@@ -49,7 +51,7 @@ export interface Category {
 }
 
 // Create mock user object for self-hosted version (no authentication required)
-const createMockUser = () => {
+const createMockUser = (): User => {
   const currentUsername = getCurrentUsername();
   return {
     id: currentUsername,
@@ -75,7 +77,7 @@ const createMockUser = () => {
     new_phone: null,
     factors: null,
     identities: []
-  };
+  } as User;
 };
 
 export const SelfHostedDashboard: React.FC = () => {
@@ -372,7 +374,7 @@ export const SelfHostedDashboard: React.FC = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-cyan-950">
           <Suspense fallback={<div className="h-20 bg-gray-900/50 animate-pulse" />}>
             <DashboardHeader
-              user={createMockUser() as any}
+              user={createMockUser()}
               onAddCredential={() => setIsAddModalOpen(true)}
               onRefresh={handleRefresh}
             />

@@ -11,6 +11,7 @@ import { secureVault } from './SecureVault';
 import { getVaultConfig, saveVaultConfig, deleteVaultConfig, isVaultInitialized, isLegacyVaultConfig, isNewVaultConfig } from './VaultStorage';
 import { supabase } from '@/integrations/supabase/client';
 import type { VaultEvent } from './SecureVault';
+import type { SecretBlobV1 } from '@/crypto/types';
 import { CryptoError, CryptoErrorType } from '@/crypto/types';
 import { hashPassphrase, verifyPassphrase } from '@/crypto/bcrypt';
 
@@ -202,14 +203,14 @@ export class VaultManager {
   /**
    * Encrypt data
    */
-  async encrypt(plaintext: string): Promise<any> {
+  async encrypt(plaintext: string): Promise<SecretBlobV1> {
     return await secureVault.encrypt(plaintext);
   }
 
   /**
    * Decrypt data
    */
-  async decrypt(blob: any): Promise<string> {
+  async decrypt(blob: SecretBlobV1): Promise<string> {
     return await secureVault.decrypt(blob);
   }
 

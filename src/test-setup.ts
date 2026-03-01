@@ -8,73 +8,12 @@
 
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
+import { webcrypto } from 'node:crypto';
 
-// Mock Web Crypto API for testing
-Object.defineProperty(global, 'crypto', {
-  value: {
-    getRandomValues: (arr: any) => {
-      // Use pseudo-random values that are different each call but deterministic per test
-      const callCount = (global as any).__cryptoCallCount || 0;
-      (global as any).__cryptoCallCount = callCount + 1;
-      
-      for (let i = 0; i < arr.length; i++) {
-        arr[i] = (i * 123 + 45 + callCount * 17) % 256;
-      }
-      return arr;
-    },
-    subtle: {
-      importKey: vi.fn().mockImplementation(async (format, keyData, algorithm, extractable, keyUsages) => {
-        return { 
-          type: 'secret', 
-          algorithm, 
-          extractable, 
-          usages: keyUsages,
-          _keyData: keyData
-        };
-      }),
-      encrypt: vi.fn().mockImplementation(async (algorithm, key, data) => {
-        // Simple deterministic "encryption" for testing
-        const result = new Uint8Array(data.byteLength + 16); // Add auth tag length
-        const dataView = new Uint8Array(data);
-        for (let i = 0; i < dataView.length; i++) {
-          result[i] = dataView[i] ^ 0xAA; // Simple XOR
-        }
-        // Add fake auth tag
-        for (let i = dataView.length; i < result.length; i++) {
-          result[i] = 0xBB;
-        }
-        return result.buffer;
-      }),
-      decrypt: vi.fn().mockImplementation(async (algorithm, key, data) => {
-        // Reverse the "encryption" for testing
-        const encrypted = new Uint8Array(data);
-        const result = new Uint8Array(encrypted.length - 16); // Remove auth tag
-        for (let i = 0; i < result.length; i++) {
-          result[i] = encrypted[i] ^ 0xAA; // Reverse XOR
-        }
-        return result.buffer;
-      }),
-      deriveKey: vi.fn().mockImplementation(async (algorithm, baseKey, derivedKeyType, extractable, keyUsages) => {
-        return {
-          type: 'secret',
-          algorithm: derivedKeyType,
-          extractable,
-          usages: keyUsages,
-          _derived: true
-        };
-      }),
-      deriveBits: vi.fn(),
-      generateKey: vi.fn(),
-      exportKey: vi.fn(),
-    },
-  },
-});
-
-// Mock performance API
-Object.defineProperty(global, 'performance', {
-  value: {
-    now: () => Date.now(),
-  },
+// Use Node's WebCrypto implementation for deterministic crypto semantics in tests.
+Object.defineProperty(globalThis, 'crypto', {
+  value: webcrypto,
+  configurable: true,
 });
 
 // Mock localStorage
@@ -158,13 +97,19 @@ vi.mock('argon2-browser/dist/argon2-bundled.min.js', () => ({
       Argon2i: 1,
       Argon2id: 2,
     },
-    hash: vi.fn().mockImplementation(async (options) => {
-      // Create a deterministic hash based on passphrase and salt for testing
-      const combined = options.pass + Array.from(options.salt).join(',');
+    hash: vi.fn().mockImplementation(async (options: { pass: string; salt: Uint8Array; hashLen?: number }) => {
+      // Deterministic, salt-sensitive pseudo-Argon2 hash for tests.
+      const passBytes = new TextEncoder().encode(options.pass);
+      const combined = new Uint8Array(passBytes.length + options.salt.length);
+      combined.set(passBytes, 0);
+      combined.set(options.salt, passBytes.length);
+
+      const digest = new Uint8Array(await globalThis.crypto.subtle.digest('SHA-256', combined));
       const hash = new Uint8Array(options.hashLen || 32);
       for (let i = 0; i < hash.length; i++) {
-        hash[i] = (combined.charCodeAt(i % combined.length) + i) % 256;
+        hash[i] = digest[i % digest.length] ^ options.salt[i % options.salt.length] ^ ((i * 31) & 0xff);
       }
+
       return {
         hash,
         hashHex: Array.from(hash).map(b => b.toString(16).padStart(2, '0')).join(''),

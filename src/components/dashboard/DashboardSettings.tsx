@@ -156,11 +156,12 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
       setNewPassphrase('');
       onUserCreated?.();
       
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to create user";
       console.error('Error creating user:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to create user",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -492,4 +493,3 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
     </div>
   );
 };
-

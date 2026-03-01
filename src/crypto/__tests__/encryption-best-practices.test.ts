@@ -9,10 +9,10 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { encryptString, decryptString } from '../crypto';
+import type { SecretBlobV1 } from '../types';
 
 // Reset global state before each test
 beforeEach(() => {
-  (global as any).__cryptoCallCount = 0;
   vi.clearAllMocks();
 });
 
@@ -119,17 +119,14 @@ describe('Encryption Best Practices Testing', () => {
 
   describe('Input Validation Testing', () => {
     it('should validate encryption inputs', async () => {
-      // These should ideally throw or handle gracefully
+      // Weak passphrases must be rejected.
       const weakInputs = [
         { passphrase: '', plaintext: testPlaintext },
         { passphrase: '123', plaintext: testPlaintext },
       ];
 
       for (const { passphrase, plaintext } of weakInputs) {
-        // In real implementation, weak passphrases should be rejected
-        // Our implementation currently allows them for simplicity
-        const result = await encryptString(passphrase, plaintext);
-        expect(result).toBeDefined();
+        await expect(encryptString(passphrase, plaintext)).rejects.toThrow();
       }
     });
 
@@ -147,7 +144,7 @@ describe('Encryption Best Practices Testing', () => {
 
       for (const invalidBlob of invalidBlobs) {
         try {
-          await decryptString(testPassphrase, invalidBlob as any);
+          await decryptString(testPassphrase, invalidBlob as unknown as SecretBlobV1);
         } catch (error) {
           expect(error).toBeDefined();
         }
@@ -257,7 +254,7 @@ describe('Mocking Strategy Best Practices', () => {
       data
     );
     
-    expect(encrypted).toBeInstanceOf(ArrayBuffer);
+    expect(typeof encrypted.byteLength).toBe('number');
     expect(encrypted.byteLength).toBeGreaterThan(data.length);
   });
 });

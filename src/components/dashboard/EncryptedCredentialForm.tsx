@@ -162,7 +162,7 @@ export default function EncryptedCredentialForm({
     
     try {
       const currentUsername = getCurrentUsername();
-      let credentialData: any = {
+      let credentialData: Record<string, unknown> = {
         title: formData.title.trim(),
         description: formData.description.trim() || null,
         credential_type: formData.credential_type,
@@ -233,11 +233,14 @@ export default function EncryptedCredentialForm({
       });
 
       onSave();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error
+        ? error.message
+        : `Failed to ${isEditing ? 'update' : 'create'} credential`;
       console.error('Error saving credential:', error);
       toast({
         title: "❌ Save Failed",
-        description: error.message || `Failed to ${isEditing ? 'update' : 'create'} credential`,
+        description: message,
         variant: "destructive",
       });
     } finally {

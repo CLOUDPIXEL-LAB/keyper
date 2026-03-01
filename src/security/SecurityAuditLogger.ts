@@ -70,7 +70,7 @@ export interface SecurityEvent {
   
   // Event details
   message: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   
   // Context information
   userAgent?: string;
@@ -160,7 +160,7 @@ class SecurityAuditLogger {
     type: SecurityEventType,
     severity: SecuritySeverity,
     message: string,
-    details?: Record<string, any>
+    details?: Record<string, unknown>
   ): void {
     const event: SecurityEvent = {
       id: `event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -443,7 +443,10 @@ export const logEncryptionOperation = (operation: 'encrypt' | 'decrypt', success
   );
 };
 
-export const logSecurityThreat = (type: 'xss' | 'injection' | 'csp_violation', details: any) => {
+export const logSecurityThreat = (
+  type: 'xss' | 'injection' | 'csp_violation',
+  details: Record<string, unknown>
+) => {
   securityLogger.logEvent(
     `${type}_attempt` as SecurityEventType,
     'critical',

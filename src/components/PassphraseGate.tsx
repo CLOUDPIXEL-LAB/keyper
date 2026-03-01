@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { analyzePassphrase, getStrengthColor } from '@/security/PassphraseValidator';
+import type { PassphraseAnalysis } from '@/security/PassphraseValidator';
 import type { VaultEvent } from '@/services/SecureVault';
 
 interface PassphraseGateProps {
@@ -61,7 +62,7 @@ export default function PassphraseGate({
   const [error, setError] = useState<string | null>(null);
   const [isUnlocking, setIsUnlocking] = useState(false);
   const [timeUntilLock, setTimeUntilLock] = useState(0);
-  const [passphraseAnalysis, setPassphraseAnalysis] = useState<any>(null);
+  const [passphraseAnalysis, setPassphraseAnalysis] = useState<PassphraseAnalysis | null>(null);
   const [isFirstTime, setIsFirstTime] = useState<boolean | null>(null);
   const [showSetup, setShowSetup] = useState(false);
 

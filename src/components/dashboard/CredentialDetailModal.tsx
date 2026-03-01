@@ -124,10 +124,11 @@ export const CredentialDetailModal = ({
 
       onCredentialUpdated();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to delete credential";
       toast({
         title: "Error",
-        description: error.message || "Failed to delete credential",
+        description: message,
         variant: "destructive",
       });
     } finally {
