@@ -43,8 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `electron:dev` – same but opens DevTools
   - `electron:build` – full cross-platform distributables via electron-builder
   - `electron:build:linux` / `electron:build:win` / `electron:build:mac` – platform-specific builds
-- **Added** `electron-builder` configuration in `package.json`
-  - Linux: AppImage (x64/arm64), deb (x64/arm64), rpm (x64)
+- **Added** `electron-builder.yml` – electron-builder configuration
+  - Linux: AppImage (x64/arm64), deb (x64/arm64)
   - Windows: NSIS installer + portable exe (x64)
   - macOS: DMG + zip (Universal / Intel + Apple Silicon)
 - **Added** `electron` `^33.3.0` and `electron-builder` `^25.1.8` to devDependencies

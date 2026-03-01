@@ -142,14 +142,16 @@ sequenceDiagram
 | **Tailwind CSS** | 3.4.11  | Utility-first styling framework              |
 | **Radix UI**     | Various | Unstyled, accessible UI primitives           |
 | **shadcn/ui**    | Latest  | Pre-built component library                  |
+| **Electron**     | 33.3.0  | Cross-platform desktop app runtime           |
 
 ### Backend & Database
 
-| Technology     | Version | Purpose                                    |
-| -------------- | ------- | ------------------------------------------ |
-| **Node.js**    | 18+     | Runtime for CLI and build tools            |
-| **Supabase**   | 2.53.0  | Backend-as-a-Service platform              |
-| **PostgreSQL** | 15+     | Relational database with advanced features |
+| Technology         | Version | Purpose                                    |
+| ------------------ | ------- | ------------------------------------------ |
+| **Node.js**        | 18+     | Runtime for CLI and build tools            |
+| **Supabase**       | 2.53.0  | Backend-as-a-Service platform              |
+| **PostgreSQL**     | 15+     | Relational database with advanced features |
+| **Docker / nginx** | 1.27+   | Containerised SPA serving                  |
 
 ### Security & Cryptography
 
@@ -175,6 +177,16 @@ sequenceDiagram
 keyper/
 ├── 📁 bin/                    # CLI executable
 │   └── keyper.js             # Node.js server launcher
+├── 📁 electron/               # Electron main-process source
+│   ├── main.ts               # app:// protocol, security headers
+│   ├── preload.ts            # context-bridge (window.keyperElectron)
+│   └── tsconfig.json         # CommonJS TypeScript config
+├── 📁 electron-dist/          # Compiled Electron output (git-ignored)
+├── 📁 dist-electron/          # electron-builder output — installers (git-ignored)
+├── 📄 electron-builder.yml    # Packager config (AppImage, deb, NSIS, DMG)
+├── 📄 Dockerfile              # Multi-stage Node→nginx image
+├── 📄 nginx.conf              # SPA routing, WASM MIME, security headers
+├── 📄 docker-compose.yml      # Single-command stack launch
 ├── 📁 docs/                   # Documentation
 ├── 📁 public/                 # Static assets
 │   ├── logo.png              # Application logo
@@ -385,9 +397,10 @@ workbox: {
 ### Distribution Channels
 
 1. **NPM Package**: Global installation via `npm install -g @pinkpixel/keyper`
-2. **Direct Download**: GitHub releases with pre-built binaries
-3. **Docker Image**: Containerized deployment (planned)
+2. **Direct Download**: GitHub releases with pre-built desktop installers
+3. **Docker Image**: Containerized deployment (nginx-based, production-ready)
 4. **Cloud Deployment**: Cloudflare Pages, Netlify, Vercel support
+5. **Electron Desktop App**: Native app for Linux, Windows, and macOS
 
 ### CLI Integration
 
@@ -399,6 +412,43 @@ npm install -g @pinkpixel/keyper
 keyper                    # Default port 4173
 keyper --port 3000        # Custom port
 keyper --help             # Show help
+```
+
+### Docker Deployment
+
+```bash
+# Clone and start with Docker Compose (default port 8080)
+git clone https://github.com/pinkpixel-dev/keyper.git
+cd keyper
+docker compose up -d
+
+# Custom port
+HOST_PORT=3030 docker compose up -d
+
+# Or run directly
+docker build -t keyper .
+docker run -d -p 8080:80 --name keyper --restart unless-stopped keyper
+```
+
+The container serves the compiled Vite/React SPA on port 80 internally. No Node.js or environment variables required on the host — all Supabase credentials are entered in-app and stored in browser `localStorage`.
+
+### Electron Desktop App
+
+Pre-built installers are available on the [GitHub Releases](https://github.com/pinkpixel-dev/keyper/releases) page:
+
+| Platform | Format                  | Architecture  |
+| -------- | ----------------------- | ------------- |
+| Linux    | AppImage                | x86_64, ARM64 |
+| Linux    | `.deb`                  | x86_64, ARM64 |
+| Windows  | NSIS installer (`.exe`) | x64           |
+| macOS    | DMG                     | Universal     |
+
+To build from source:
+
+```bash
+npm run electron:build:linux   # AppImage + deb
+npm run electron:build:win     # NSIS installer
+npm run electron:build:mac     # DMG (must run on macOS)
 ```
 
 ### Self-Hosting Options
@@ -434,9 +484,9 @@ keyper --help             # Show help
 
 ### Version Information
 
-- **Current Version**: 1.0.9
-- **Release Date**: March 1, 2026
-- **Last Updated**: March 1, 2026
+- **Current Version**: 1.1.0
+- **Release Date**: March 2026
+- **Last Updated**: March 2026
 - **Status**: Stable Production Release 🟢
 - **License**: Apache 2.0
 - **Emergency System**: Advanced troubleshooting enabled ⚡
@@ -444,18 +494,20 @@ keyper --help             # Show help
 
 ### Feature Completeness
 
-| Feature Category   | Status      | Notes                     |
-| ------------------ | ----------- | ------------------------- |
-| **Core Security**  | ✅ Complete | Zero-knowledge encryption |
-| **User Interface** | ✅ Complete | Full responsive design    |
-| **Database Layer** | ✅ Complete | Comprehensive schema      |
-| **PWA Features**   | ✅ Complete | Full offline support      |
-| **CLI Tools**      | ✅ Complete | Multi-platform support    |
-| **Documentation**  | ✅ Complete | Comprehensive guides      |
+| Feature Category   | Status      | Notes                       |
+| ------------------ | ----------- | --------------------------- |
+| **Core Security**  | ✅ Complete | Zero-knowledge encryption   |
+| **User Interface** | ✅ Complete | Full responsive design      |
+| **Database Layer** | ✅ Complete | Comprehensive schema        |
+| **PWA Features**   | ✅ Complete | Full offline support        |
+| **CLI Tools**      | ✅ Complete | Multi-platform support      |
+| **Docker Build**   | ✅ Complete | nginx-based container       |
+| **Desktop App**    | ✅ Complete | Electron v33, all platforms |
+| **Documentation**  | ✅ Complete | Comprehensive guides        |
 
 ### Known Limitations
 
-- **Mobile Biometrics**: Planned for v1.1
+- **Mobile Biometrics**: Planned for a future release
 - **Team Sharing**: Enterprise feature roadmap
 - **API Access**: External integration support
 - **Audit Logging**: Enhanced security tracking
@@ -464,7 +516,7 @@ keyper --help             # Show help
 
 ## 🔮 Future Roadmap
 
-### Version 1.1 (Q4 2025)
+### Version 1.2 (Next)
 
 - 🔐 **Biometric Authentication**: Touch/Face ID support
 - 📊 **Enhanced Analytics**: Usage patterns and insights

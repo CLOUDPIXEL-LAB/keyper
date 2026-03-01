@@ -11,6 +11,8 @@
 [![React](https://img.shields.io/badge/React-19.1-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Ready-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)](https://hub.docker.com/)
+[![Electron](https://img.shields.io/badge/Electron-v33-47848F?style=for-the-badge&logo=electron)](https://www.electronjs.org/)
 [![PWA](https://img.shields.io/badge/PWA-Enabled-5A0FC8?style=for-the-badge)](https://web.dev/progressive-web-apps/)
 
 _A modern, secure, self-hosted credential management application for storing and organizing your digital credentials with complete privacy and control._
@@ -18,6 +20,21 @@ _A modern, secure, self-hosted credential management application for storing and
 [🚀 Quick Start](#-quick-start) • [🖼️ Screenshots](#️-screenshots) • [📦 Installation](#-installation) • [🗄️ Setup](#️-database-setup) • [📱 PWA](#-progressive-web-app) • [🔧 Troubleshooting](#-troubleshooting)
 
 </div>
+
+---
+
+## 📥 Download
+
+| Platform   | Package                                                                                 | Architecture                      |
+| ---------- | --------------------------------------------------------------------------------------- | --------------------------------- |
+| 🐧 Linux   | [Keyper-1.1.0-x86_64.AppImage](https://github.com/pinkpixel-dev/keyper/releases/latest) | x86_64                            |
+| 🐧 Linux   | [Keyper-1.1.0-arm64.AppImage](https://github.com/pinkpixel-dev/keyper/releases/latest)  | ARM64                             |
+| 🐧 Linux   | [keyper_1.1.0_amd64.deb](https://github.com/pinkpixel-dev/keyper/releases/latest)       | x86_64                            |
+| 🐧 Linux   | [keyper_1.1.0_arm64.deb](https://github.com/pinkpixel-dev/keyper/releases/latest)       | ARM64                             |
+| 🪟 Windows | [Keyper-Setup-1.1.0.exe](https://github.com/pinkpixel-dev/keyper/releases/latest)       | x64 NSIS installer                |
+| 🍎 macOS   | [Keyper-1.1.0.dmg](https://github.com/pinkpixel-dev/keyper/releases/latest)             | Universal (Intel + Apple Silicon) |
+
+> **Note**: macOS build requires building on macOS. Windows and Linux builds are provided via GitHub Actions on every release.
 
 ---
 

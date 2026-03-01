@@ -20,30 +20,40 @@ hero:
       variant: minimal
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid } from "@astrojs/starlight/components";
 
 ## Documentation Scope
 
 <CardGrid stagger>
-	<Card title="Architecture" icon="seti:graph">
-		Understand runtime flow from `main.tsx` through vault gating and credential CRUD.
-	</Card>
-	<Card title="Security Model" icon="seti:shield">
-		See how Keyper combines bcrypt passphrase verification with DEK-based AES-GCM.
-	</Card>
-	<Card title="Data Model" icon="seti:database">
-		Review `credentials`, `vault_config`, and `categories` schema and RLS strategy.
-	</Card>
-	<Card title="Deploy and Operate" icon="seti:cloud">
-		Deploy to Cloudflare Pages and run operational checks with known troubleshooting paths.
-	</Card>
-	<Card title="Open Keyper" icon="seti:globe">
-		Use the hosted web app at <a href="https://keyper.pinkpixel.dev" target="_blank" rel="noreferrer">keyper.pinkpixel.dev</a>.
-	</Card>
-	<Card title="Source Map" icon="seti:search">
-		Jump directly to implementation files for crypto, storage, UI, and deployment behavior.
-	</Card>
-	<Card title="Known Gaps" icon="seti:warning">
-		Track implementation-vs-documentation drift and legacy paths to keep docs accurate.
-	</Card>
+  <Card title="Architecture" icon="seti:graph">
+    Understand runtime flow from `main.tsx` through vault gating and credential
+    CRUD.
+  </Card>
+  <Card title="Security Model" icon="seti:shield">
+    See how Keyper combines bcrypt passphrase verification with DEK-based
+    AES-GCM.
+  </Card>
+  <Card title="Data Model" icon="seti:database">
+    Review `credentials`, `vault_config`, and `categories` schema and RLS
+    strategy.
+  </Card>
+  <Card title="Deploy and Operate" icon="seti:cloud">
+    Self-host via Docker, npm CLI, or download a desktop installer for Linux,
+    Windows, and macOS.
+  </Card>
+  <Card title="Open Keyper" icon="seti:globe">
+    Use the hosted web app at{" "}
+    <a href="https://keyper.pinkpixel.dev" target="_blank" rel="noreferrer">
+      keyper.pinkpixel.dev
+    </a>
+    .
+  </Card>
+  <Card title="Source Map" icon="seti:search">
+    Jump directly to implementation files for crypto, storage, UI, and
+    deployment behavior.
+  </Card>
+  <Card title="Known Gaps" icon="seti:warning">
+    Track implementation-vs-documentation drift and legacy paths to keep docs
+    accurate.
+  </Card>
 </CardGrid>
