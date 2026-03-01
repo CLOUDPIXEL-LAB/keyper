@@ -19,7 +19,7 @@ export const DashboardHeader = ({ user, onAddCredential, onRefresh }: DashboardH
           <div className="flex items-center space-x-3">
             <div className="p-1 bg-cyan-500/20 rounded-lg border border-cyan-500/30">
               <img
-                src="/logo.png"
+                src="/public/logo.png"
                 alt="Keyper Logo"
                 className="h-11 w-11 rounded-full object-contain"
               />
