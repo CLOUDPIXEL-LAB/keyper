@@ -1,0 +1,122 @@
+# Keyper - electron-builder configuration
+# Made with ❤️ by Pink Pixel
+#
+# Build targets:
+#   Linux   → AppImage (x64/arm64) + .deb (x64/arm64)
+#   Windows → NSIS installer + portable (x64)
+#   macOS   → .dmg + .zip (Intel + Apple Silicon)
+#
+# Run:
+#   npm run electron:build:linux   # AppImage + deb
+#   npm run electron:build:win     # NSIS installer + portable
+#   npm run electron:build:mac     # DMG + zip (must build on macOS)
+#   npm run electron:build         # current platform
+
+appId: dev.pinkpixel.keyper
+productName: Keyper
+copyright: "Copyright © 2024-2026 Pink Pixel"
+# Override the scoped npm package name (@pinkpixel/keyper → keyper) so
+# electron-builder doesn't embed "@pinkpixel/" into output paths / filenames.
+extraMetadata:
+  name: keyper
+# ── Packaging ─────────────────────────────────────────────────────────────────
+
+# Keep asar enabled (default) — more secure and smaller package.
+# The app://  custom protocol handler in main.js reads from the asar archive
+# via net.fetch(pathToFileURL(...)), which works correctly inside asar.
+asar: true
+
+directories:
+  output: dist-electron
+  buildResources: public
+
+# Keyper is a purely static SPA served via the custom app:// protocol.
+# The renderer has NO runtime Node dependencies, so node_modules must NOT
+# be included — doing so would balloon the installer by hundreds of MB.
+files:
+  - dist/** # compiled Vite/React output (the app itself)
+  - electron-dist/** # compiled Electron main + preload + CJS marker
+  - public/icon.png
+  - public/logo.png
+  - public/favicon.png
+  - package.json
+
+# No native Node modules — no ABI rebuild needed.
+npmRebuild: false
+
+# ── Linux ─────────────────────────────────────────────────────────────────────
+
+linux:
+  target:
+    - target: AppImage
+      arch: [x64, arm64]
+    - target: deb
+      arch: [x64, arm64]
+    # snap is excluded from local builds — requires snapcraft to be installed.
+    # Uncomment and add to target list to build in CI.
+  category: Development
+  icon: public/icon.png # 256\u00d7256+ PNG recommended
+  # Explicit artifact names avoid the @scope/ prefix confusion
+  artifactName: "Keyper-${version}-${arch}.${ext}"
+  executableName: keyper
+  synopsis: Self-hosted credential manager with zero-knowledge encryption
+  description: >
+    Keyper is a self-hosted credential manager with zero-knowledge encryption,
+    multi-user support, and emergency recovery. Store API keys, passwords, and
+    secrets securely with your own Supabase database. Features AES-256-GCM
+    encryption, Argon2 key derivation, PWA support, and a professional-grade
+    security architecture.
+  desktop:
+    Name: Keyper
+    Comment: Self-hosted credential manager with zero-knowledge encryption
+    Categories: Development;Utility;
+
+deb:
+  artifactName: "keyper_${version}_${arch}.deb"
+  depends:
+    - libgtk-3-0
+    - libnotify4
+    - libnss3
+    - libxss1
+    - libxtst6
+    - xdg-utils
+    - libatspi2.0-0
+    - libsecret-1-0
+
+# snap config — used only in CI (GitHub Actions installs snapcraft).
+# productName "Keyper" is used as the snap name automatically.
+snap:
+  summary: Self-hosted credential manager with zero-knowledge encryption
+  grade: stable
+  confinement: strict # Keyper is a sandboxed SPA — strict confinement is fine
+
+# ── Windows ───────────────────────────────────────────────────────────────────
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  # electron-builder can convert a PNG to .ico if @electron/windows-sign
+  # or nsis-resources are available; otherwise supply a real .ico here.
+  icon: public/icon.png
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Keyper
+  installerIcon: public/icon.png
+  uninstallerIcon: public/icon.png
+
+# ── macOS (cross-compile not supported — must build on macOS) ─────────────────
+
+mac:
+  target:
+    - dmg
+  category: public.app-category.developer-tools
+  icon: public/icon.png # ideally a 1024×1024 PNG or .icns
+
+# ── Do not publish automatically ──────────────────────────────────────────────
+publish: null

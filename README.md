@@ -163,6 +163,67 @@ npm run build
 npm start
 ```
 
+### Method 4: 🐳 Docker
+
+Run Keyper as a containerised web app — no Node.js required on the host!
+
+```bash
+# Clone the repo
+git clone https://github.com/pinkpixel-dev/keyper.git
+cd keyper
+
+# Build & start (serves on http://localhost:8080)
+docker compose up -d
+
+# Or on a custom port
+HOST_PORT=3030 docker compose up -d
+
+# Force rebuild after source changes
+docker compose up -d --build
+
+# Stop
+docker compose down
+
+# Follow logs
+docker compose logs -f
+```
+
+To build and run the image directly (without Compose):
+
+```bash
+docker build -t keyper .
+docker run -d -p 8080:80 --name keyper --restart unless-stopped keyper
+```
+
+> **Note:** All Supabase credentials are stored in browser `localStorage` — no environment variables or volumes are required.
+
+### Method 5: ⚡ Electron Desktop App
+
+Run Keyper as a native desktop app on **Linux, Windows, or macOS**!
+
+#### Preview (no packaging)
+
+```bash
+git clone https://github.com/pinkpixel-dev/keyper.git
+cd keyper
+npm install
+npm run electron:preview
+```
+
+#### Build a distributable installer
+
+```bash
+# all platforms (requires the target OS or cross-compile toolchain)
+npm run electron:build
+
+# platform-specific
+npm run electron:build:linux   # AppImage, deb, rpm
+npm run electron:build:win     # NSIS installer + portable
+npm run electron:build:mac     # DMG + zip (Intel & Apple Silicon)
+```
+
+Installers are output to `dist-electron/`.
+
 ---
 
 ## 🗄️ Database Setup

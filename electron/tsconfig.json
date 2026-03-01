@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    // Electron's main process is CommonJS
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+
+    // Output compiled JS to a sibling folder so tsc doesn't auto-exclude itself
+    "outDir": "../electron-dist",
+    "rootDir": ".",
+
+    // Type checking
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+
+    // Keep source maps alongside the JS so DevTools can map errors back to *.ts
+    "sourceMap": true,
+    "inlineSources": false,
+
+    // Electron provides its own DOM-like types; exclude standard lib DOM
+    "lib": ["ES2022"],
+    "types": ["node"]
+  },
+  "include": [
+    "*.ts"
+  ]
+}

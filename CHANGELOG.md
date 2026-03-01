@@ -5,6 +5,56 @@ All notable changes to Keyper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-03-01 - 🐳 **Docker Build & ⚡ Electron Desktop App**
+
+### 🐳 **Docker Support**
+
+- **Added** `Dockerfile` – optimised multi-stage build (Node 22 Alpine builder → nginx 1.27 Alpine server)
+  - Stage 1 compiles the Vite/React app; Stage 2 serves only the static output → lean final image
+  - WASM MIME type (`application/wasm`) patched so **argon2-browser** works inside the container
+  - `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp` headers added to satisfy **SharedArrayBuffer** requirements
+- **Added** `nginx.conf` – production-hardened nginx server block
+  - SPA fallback routing (`try_files ... /index.html`) for React Router
+  - Gzip compression for JS/CSS/WASM/SVG/fonts
+  - Long-lived cache headers (`Cache-Control: public, immutable`) for hashed assets
+  - Security headers: `X-Frame-Options`, `X-Content-Type-Options`, `X-XSS-Protection`, `Referrer-Policy`, `Permissions-Policy`
+  - `/healthz` endpoint for container health checks
+- **Added** `docker-compose.yml` – single-command stack launch with configurable `HOST_PORT` (default `8080`)
+  - Built-in `healthcheck` using the nginx `/healthz` endpoint
+  - Optional Caddy reverse-proxy snippet (commented out) for automatic HTTPS
+- **Added** `.dockerignore` – excludes `node_modules/`, `dist/`, `electron/`, VCS files, secrets, and tooling to keep the build context lean
+
+### ⚡ **Electron Desktop App**
+
+- **Added** `electron/main.ts` – Electron main process
+  - Custom `app://` protocol serves the compiled `dist/` bundle with full SPA routing support
+  - WASM `Content-Type` patched for argon2-browser inside the Electron sandbox
+  - `Cross-Origin-Opener-Policy` / `Cross-Origin-Embedder-Policy` injected via `session.webRequest` headers
+  - External link interception: all `https://` links open in the system browser via `shell.openExternal`
+  - Security hardening: `contextIsolation: true`, `nodeIntegration: false`
+  - macOS traffic-light title bar; auto-hiding menu bar on Windows/Linux
+- **Added** `electron/preload.ts` – minimal context-bridge exposing `window.keyperElectron` to the renderer
+  - `isElectron: true` flag for UI feature detection
+  - `platform` and `version` fields
+- **Added** `electron/tsconfig.json` – TypeScript config targeting CommonJS (required for Electron main process)
+- **Added** electron scripts to `package.json`:
+  - `electron:compile` – compiles `electron/*.ts` → `electron-dist/*.js`
+  - `electron:preview` – build + compile + launch locally
+  - `electron:dev` – same but opens DevTools
+  - `electron:build` – full cross-platform distributables via electron-builder
+  - `electron:build:linux` / `electron:build:win` / `electron:build:mac` – platform-specific builds
+- **Added** `electron-builder` configuration in `package.json`
+  - Linux: AppImage (x64/arm64), deb (x64/arm64), rpm (x64)
+  - Windows: NSIS installer + portable exe (x64)
+  - macOS: DMG + zip (Universal / Intel + Apple Silicon)
+- **Added** `electron` `^33.3.0` and `electron-builder` `^25.1.8` to devDependencies
+
+### 🔧 **Housekeeping**
+
+- **Updated** `.gitignore` – added `dist-electron/` and `electron-dist/` output directories
+
+---
+
 ## [1.0.9] - 2026-03-01 - 🐛 **Bug Fixes: Multi-Session Credential Saving & Edit Modal**
 
 ### 🐛 **Bug Fixes**

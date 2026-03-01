@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+dist-electron/
+*.tsbuildinfo
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Environment & secrets – never bake these into the image
+.env
+.env.*
+!.env.example
+
+# Editor / IDE artifacts
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test output
+coverage/
+
+# Electron (not needed for the Docker web build)
+electron/
+
+# Marketing / documentation-only files
+website/
+screenshots/
+*.md
+!README.md
+
+# Cloudflare / deployment tooling
+wrangler.toml
+deploy.ps1
+deploy.sh
+verify-deployment.js
+keyper-audit.md
+
+# CI / repo tooling
+.codex/
+.github/

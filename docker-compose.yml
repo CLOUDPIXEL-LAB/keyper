@@ -1,0 +1,56 @@
+# ╔══════════════════════════════════════════════════════════════╗
+# ║         🔐  Keyper  –  Docker Compose                       ║
+# ╚══════════════════════════════════════════════════════════════╝
+#
+# Quick start:
+#   docker compose up -d            # build + start in background
+#   docker compose up -d --build    # force rebuild if source changed
+#   docker compose down             # stop & remove containers
+#   docker compose logs -f          # follow logs
+#
+# Keyper stores all user-configured data (Supabase URL, anon key,
+# username, passphrase salt) in the *browser's* localStorage.
+# No host volumes or environment variables are required — the user
+# sets everything up through the Settings screen in the UI.
+#
+# To run on a different port, set the HOST_PORT environment variable:
+#   HOST_PORT=3030 docker compose up -d
+
+services:
+  keyper:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: keyper:latest
+    container_name: keyper
+    ports:
+      - "${HOST_PORT:-8080}:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# ── Optional: reverse-proxy with HTTPS via Caddy ─────────────────────────────
+# Uncomment the block below if you want automatic HTTPS via Caddy.
+# Replace "your-domain.com" with your actual domain.
+#
+#   caddy:
+#     image: caddy:2-alpine
+#     container_name: keyper-caddy
+#     ports:
+#       - "80:80"
+#       - "443:443"
+#     volumes:
+#       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+#       - caddy_data:/data
+#       - caddy_config:/config
+#     depends_on:
+#       - keyper
+#     restart: unless-stopped
+#
+# volumes:
+#   caddy_data:
+#   caddy_config:
