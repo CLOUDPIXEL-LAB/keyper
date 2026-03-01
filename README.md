@@ -13,7 +13,7 @@
 [![Supabase](https://img.shields.io/badge/Supabase-Ready-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
 [![PWA](https://img.shields.io/badge/PWA-Enabled-5A0FC8?style=for-the-badge)](https://web.dev/progressive-web-apps/)
 
-*A modern, secure, self-hosted credential management application for storing and organizing your digital credentials with complete privacy and control.*
+_A modern, secure, self-hosted credential management application for storing and organizing your digital credentials with complete privacy and control._
 
 [🚀 Quick Start](#-quick-start) • [📦 Installation](#-installation) • [🗄️ Setup](#️-database-setup) • [📱 PWA](#-progressive-web-app) • [🔧 Troubleshooting](#-troubleshooting)
 
@@ -25,47 +25,47 @@
 
 ### 🔒 **Secure Credential Storage**
 
-* 🔑 **API Keys** - Store and organize your API credentials
-* 🔐 **Login Credentials** - Username/password combinations
-* 🤫 **Secrets** - Sensitive configuration values
-* 🎫 **Tokens** - Authentication and access tokens
-* 📜 **Certificates** - SSL certificates and keys
+- 🔑 **API Keys** - Store and organize your API credentials
+- 🔐 **Login Credentials** - Username/password combinations
+- 🤫 **Secrets** - Sensitive configuration values
+- 🎫 **Tokens** - Authentication and access tokens
+- 📜 **Certificates** - SSL certificates and keys
 
 ### 🏷️ **Smart Organization**
 
-* 📂 **Categories** - Group credentials by service or type
-* 🔖 **Tags** - Flexible labeling system
-* ⚡ **Priority Levels** - Low, Medium, High, Critical
-* 📅 **Expiration Tracking** - Never miss renewal dates
-* 🔍 **Real-time Search** - Find credentials instantly
+- 📂 **Categories** - Group credentials by service or type
+- 🔖 **Tags** - Flexible labeling system
+- ⚡ **Priority Levels** - Low, Medium, High, Critical
+- 📅 **Expiration Tracking** - Never miss renewal dates
+- 🔍 **Real-time Search** - Find credentials instantly
 
 ### 🛡️ **Enterprise-Grade Security**
 
-* 🔒 **Row Level Security (RLS)** - Database-level isolation
-* 🔐 **End-to-End Encryption** - Client-side encryption, zero-knowledge architecture
-* 👤 **Multi-User Support** - Support for multiple users on the same instance
-* 🌐 **Secure Connections** - HTTPS/TLS encryption
-* 🏠 **Self-Hosted** - Complete control over your data
+- 🔒 **Row Level Security (RLS)** - Database-level isolation
+- 🔐 **End-to-End Encryption** - Client-side encryption, zero-knowledge architecture
+- 👤 **Multi-User Support** - Support for multiple users on the same instance
+- 🌐 **Secure Connections** - HTTPS/TLS encryption
+- 🏠 **Self-Hosted** - Complete control over your data
 
 ### 🔐 **Advanced Encryption Features**
 
-* **Zero-Knowledge Architecture** - All encryption happens client-side
-* **AES-256-GCM Encryption** - Industry-standard authenticated encryption
-* **Argon2id Key Derivation** - Memory-hard, ASIC-resistant (with PBKDF2 fallback)
-* **Auto-Lock Protection** - 15-minute inactivity timeout with activity detection
-* **Simplified Bcrypt Master Passphrase** - Secure bcrypt-only authentication for new users
-* **Backwards Compatibility** - Legacy wrapped DEK system maintained for existing users
-* **User-Controlled Reset** - Secure emergency passphrase reset without admin backdoors
-* **Database-Only Storage** - No localStorage usage except for database config
-* **Professional Security Audit** - EXCELLENT security rating
+- **Zero-Knowledge Architecture** - All encryption happens client-side
+- **AES-256-GCM Encryption** - Industry-standard authenticated encryption
+- **Argon2id Key Derivation** - Memory-hard, ASIC-resistant (with PBKDF2 fallback)
+- **Auto-Lock Protection** - 15-minute inactivity timeout with activity detection
+- **Simplified Bcrypt Master Passphrase** - Secure bcrypt-only authentication for new users
+- **Backwards Compatibility** - Legacy wrapped DEK system maintained for existing users
+- **User-Controlled Reset** - Secure emergency passphrase reset without admin backdoors
+- **Database-Only Storage** - No localStorage usage except for database config
+- **Professional Security Audit** - EXCELLENT security rating
 
 ### 📱 **Modern Experience**
 
-* 🌙 **Dark Theme** - Easy on the eyes
-* 📱 **Responsive Design** - Works on all devices
-* ⚡ **Progressive Web App** - Install like a native app
-* 🚀 **Fast Performance** - Built with Vite and React 19
-* 🎨 **Beautiful UI** - Modern glassmorphism design
+- 🌙 **Dark Theme** - Easy on the eyes
+- 📱 **Responsive Design** - Works on all devices
+- ⚡ **Progressive Web App** - Install like a native app
+- 🚀 **Fast Performance** - Built with Vite and React 19
+- 🎨 **Beautiful UI** - Modern glassmorphism design
 
 ---
 
@@ -75,9 +75,9 @@ Get Keyper running on your own infrastructure in under 5 minutes!
 
 ### Prerequisites
 
-* **Node.js 18+** installed on your system
-* **Supabase account** (free tier works perfectly!)
-* **Modern web browser** (Chrome, Firefox, Safari, Edge)
+- **Node.js 18+** installed on your system
+- **Supabase account** (free tier works perfectly!)
+- **Modern web browser** (Chrome, Firefox, Safari, Edge)
 
 ### ⚡ 1-Minute Installation
 
@@ -107,13 +107,13 @@ Just enter your own Supabase credentials and start managing your encrypted crede
 
 **Demo Usage:**
 
-* ✅ **Completely Secure** - Zero-knowledge architecture means your data never leaves your browser
-* ✅ **Real Functionality** - Full Keyper experience with your own Supabase instance
-* ✅ **No Registration** - Just bring your Supabase URL and anon key
-* ⚠️ **Demo Limitations** - Recommended for testing and light usage only
-* 🏠 **Self-Host for Production** - Install locally for best performance and full control
+- ✅ **Completely Secure** - Zero-knowledge architecture means your data never leaves your browser
+- ✅ **Real Functionality** - Full Keyper experience with your own Supabase instance
+- ✅ **No Registration** - Just bring your Supabase URL and anon/publishable key
+- ⚠️ **Demo Limitations** - Recommended for testing and light usage only
+- 🏠 **Self-Host for Production** - Install locally for best performance and full control
 
-*Note: The demo uses the same secure architecture as self-hosted Keyper. Your Supabase credentials are stored only in your browser's localStorage and never transmitted to our servers.*
+_Note: The demo uses the same secure architecture as self-hosted Keyper. Your Supabase credentials are stored only in your browser's localStorage and never transmitted to our servers._
 
 ---
 
@@ -127,11 +127,11 @@ npm install -g @pinkpixel/keyper
 
 **Available Commands:**
 
-* `keyper` - Start Keyper server
-* `keyper --port 3000` - Start on custom port
-* `keyper --help` - Show help and usage
-* `credential-manager` - Alternative command
-* `keyper-dashboard` - Another alternative
+- `keyper` - Start Keyper server
+- `keyper --port 3000` - Start on custom port
+- `keyper --help` - Show help and usage
+- `credential-manager` - Alternative command
+- `keyper-dashboard` - Another alternative
 
 ### Method 2: NPX (No Installation Required)
 
@@ -158,10 +158,9 @@ npm start
 1. Visit [supabase.com](https://supabase.com) and sign up/login
 2. Click **"New Project"**
 3. Configure your project:
-
-   * **Name**: `keyper-db` (or your preference)
-   * **Database Password**: Generate a strong password
-   * **Region**: Choose closest to your location
+   - **Name**: `keyper-db` (or your preference)
+   - **Database Password**: Generate a strong password
+   - **Region**: Choose closest to your location
 
 4. Wait 1-2 minutes for setup completion
 
@@ -169,30 +168,27 @@ npm start
 
 1. In Supabase dashboard: **Settings** → **API**
 2. Copy these values:
+   - **Project URL**: `https://your-project.supabase.co`
+   - **anon/public key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
 
-   * **Project URL**: `https://your-project.supabase.co`
-   * **anon/public key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
-
-⚠️ **Important**: Use the **anon/public** key, NOT the service\_role key!
+⚠️ **Important**: Use the **anon/public** key, NOT the service_role key!
 
 ### Step 3: Configure Keyper
 
 1. Start Keyper: `keyper`
 2. Open [http://localhost:4173](http://localhost:4173)
 3. **Database Setup**: Configure your Supabase connection
-
-   * Enter your Supabase URL and anon key
-   * Copy and run the complete SQL setup script in Supabase SQL Editor
-   * The script creates tables with the latest security features:
+   - Enter your Supabase URL and anon/publishable key
+   - Copy and run the complete SQL setup script in Supabase SQL Editor
+   - The script creates tables with the latest security features:
      - `raw_dek` and `bcrypt_hash` columns for the new simplified security model
      - Backwards compatibility for existing users with legacy `wrapped_dek` system
-   * Test the connection
+   - Test the connection
 
 4. **Master Passphrase**: Create your encryption passphrase
-
-   * Choose a strong passphrase (8+ characters recommended)
-   * New users get the simplified bcrypt-only authentication system
-   * This encrypts all your credentials client-side with secure emergency reset capabilities
+   - Choose a strong passphrase (8+ characters recommended)
+   - New users get the simplified bcrypt-only authentication system
+   - This encrypts all your credentials client-side with secure emergency reset capabilities
 
 5. **Start Managing**: Add your first encrypted credential! 🎉
 
@@ -218,11 +214,11 @@ Keyper works as a Progressive Web App for a native app experience!
 
 ### ✨ PWA Benefits
 
-* 📱 Native app experience
-* 🚀 Faster loading times
-* 🌐 Offline functionality
-* 🔄 Background updates
-* 📲 Push notifications (coming soon)
+- 📱 Native app experience
+- 🚀 Faster loading times
+- 🌐 Offline functionality
+- 🔄 Background updates
+- 📲 Push notifications (coming soon)
 
 ---
 
@@ -232,77 +228,79 @@ Keyper works as a Progressive Web App for a native app experience!
 
 **❌ "Connection failed: Database connection failed"**
 
-* Verify URL format - now supports any valid HTTP/HTTPS URL (v1.0.6+)
-  * ✅ Cloud: `https://your-project.supabase.co`
-  * ✅ Local: `http://localhost:54321`, `http://192.168.1.100:8000`
-  * ✅ Custom: `https://supabase.mydomain.com`
-* Use **anon/public** key, not service\_role
-* Check that your Supabase project is active
+- Verify URL format - now supports any valid HTTP/HTTPS URL (v1.0.6+)
+  - ✅ Cloud: `https://your-project.supabase.co`
+  - ✅ Local: `http://localhost:54321`, `http://192.168.1.100:8000`
+  - ✅ Custom: `https://supabase.mydomain.com`
+- Use **anon/public** key, not service_role
+- Check that your Supabase project is active
 
 **❌ "relation 'credentials' does not exist"**
 
-* Run the complete SQL setup script in Supabase SQL Editor
-* Ensure the script completed without errors
+- Run the complete SQL setup script in Supabase SQL Editor
+- Ensure the script completed without errors
 
 **❌ Dashboard shows "No credentials found"**
 
-* Click **"Refresh App"** button
-* Clear browser cache and reload
-* For PWA: Uninstall and reinstall the app
+- Click **"Refresh App"** button
+- Clear browser cache and reload
+- For PWA: Uninstall and reinstall the app
 
 **❌ Can't enter new credentials after clearing configuration**
 
-* Refresh the page after clearing configuration
-* Ensure you're using a valid HTTP/HTTPS URL (any format supported in v1.0.6+)
-* Try clearing browser cache if form inputs appear stuck
+- Refresh the page after clearing configuration
+- Ensure you're using a valid HTTP/HTTPS URL (any format supported in v1.0.6+)
+- Try clearing browser cache if form inputs appear stuck
 
 **❌ Categories dropdown is empty when using custom username**
 
-* This issue has been resolved in the latest version
-* Categories should now appear for all usernames (both default and custom)
-* If still experiencing issues, try refreshing the page after setting your username
+- This issue has been resolved in the latest version
+- Categories should now appear for all usernames (both default and custom)
+- If still experiencing issues, try refreshing the page after setting your username
 
 **❌ App doesn't show setup wizard after clearing database**
 
-* Clear browser cache and cookies for the site
-* For Chrome/Edge: Settings → Privacy → Clear browsing data → Cookies and cached files
-* For Firefox: Settings → Privacy → Clear Data → Cookies and Site Data + Cached Web Content
-* Refresh the page to see the initial setup screen
+- Clear browser cache and cookies for the site
+- For Chrome/Edge: Settings → Privacy → Clear browsing data → Cookies and cached files
+- For Firefox: Settings → Privacy → Clear Data → Cookies and Site Data + Cached Web Content
+- Refresh the page to see the initial setup screen
 
 **❌ Stuck in configuration loops or can't access settings**
 
-* Clear browser cache and localStorage completely
-* Refresh the page and reconfigure your database connection
-* Ensure your Supabase credentials are correct
-* Use the built-in database health checks to verify table integrity
+- Clear browser cache and localStorage completely
+- Refresh the page and reconfigure your database connection
+- Ensure your Supabase credentials are correct
+- Use the built-in database health checks to verify table integrity
 
 **❌ Multi-user vault conflicts**
 
-* Each user has their own isolated encrypted vault
-* Switch users by changing the username in settings
-* Refresh the page after switching users for proper vault isolation
-* Each user's data is completely separate and encrypted individually
+- Each user has their own isolated encrypted vault
+- Switch users by changing the username in settings
+- Refresh the page after switching users for proper vault isolation
+- Each user's data is completely separate and encrypted individually
 
 ### 🔑 Master Passphrase Reset
 
 **Forgot your master passphrase?** No problem! Your encrypted data is completely safe and you can securely reset your passphrase:
 
-**Important**: It's not possible to *view* your current master passphrase, but you can *update/change* it using our secure bcrypt-based reset system.
+**Important**: It's not possible to _view_ your current master passphrase, but you can _update/change_ it using our secure bcrypt-based reset system.
 
 📖 **Complete Reset Guide**: For detailed step-by-step instructions, see our comprehensive [Emergency Passphrase Reset Guide](./docs/EMERGENCY_PASSPHRASE_RESET.md)
 
 **Quick Overview:**
+
 1. Access your Supabase dashboard and navigate to the `vault_config` table
 2. Generate a new bcrypt hash using your desired new passphrase
 3. Replace the `bcrypt_hash` value in your database
 4. Login with your new passphrase
 
 **Security Benefits:**
-* ✅ **No Backdoors**: Complete elimination of admin override capabilities
-* ✅ **User Control**: Only you can reset your own passphrase
-* ✅ **Data Safety**: Your encrypted credentials remain completely safe
-* ✅ **Industry Standard**: Uses proven bcrypt hashing technology
-* ✅ **Zero Knowledge**: Hash-only storage ensures maximum security
+
+- ✅ **No Backdoors**: Complete elimination of admin override capabilities
+- ✅ **User Control**: Only you can reset your own passphrase
+- ✅ **Data Safety**: Your encrypted credentials remain completely safe
+- ✅ **Industry Standard**: Uses proven bcrypt hashing technology
+- ✅ **Zero Knowledge**: Hash-only storage ensures maximum security
 
 ### Getting Help
 
@@ -320,34 +318,34 @@ Keyper works as a Progressive Web App for a native app experience!
 
 ### Your Data, Your Control
 
-* ✅ **Self-Hosted** - Run on your own infrastructure
-* ✅ **Private Database** - Your Supabase instance
-* ✅ **No Tracking** - Zero telemetry or analytics
-* ✅ **Open Source** - Fully auditable code
+- ✅ **Self-Hosted** - Run on your own infrastructure
+- ✅ **Private Database** - Your Supabase instance
+- ✅ **No Tracking** - Zero telemetry or analytics
+- ✅ **Open Source** - Fully auditable code
 
 ### Security Features
 
-* 🔒 **Row Level Security** - Database-level access control
-* 🔐 **Encryption** - Data encrypted at rest and in transit
-* 👤 **User Isolation** - Each user sees only their data
-* 🛡️ **Secure Authentication** - Supabase Auth integration
+- 🔒 **Row Level Security** - Database-level access control
+- 🔐 **Encryption** - Data encrypted at rest and in transit
+- 👤 **User Isolation** - Each user sees only their data
+- 🛡️ **Secure Authentication** - Supabase Auth integration
 
 ### Multi-User Notes
 
-* **User Switching**: When switching between different user accounts, refresh the page after logging out to ensure proper vault isolation
-* **Optimal Experience**: This ensures clean cryptographic state and prevents any potential vault conflicts between users
+- **User Switching**: When switching between different user accounts, refresh the page after logging out to ensure proper vault isolation
+- **Optimal Experience**: This ensures clean cryptographic state and prevents any potential vault conflicts between users
 
 ---
 
 ## 🚀 Tech Stack
 
-* **Frontend**: React 19.1 + TypeScript
-* **Build Tool**: Vite 7.0
-* **Styling**: Tailwind CSS + shadcn/ui
-* **Backend**: Supabase (PostgreSQL + Auth)
-* **State Management**: TanStack Query
-* **Forms**: React Hook Form + Zod
-* **PWA**: Vite PWA Plugin + Workbox
+- **Frontend**: React 19.1 + TypeScript
+- **Build Tool**: Vite 7.0
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Backend**: Supabase (PostgreSQL + Auth)
+- **State Management**: TanStack Query
+- **Forms**: React Hook Form + Zod
+- **PWA**: Vite PWA Plugin + Workbox
 
 ---
 
@@ -366,12 +364,12 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ## Made with 💖
 
 **Created by Pink Pixel** ✨  
-*Dream it, Pixel it*
+_Dream it, Pixel it_
 
-* 🌐 **Website**: [pinkpixel.dev](https://pinkpixel.dev)
-* 📧 **Email**: [admin@pinkpixel.dev](mailto:admin@pinkpixel.dev)
-* 💬 **Discord**: @sizzlebop
-* ☕ **Support**: [Buy me a coffee](https://www.buymeacoffee.com/pinkpixel)
+- 🌐 **Website**: [pinkpixel.dev](https://pinkpixel.dev)
+- 📧 **Email**: [admin@pinkpixel.dev](mailto:admin@pinkpixel.dev)
+- 💬 **Discord**: @sizzlebop
+- ☕ **Support**: [Buy me a coffee](https://www.buymeacoffee.com/pinkpixel)
 
 ---
 
@@ -380,4 +378,3 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 **⭐ Star this repo if Keyper helps secure your digital life! ⭐**
 
 </div>
-

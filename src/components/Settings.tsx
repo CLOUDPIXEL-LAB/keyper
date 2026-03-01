@@ -535,7 +535,7 @@ SELECT COUNT(*) as total_categories FROM categories WHERE user_id = 'self-hosted
 -- ✅ Verification queries for troubleshooting
 --
 -- NEXT STEPS:
--- 1. Configure your Supabase URL and anon key in Keyper
+-- 1. Configure your Supabase URL and anon/publishable key in Keyper
 -- 2. Set up your master passphrase in the app
 -- 3. Start creating encrypted credentials!
 --
@@ -606,7 +606,7 @@ SELECT COUNT(*) as total_categories FROM categories WHERE user_id = 'self-hosted
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="supabase-key">Supabase Anon Key</Label>
+                <Label htmlFor="supabase-key">Supabase Anon or Publishable Key</Label>
                 <Input
                   id="supabase-key"
                   type="password"

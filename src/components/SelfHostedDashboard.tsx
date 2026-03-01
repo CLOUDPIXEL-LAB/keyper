@@ -303,7 +303,7 @@ export const SelfHostedDashboard: React.FC = () => {
                 <div className="flex-shrink-0 w-6 h-6 bg-cyan-500 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
                 <div>
                   <h4 className="font-medium">Configure connection</h4>
-                  <p className="text-sm text-muted-foreground">Enter your Supabase URL and anon key to connect Keyper to your database</p>
+                  <p className="text-sm text-muted-foreground">Enter your Supabase URL and anon/publishable key to connect Keyper to your database</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">

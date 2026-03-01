@@ -2,7 +2,7 @@
 
 **Keyper Self-Hosted** provides secure, encrypted credential storage with a user-friendly interface. This guide will help you get started with managing your encrypted credentials safely.
 
-*Made with ❤️ by Pink Pixel ✨*
+_Made with ❤️ by Pink Pixel ✨_
 
 ---
 
@@ -26,17 +26,20 @@ When you first open Keyper, you'll see the **Migration Wizard** that guides you 
 Your master passphrase is the key to all your encrypted data. Choose wisely:
 
 ✅ **Good Examples:**
+
 - `MySecure!Keyper2025#Vault`
 - `Coffee&Donuts@Midnight42!`
 - `Purple$Elephant#Dancing99`
 
 ❌ **Avoid These:**
+
 - `password123`
 - `keyper`
 - `123456789`
 - Your name or birthday
 
 **Passphrase Tips:**
+
 - Use 15+ characters for best security
 - Mix uppercase, lowercase, numbers, and symbols
 - Avoid keyboard patterns (qwerty, 123456)
@@ -54,6 +57,7 @@ Your master passphrase is the key to all your encrypted data. Choose wisely:
 3. **Unlock**: Click "Unlock Vault" to access your credentials
 
 **Auto-Lock Features:**
+
 - 🕐 **15-minute timeout** (default) - vault locks automatically
 - 🔄 **Activity extension** - using Keyper extends the timeout
 - 🔒 **Manual lock** - click the lock button anytime
@@ -86,17 +90,19 @@ The vault status appears in the top-right corner:
    - **Category**: Organize your credentials
    - **Tags**: Additional labels for searching
    - **Notes**: Additional context or instructions
-   - **Expiration**: Optional expiry date
+   - **Expiration**: Optional expiry date — check **"No expiration"** next to the date field for credentials that never expire (e.g., logins, permanent API keys)
 
 ### Viewing Encrypted Credentials
 
 **Credential Cards** show:
+
 - 📋 **Title and Type**: Quick identification
 - 🏷️ **Category and Tags**: Organization labels
 - 🔐 **Encryption Status**: Green shield (encrypted) or orange warning (plaintext)
 - ⏰ **Last Updated**: When credential was modified
 
 **Security Indicators:**
+
 - 🛡️ **Green Shield**: Encrypted with Argon2id or PBKDF2
 - ⚠️ **Orange Warning**: Stored as plaintext
 - 🔒 **Lock Icon**: Vault must be unlocked to view
@@ -110,6 +116,7 @@ The vault status appears in the top-right corner:
 5. **Copy button** 📋 appears for easy copying
 
 **Security Features:**
+
 - **Auto-hide**: Secrets automatically hide after 30 seconds
 - **Copy protection**: Clipboard cleared after copying
 - **Activity tracking**: All access logged for security
@@ -129,6 +136,7 @@ If you have plaintext credentials, Keyper can encrypt them:
 5. **Completion**: All credentials now encrypted
 
 **Migration Features:**
+
 - ✅ **Safe Process**: Original data backed up during migration
 - 🔄 **Batch Processing**: Multiple credentials encrypted together
 - 📊 **Progress Tracking**: Real-time status updates
@@ -150,6 +158,7 @@ Keyper supports both encrypted and plaintext credentials:
 ### Daily Usage
 
 **DO:**
+
 - ✅ Lock your vault when stepping away
 - ✅ Use strong, unique passphrases
 - ✅ Keep your browser updated
@@ -157,6 +166,7 @@ Keyper supports both encrypted and plaintext credentials:
 - ✅ Regularly review stored credentials
 
 **DON'T:**
+
 - ❌ Share your master passphrase
 - ❌ Use Keyper on untrusted devices
 - ❌ Leave vault unlocked unattended
@@ -168,6 +178,7 @@ Keyper supports both encrypted and plaintext credentials:
 **Important**: There is no passphrase recovery!
 
 **Backup Strategy:**
+
 1. **Export encrypted data** regularly
 2. **Store backups securely** (encrypted storage)
 3. **Test restore process** periodically
@@ -178,6 +189,7 @@ Keyper supports both encrypted and plaintext credentials:
 📖 **Don't Panic!** For users with the new bcrypt-only system, you can securely reset your master passphrase. See our comprehensive [Emergency Passphrase Reset Guide](./EMERGENCY_PASSPHRASE_RESET.md) for detailed step-by-step instructions.
 
 **For Legacy Users:**
+
 - 🚨 If you're using the older wrapped DEK system, encrypted data becomes permanently inaccessible if you lose your passphrase
 - 🔄 You must start fresh with a new passphrase
 - 📋 Re-enter all credentials manually
@@ -192,6 +204,7 @@ Keyper supports both encrypted and plaintext credentials:
 ### Encryption Statistics
 
 The dashboard shows:
+
 - **Total Credentials**: All stored credentials
 - **Encrypted**: Number using encryption
 - **Plaintext**: Number without encryption
@@ -200,6 +213,7 @@ The dashboard shows:
 ### Security Events
 
 Keyper tracks security events:
+
 - 🔓 **Vault Operations**: Unlock/lock events
 - 🔐 **Encryption Activities**: Encrypt/decrypt operations
 - ❌ **Failed Attempts**: Suspicious activity
@@ -219,16 +233,19 @@ Keyper tracks security events:
 ### Common Issues
 
 **"Vault is Locked" Error:**
+
 - 🔓 **Solution**: Enter your passphrase to unlock
 - ⏰ **Cause**: Auto-lock timeout reached
 - 🔄 **Prevention**: Extend timeout or disable auto-lock
 
 **"Failed to Decrypt" Error:**
+
 - 🔑 **Solution**: Verify correct passphrase
 - 🔄 **Cause**: Wrong passphrase or corrupted data
 - 🛠️ **Recovery**: Try backup data if available
 
 **Slow Performance:**
+
 - 🖥️ **Cause**: Argon2id is memory-intensive (this is normal)
 - ⚡ **Fallback**: System automatically uses PBKDF2 if needed
 - 🔧 **Solution**: Close other browser tabs to free memory
@@ -236,12 +253,14 @@ Keyper tracks security events:
 ### Browser Compatibility
 
 **Supported Browsers:**
+
 - ✅ Chrome 90+
 - ✅ Firefox 88+
 - ✅ Safari 14+
 - ✅ Edge 90+
 
 **Required Features:**
+
 - Web Crypto API
 - WebAssembly (for Argon2id)
 - Local Storage
@@ -274,6 +293,7 @@ Keyper tracks security events:
 ### Data Recovery
 
 **If Data Appears Lost:**
+
 1. 🔍 Check if vault is locked (unlock first)
 2. 🔄 Try refreshing the browser
 3. 📂 Check browser local storage
@@ -313,25 +333,28 @@ Keyper tracks security events:
 ## 📞 Getting Help
 
 ### Documentation
+
 - 📖 **User Guide**: This document
 - 🔐 **Security Guide**: Detailed security information
 - 🛠️ **API Documentation**: For developers
 - 📋 **Changelog**: Version history and updates
 
 ### Support
+
 - 💬 **GitHub Issues**: Report bugs and request features
 - 📧 **Email**: admin@pinkpixel.dev
 - 🌐 **Website**: pinkpixel.dev
 - ☕ **Support**: buymeacoffee.com/pinkpixel
 
 ### Community
+
 - 🐙 **GitHub**: github.com/pinkpixel-dev
 - 💬 **Discord**: @sizzlebop
 - 🐦 **Updates**: Follow for latest news
 
 ---
 
-*This guide covers Keyper Self-Hosted v0.1.0*  
-*Last updated: August 2025*
+_This guide covers Keyper Self-Hosted v0.1.0_  
+_Last updated: August 2025_
 
 **Remember**: Your security is only as strong as your weakest link. Use strong passphrases, keep software updated, and follow security best practices! 🛡️✨

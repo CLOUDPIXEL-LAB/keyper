@@ -1,7 +1,7 @@
 # 🚀 Keyper Deployment Guide
 
 > **Dream it, Pixel it** ✨  
-> *Made with ❤️ by Pink Pixel*
+> _Made with ❤️ by Pink Pixel_
 
 This guide will help you deploy Keyper to Cloudflare Pages using Wrangler.
 
@@ -39,6 +39,7 @@ This will open your browser to authenticate with Cloudflare.
 ### 3. Configure Environment Variables
 
 1. **Copy the environment template:**
+
    ```bash
    cp .env.example .env.local
    ```
@@ -46,12 +47,13 @@ This will open your browser to authenticate with Cloudflare.
 2. **Update `.env.local` with your Supabase credentials:**
    ```env
    VITE_SUPABASE_URL=https://your-project-id.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+   VITE_SUPABASE_ANON_KEY=your-supabase-anon-or-publishable-key
    ```
 
 ### 4. Update Supabase Client (if needed)
 
 If you need to update the Supabase configuration, edit:
+
 ```
 src/integrations/supabase/client.ts
 ```
@@ -61,6 +63,7 @@ src/integrations/supabase/client.ts
 ### Method 1: Automated Deployment Scripts
 
 #### **Windows (PowerShell)**
+
 ```powershell
 # Deploy to production
 .\deploy.ps1
@@ -73,6 +76,7 @@ src/integrations/supabase/client.ts
 ```
 
 #### **Linux/macOS (Bash)**
+
 ```bash
 # Make script executable (Linux/macOS only)
 chmod +x deploy.sh
@@ -92,16 +96,19 @@ chmod +x deploy.sh
 #### **Step-by-step manual deployment:**
 
 1. **Install dependencies:**
+
    ```bash
    npm install
    ```
 
 2. **Build the project:**
+
    ```bash
    npm run build
    ```
 
 3. **Deploy to Cloudflare Pages:**
+
    ```bash
    # Production deployment
    wrangler pages deploy dist --project-name keyper
@@ -120,10 +127,10 @@ After deployment, configure environment variables in the Cloudflare dashboard:
 2. Navigate to **Settings** → **Environment Variables**
 3. Add the following variables:
 
-| Variable | Value | Environment |
-|----------|-------|-------------|
-| `VITE_SUPABASE_URL` | `https://your-project-id.supabase.co` | Production & Preview |
-| `VITE_SUPABASE_ANON_KEY` | `your-supabase-anon-key` | Production & Preview |
+| Variable                 | Value                                   | Environment          |
+| ------------------------ | --------------------------------------- | -------------------- |
+| `VITE_SUPABASE_URL`      | `https://your-project-id.supabase.co`   | Production & Preview |
+| `VITE_SUPABASE_ANON_KEY` | `your-supabase-anon-or-publishable-key` | Production & Preview |
 
 ### 2. Custom Domain (Optional)
 
@@ -145,12 +152,14 @@ Cloudflare should automatically detect these settings, but verify:
 ### Headers and Security
 
 The deployment includes security headers configured in:
+
 - `_headers` - Cloudflare Pages headers
 - `wrangler.toml` - Wrangler configuration
 
 ### Content Security Policy
 
 The CSP is configured to allow:
+
 - ✅ Supabase connections
 - ✅ Required scripts and styles
 - ✅ Image loading from trusted sources
@@ -177,6 +186,7 @@ Update your Supabase project settings:
 ### Cloudflare Analytics
 
 Monitor your deployment:
+
 - **Pages Dashboard** → **Analytics**
 - View traffic, performance, and errors
 - Set up alerts for downtime
@@ -184,6 +194,7 @@ Monitor your deployment:
 ### Error Tracking
 
 Consider adding error tracking:
+
 ```env
 # Optional: Add to environment variables
 VITE_SENTRY_DSN=your-sentry-dsn
@@ -202,6 +213,7 @@ VITE_SENTRY_DSN=your-sentry-dsn
 ### Deployment Triggers
 
 Automatic deployments trigger on:
+
 - ✅ Push to main branch (production)
 - ✅ Pull requests (preview)
 - ✅ Manual deployments via Wrangler
@@ -211,6 +223,7 @@ Automatic deployments trigger on:
 ### Common Issues
 
 #### **Build Failures**
+
 ```bash
 # Clear cache and reinstall
 rm -rf node_modules package-lock.json
@@ -219,16 +232,19 @@ npm run build
 ```
 
 #### **Environment Variables Not Working**
+
 - Verify variables are set in Cloudflare dashboard
 - Check variable names match exactly
 - Redeploy after adding variables
 
 #### **Supabase Connection Issues**
+
 - Verify CORS settings in Supabase
 - Check Site URL configuration
 - Ensure API keys are correct
 
 #### **Routing Issues**
+
 - Verify `_redirects` file is in place
 - Check SPA routing configuration
 - Ensure all routes redirect to `index.html`
@@ -258,6 +274,7 @@ Need help with deployment?
 ## 🎉 Success!
 
 Once deployed, your Keyper application will be available at:
+
 - **Production:** `https://keyper.pages.dev`
 - **Preview:** `https://keyper-preview.pages.dev`
 - **Custom Domain:** `https://your-domain.com` (if configured)
@@ -265,4 +282,4 @@ Once deployed, your Keyper application will be available at:
 ---
 
 **Made with ❤️ by Pink Pixel** ✨  
-*Dream it, Pixel it*
+_Dream it, Pixel it_

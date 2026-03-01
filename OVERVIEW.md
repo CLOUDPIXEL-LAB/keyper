@@ -11,7 +11,7 @@
 [![React](https://img.shields.io/badge/React-19.1-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 
-*Dream it, Pixel it* - **Made with ❤️ by Pink Pixel**
+_Dream it, Pixel it_ - **Made with ❤️ by Pink Pixel**
 
 </div>
 
@@ -42,7 +42,7 @@
 ### Key Objectives
 
 - 🔒 **Zero-Knowledge Security**: All encryption happens client-side
-- 🏠 **Self-Hosted Control**: Complete data ownership and privacy  
+- 🏠 **Self-Hosted Control**: Complete data ownership and privacy
 - 👤 **Multi-User Support**: Secure isolation for multiple users
 - 📱 **Modern Experience**: Progressive Web App with native-like features
 - ⚡ **High Performance**: Optimized loading and runtime performance
@@ -61,18 +61,18 @@ graph TB
         Crypto[Crypto Layer]
         PWA[Service Worker]
     end
-    
+
     subgraph "Application Server"
         CLI[Node.js CLI]
         Vite[Vite Server]
     end
-    
+
     subgraph "Database Layer"
         Supabase[Supabase]
         PG[(PostgreSQL)]
         RLS[Row Level Security]
     end
-    
+
     UI --> Crypto
     Crypto --> Supabase
     CLI --> Vite
@@ -95,18 +95,18 @@ graph TB
 
 ### Cryptographic Stack
 
-| Component | Implementation | Purpose |
-|-----------|----------------|---------|
-| **Key Derivation** | Argon2id (preferred) / PBKDF2 (fallback) | Password-to-key transformation |
-| **Encryption** | AES-256-GCM | Authenticated symmetric encryption |
-| **Salt Generation** | Crypto.getRandomValues() | Unique salt per credential |
-| **IV Generation** | Crypto.getRandomValues() | Unique initialization vector |
+| Component           | Implementation                           | Purpose                            |
+| ------------------- | ---------------------------------------- | ---------------------------------- |
+| **Key Derivation**  | Argon2id (preferred) / PBKDF2 (fallback) | Password-to-key transformation     |
+| **Encryption**      | AES-256-GCM                              | Authenticated symmetric encryption |
+| **Salt Generation** | Crypto.getRandomValues()                 | Unique salt per credential         |
+| **IV Generation**   | Crypto.getRandomValues()                 | Unique initialization vector       |
 
 ### Security Features
 
 - 🔐 **End-to-End Encryption**: All sensitive data encrypted before database storage
 - 🔑 **Master Passphrase Protection**: Single passphrase controls vault access
-- ⏰ **Auto-Lock**: 15-minute inactivity timeout with activity detection  
+- ⏰ **Auto-Lock**: 15-minute inactivity timeout with activity detection
 - 🛡️ **Row Level Security**: Database-level access control
 - 🔒 **Content Security Policy**: Browser-level protection against XSS
 - 🚫 **No Telemetry**: Zero tracking or data collection
@@ -118,7 +118,7 @@ sequenceDiagram
     participant U as User
     participant C as Client App
     participant D as Database
-    
+
     U->>C: Enter credential + passphrase
     C->>C: Generate salt & IV
     C->>C: Derive key (Argon2id/PBKDF2)
@@ -134,38 +134,38 @@ sequenceDiagram
 
 ### Frontend Technologies
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **React** | 19.1.1 | Modern UI framework with concurrent features |
-| **TypeScript** | 5.8.3 | Type safety and developer experience |
-| **Vite** | 7.0.6 | Lightning-fast build tool and dev server |
-| **Tailwind CSS** | 3.4.11 | Utility-first styling framework |
-| **Radix UI** | Various | Unstyled, accessible UI primitives |
-| **shadcn/ui** | Latest | Pre-built component library |
+| Technology       | Version | Purpose                                      |
+| ---------------- | ------- | -------------------------------------------- |
+| **React**        | 19.1.1  | Modern UI framework with concurrent features |
+| **TypeScript**   | 5.8.3   | Type safety and developer experience         |
+| **Vite**         | 7.0.6   | Lightning-fast build tool and dev server     |
+| **Tailwind CSS** | 3.4.11  | Utility-first styling framework              |
+| **Radix UI**     | Various | Unstyled, accessible UI primitives           |
+| **shadcn/ui**    | Latest  | Pre-built component library                  |
 
 ### Backend & Database
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Node.js** | 18+ | Runtime for CLI and build tools |
-| **Supabase** | 2.53.0 | Backend-as-a-Service platform |
-| **PostgreSQL** | 15+ | Relational database with advanced features |
+| Technology     | Version | Purpose                                    |
+| -------------- | ------- | ------------------------------------------ |
+| **Node.js**    | 18+     | Runtime for CLI and build tools            |
+| **Supabase**   | 2.53.0  | Backend-as-a-Service platform              |
+| **PostgreSQL** | 15+     | Relational database with advanced features |
 
 ### Security & Cryptography
 
-| Library | Purpose |
-|---------|---------|
-| **argon2-browser** | Memory-hard key derivation |
+| Library            | Purpose                                 |
+| ------------------ | --------------------------------------- |
+| **argon2-browser** | Memory-hard key derivation              |
 | **Web Crypto API** | Browser-native cryptographic operations |
-| **Zod** | Runtime type validation |
+| **Zod**            | Runtime type validation                 |
 
 ### Development Tools
 
-| Tool | Purpose |
-|------|---------|
-| **ESLint** | Code linting and quality |
-| **Vitest** | Unit and integration testing |
-| **Wrangler** | Cloudflare deployment |
+| Tool         | Purpose                      |
+| ------------ | ---------------------------- |
+| **ESLint**   | Code linting and quality     |
+| **Vitest**   | Unit and integration testing |
+| **Wrangler** | Cloudflare deployment        |
 
 ---
 
@@ -177,7 +177,7 @@ keyper/
 │   └── keyper.js             # Node.js server launcher
 ├── 📁 docs/                   # Documentation
 ├── 📁 public/                 # Static assets
-│   ├── logo.png              # Application logo  
+│   ├── logo.png              # Application logo
 │   ├── favicon.ico           # Browser favicon
 │   └── manifest.json         # PWA manifest
 ├── 📁 src/                    # Source code
@@ -217,6 +217,7 @@ keyper/
 ### Core Tables
 
 #### **credentials**
+
 Primary table for encrypted credential storage:
 
 ```sql
@@ -236,7 +237,7 @@ CREATE TABLE credentials (
   last_accessed TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  
+
   -- Encrypted storage
   secret_blob JSONB NOT NULL,
   encrypted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -244,20 +245,21 @@ CREATE TABLE credentials (
 ```
 
 #### **vault_config**
+
 Secure key management configuration with dual authentication systems:
 
-```sql
+````sql
 CREATE TABLE vault_config (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id TEXT NOT NULL DEFAULT 'self-hosted-user',
-  
+
   -- New bcrypt-only system for simplified security
   raw_dek BYTEA,                    -- Plain DEK for new users
   bcrypt_hash TEXT,                 -- Bcrypt hash of master passphrase
-  
+
   -- Legacy wrapped DEK system (backwards compatibility)
   wrapped_dek JSONB,                -- Encrypted DEK for existing users
-  
+
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(user_id)
@@ -278,7 +280,7 @@ CREATE TABLE categories (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(user_id, name)
 );
-```
+````
 
 ### Security Features
 
@@ -302,18 +304,18 @@ CREATE TABLE categories (
 
 ### Key Components
 
-| Component | Purpose | Features |
-|-----------|---------|----------|
-| **PassphraseGate** | Vault security checkpoint | Auto-lock, biometric support |
-| **DashboardHeader** | Navigation and branding | Search, user profile, actions |
-| **CredentialsGrid** | Main credential display | Filtering, sorting, infinite scroll |
-| **CredentialModal** | Detailed credential view | Edit, copy, security indicators |
-| **SearchAndFilters** | Advanced filtering system | Real-time search, tag filtering |
+| Component            | Purpose                   | Features                            |
+| -------------------- | ------------------------- | ----------------------------------- |
+| **PassphraseGate**   | Vault security checkpoint | Auto-lock, biometric support        |
+| **DashboardHeader**  | Navigation and branding   | Search, user profile, actions       |
+| **CredentialsGrid**  | Main credential display   | Filtering, sorting, infinite scroll |
+| **CredentialModal**  | Detailed credential view  | Edit, copy, security indicators     |
+| **SearchAndFilters** | Advanced filtering system | Real-time search, tag filtering     |
 
 ### Responsive Behavior
 
 - **Mobile**: Touch-optimized interfaces, swipe gestures
-- **Tablet**: Adaptive layouts, contextual toolbars  
+- **Tablet**: Adaptive layouts, contextual toolbars
 - **Desktop**: Full feature set, keyboard shortcuts
 - **Large Screens**: Multi-column layouts, enhanced workflows
 
@@ -324,7 +326,7 @@ CREATE TABLE categories (
 ### Build Optimization
 
 - **Code Splitting**: Automatic route and component chunking
-- **Tree Shaking**: Dead code elimination 
+- **Tree Shaking**: Dead code elimination
 - **Asset Optimization**: Image compression and format selection
 - **Bundle Analysis**: Chunk size monitoring and optimization
 
@@ -412,12 +414,12 @@ keyper --help             # Show help
 
 ### Test Coverage
 
-| Test Type | Framework | Coverage |
-|-----------|-----------|----------|
-| **Unit Tests** | Vitest | Core functions, utilities |
-| **Integration Tests** | Vitest + Testing Library | Component interactions |
-| **E2E Tests** | Playwright (planned) | Full user workflows |
-| **Security Tests** | Custom | Encryption/decryption flows |
+| Test Type             | Framework                | Coverage                    |
+| --------------------- | ------------------------ | --------------------------- |
+| **Unit Tests**        | Vitest                   | Core functions, utilities   |
+| **Integration Tests** | Vitest + Testing Library | Component interactions      |
+| **E2E Tests**         | Playwright (planned)     | Full user workflows         |
+| **Security Tests**    | Custom                   | Encryption/decryption flows |
 
 ### Continuous Integration
 
@@ -432,9 +434,9 @@ keyper --help             # Show help
 
 ### Version Information
 
-- **Current Version**: 1.0.6
-- **Release Date**: August 28, 2025
-- **Last Updated**: August 28, 2025
+- **Current Version**: 1.0.9
+- **Release Date**: March 1, 2026
+- **Last Updated**: March 1, 2026
 - **Status**: Stable Production Release 🟢
 - **License**: Apache 2.0
 - **Emergency System**: Advanced troubleshooting enabled ⚡
@@ -442,14 +444,14 @@ keyper --help             # Show help
 
 ### Feature Completeness
 
-| Feature Category | Status | Notes |
-|------------------|--------|-------|
-| **Core Security** | ✅ Complete | Zero-knowledge encryption |
-| **User Interface** | ✅ Complete | Full responsive design |
-| **Database Layer** | ✅ Complete | Comprehensive schema |
-| **PWA Features** | ✅ Complete | Full offline support |
-| **CLI Tools** | ✅ Complete | Multi-platform support |
-| **Documentation** | ✅ Complete | Comprehensive guides |
+| Feature Category   | Status      | Notes                     |
+| ------------------ | ----------- | ------------------------- |
+| **Core Security**  | ✅ Complete | Zero-knowledge encryption |
+| **User Interface** | ✅ Complete | Full responsive design    |
+| **Database Layer** | ✅ Complete | Comprehensive schema      |
+| **PWA Features**   | ✅ Complete | Full offline support      |
+| **CLI Tools**      | ✅ Complete | Multi-platform support    |
+| **Documentation**  | ✅ Complete | Comprehensive guides      |
 
 ### Known Limitations
 
@@ -501,7 +503,7 @@ npm run dev
 ### Contribution Areas
 
 - 🐛 **Bug Reports**: Help improve stability
-- ✨ **Feature Requests**: Suggest new capabilities  
+- ✨ **Feature Requests**: Suggest new capabilities
 - 📝 **Documentation**: Enhance user guides
 - 🔐 **Security**: Cryptographic improvements
 - 🎨 **Design**: UI/UX enhancements
@@ -522,6 +524,6 @@ npm run dev
 
 **⭐ Star this project if it helps secure your digital life! ⭐**
 
-*Made with ❤️ by Pink Pixel - Dream it, Pixel it ✨*
+_Made with ❤️ by Pink Pixel - Dream it, Pixel it ✨_
 
 </div>
