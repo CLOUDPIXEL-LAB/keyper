@@ -80,8 +80,8 @@ function createWindow(): BrowserWindow {
     // Native title bar on Windows/Linux; traffic-light controls on macOS
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     autoHideMenuBar: process.platform !== 'darwin',
-    // Use the project's logo as the window / taskbar icon
-    icon: path.join(__dirname, '..', 'public', 'logo.png'),
+    // Use the project's icon as the window / taskbar icon
+    icon: path.join(__dirname, '..', 'public', 'icon.png'),
   });
 
   // ── Window events ───────────────────────────────────────────────────────────
