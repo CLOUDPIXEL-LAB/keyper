@@ -183,9 +183,12 @@ export async function createEncryptedCredential(input: CredentialInput): Promise
  * Get all credentials for the current user
  */
 export async function getEncryptedCredentials(): Promise<EncryptedCredential[]> {
+  const currentUsername = getCurrentUsername();
+  
   const { data, error } = await supabase
     .from('credentials')
     .select('*')
+    .eq('user_id', currentUsername)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -201,10 +204,13 @@ export async function getEncryptedCredentials(): Promise<EncryptedCredential[]> 
  * Get a single credential by ID
  */
 export async function getEncryptedCredential(id: string): Promise<EncryptedCredential | null> {
+  const currentUsername = getCurrentUsername();
+  
   const { data, error } = await supabase
     .from('credentials')
     .select('*')
     .eq('id', id)
+    .eq('user_id', currentUsername)
     .single();
 
   if (error) {
@@ -263,10 +269,17 @@ export async function updateEncryptedCredential(
   id: string, 
   input: Partial<CredentialInput>
 ): Promise<EncryptedCredential> {
+  const currentUsername = getCurrentUsername();
+  
   // Get existing credential
   const existing = await getEncryptedCredential(id);
   if (!existing) {
     throw new Error('Credential not found');
+  }
+  
+  // Verify ownership
+  if (existing.user_id !== currentUsername) {
+    throw new Error('Unauthorized: Cannot update credential belonging to another user');
   }
 
   // Prepare update data
@@ -355,10 +368,13 @@ export async function updateEncryptedCredential(
  * Delete a credential
  */
 export async function deleteEncryptedCredential(id: string): Promise<void> {
+  const currentUsername = getCurrentUsername();
+  
   const { error } = await supabase
     .from('credentials')
     .delete()
-    .eq('id', id);
+    .eq('id', id)
+    .eq('user_id', currentUsername);
 
   if (error) {
     throw new Error(`Failed to delete credential: ${error.message}`);

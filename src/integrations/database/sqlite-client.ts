@@ -178,22 +178,34 @@ function ensureSqliteSchema(db: SqlJsDatabase): void {
     CREATE INDEX IF NOT EXISTS idx_categories_user_id ON categories(user_id);
   `);
 
-  // Seed default categories if the table is empty
-  const countResult = db.prepare('SELECT COUNT(*) AS count FROM categories');
+  // Get current username from localStorage (browser) or use default
+  const currentUserId = typeof window !== 'undefined' 
+    ? (window.localStorage.getItem('keyper-username') || 'self-hosted-user')
+    : 'self-hosted-user';
+
+  // Seed default categories for current user if they don't have any
+  const countResult = db.prepare('SELECT COUNT(*) AS count FROM categories WHERE user_id = ?');
   try {
+    countResult.bind([currentUserId]);
     countResult.step();
     const count = Number(countResult.getAsObject().count ?? 0);
     if (count === 0) {
-      db.run(`
+      const stmt = db.prepare(`
         INSERT INTO categories (user_id, name, color, icon, description) VALUES
-          ('self-hosted-user', 'Development', '#3b82f6', 'code', 'Development tools and APIs'),
-          ('self-hosted-user', 'Personal', '#10b981', 'user', 'Personal accounts and services'),
-          ('self-hosted-user', 'Work', '#f59e0b', 'briefcase', 'Work-related credentials'),
-          ('self-hosted-user', 'Social Media', '#ec4899', 'users', 'Social media accounts'),
-          ('self-hosted-user', 'Finance', '#06b6d4', 'credit-card', 'Banking and financial services'),
-          ('self-hosted-user', 'Cloud Services', '#8b5cf6', 'cloud', 'Cloud platforms and services'),
-          ('self-hosted-user', 'Security', '#ef4444', 'shield', 'Security tools and certificates');
+          (?, 'Development', '#3b82f6', 'code', 'Development tools and APIs'),
+          (?, 'Personal', '#10b981', 'user', 'Personal accounts and services'),
+          (?, 'Work', '#f59e0b', 'briefcase', 'Work-related credentials'),
+          (?, 'Social Media', '#ec4899', 'users', 'Social media accounts'),
+          (?, 'Finance', '#06b6d4', 'credit-card', 'Banking and financial services'),
+          (?, 'Cloud Services', '#8b5cf6', 'cloud', 'Cloud platforms and services'),
+          (?, 'Security', '#ef4444', 'shield', 'Security tools and certificates');
       `);
+      try {
+        stmt.bind([currentUserId, currentUserId, currentUserId, currentUserId, currentUserId, currentUserId, currentUserId]);
+        stmt.step();
+      } finally {
+        stmt.free();
+      }
     }
   } finally {
     countResult.free();

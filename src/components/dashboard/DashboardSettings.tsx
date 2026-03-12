@@ -24,7 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getCurrentUsername, clearSupabaseCredentials, supabase, saveSupabaseCredentials, getSupabaseCredentials, saveCurrentUsername, getDatabaseProvider } from '@/integrations/supabase/client';
 import { secureVault } from '@/services/SecureVault';
 import setupSqlScript from '/supabase-setup.sql?raw';
-import updateSqlScript from '/migration-add-document-misc-types.sql?raw';
+import updateSqlScript from '/update-db.sql?raw';
 
 interface DashboardSettingsProps {
   onUserCreated?: () => void;
