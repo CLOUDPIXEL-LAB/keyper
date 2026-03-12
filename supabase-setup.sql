@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS credentials (
   user_id TEXT NOT NULL DEFAULT 'self-hosted-user',
   title TEXT NOT NULL,
   description TEXT,
-  credential_type TEXT NOT NULL DEFAULT 'secret' CHECK (credential_type IN ('api_key', 'login', 'secret', 'token', 'certificate')),
+  credential_type TEXT NOT NULL DEFAULT 'secret' CHECK (credential_type IN ('api_key', 'login', 'secret', 'token', 'certificate', 'document', 'misc')),
   priority TEXT NOT NULL DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'critical')),
   username TEXT,
   url TEXT,

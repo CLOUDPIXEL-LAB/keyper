@@ -22,7 +22,7 @@ export interface Credential {
   id: string;
   title: string;
   description?: string;
-  credential_type: 'api_key' | 'login' | 'secret' | 'token' | 'certificate';
+  credential_type: 'api_key' | 'login' | 'secret' | 'token' | 'certificate' | 'document' | 'misc';
   priority: 'low' | 'medium' | 'high' | 'critical';
   username?: string;
   password?: string;
@@ -30,6 +30,11 @@ export interface Credential {
   secret_value?: string;
   token_value?: string;
   certificate_data?: string;
+  misc_value?: string;
+  document_name?: string;
+  document_mime_type?: string;
+  document_content_base64?: string;
+  document_size_bytes?: number;
   url?: string;
   tags: string[];
   category?: string;

@@ -9,6 +9,8 @@ import {
   Shield, 
   Code, 
   Award,
+  FileText,
+  Braces,
   Clock,
   Eye
 } from 'lucide-react';
@@ -37,6 +39,10 @@ export const CredentialsGrid = ({
         return <Code className="h-4 w-4" />;
       case 'certificate':
         return <Award className="h-4 w-4" />;
+      case 'document':
+        return <FileText className="h-4 w-4" />;
+      case 'misc':
+        return <Braces className="h-4 w-4" />;
       default:
         return <Key className="h-4 w-4" />;
     }

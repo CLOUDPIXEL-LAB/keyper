@@ -30,6 +30,8 @@ import {
   ShieldCheck,
   Code,
   Award,
+  FileText,
+  Braces,
   ExternalLink,
   Calendar,
   Clock,
@@ -69,7 +71,9 @@ export default function EncryptedCredentialDetailModal({
     credential.api_key ||
     credential.secret_value ||
     credential.token_value ||
-    credential.certificate_data
+    credential.certificate_data ||
+    credential.misc_value ||
+    credential.document_content_base64
   );
 
   // Get category info
@@ -90,6 +94,8 @@ export default function EncryptedCredentialDetailModal({
     secret: Shield,
     token: Code,
     certificate: Award,
+    document: FileText,
+    misc: Braces,
   };
 
   const TypeIcon = typeIcons[credential.credential_type] || Key;
@@ -338,6 +344,19 @@ export default function EncryptedCredentialDetailModal({
                       plaintextValue={credential.certificate_data}
                       label="Certificate Data"
                       placeholder="No certificate data set"
+                      showEncryptionStatus={true}
+                    />
+                  </div>
+                )}
+
+                {credential.credential_type === 'misc' && (
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground mb-2 block">Misc Sensitive Value</label>
+                    <EncryptedField
+                      encryptedBlob={credential.secret_blob ? JSON.parse(JSON.stringify(credential.secret_blob)) : null}
+                      plaintextValue={credential.misc_value}
+                      label="Misc Sensitive Value"
+                      placeholder="No misc value set"
                       showEncryptionStatus={true}
                     />
                   </div>

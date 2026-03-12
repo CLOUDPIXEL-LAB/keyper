@@ -39,7 +39,7 @@ interface EncryptedCredentialFormProps {
     id?: string;
     title: string;
     description?: string;
-    credential_type: 'api_key' | 'login' | 'secret' | 'token' | 'certificate';
+    credential_type: 'api_key' | 'login' | 'secret' | 'token' | 'certificate' | 'document' | 'misc';
     priority: 'low' | 'medium' | 'high' | 'critical';
     username?: string;
     password?: string;
@@ -47,6 +47,11 @@ interface EncryptedCredentialFormProps {
     secret_value?: string;
     token_value?: string;
     certificate_data?: string;
+    misc_value?: string;
+    document_name?: string;
+    document_mime_type?: string;
+    document_content_base64?: string;
+    document_size_bytes?: number;
     url?: string;
     category?: string;
     notes?: string;
@@ -65,7 +70,7 @@ interface EncryptedCredentialFormProps {
   isEditing?: boolean;
 }
 
-type CredentialType = 'api_key' | 'login' | 'secret' | 'token' | 'certificate';
+type CredentialType = 'api_key' | 'login' | 'secret' | 'token' | 'certificate' | 'document' | 'misc';
 type Priority = 'low' | 'medium' | 'high' | 'critical';
 
 export default function EncryptedCredentialForm({
@@ -86,6 +91,11 @@ export default function EncryptedCredentialForm({
     secret_value: initialData?.secret_value || '',
     token_value: initialData?.token_value || '',
     certificate_data: initialData?.certificate_data || '',
+    misc_value: initialData?.misc_value || '',
+    document_name: initialData?.document_name || '',
+    document_mime_type: initialData?.document_mime_type || '',
+    document_content_base64: initialData?.document_content_base64 || '',
+    document_size_bytes: initialData?.document_size_bytes || 0,
     url: initialData?.url || '',
     category: initialData?.category || '',
     notes: initialData?.notes || '',
@@ -107,6 +117,8 @@ export default function EncryptedCredentialForm({
     { value: 'secret', label: 'Secret' },
     { value: 'token', label: 'Token' },
     { value: 'certificate', label: 'Certificate' },
+    { value: 'document', label: 'Document' },
+    { value: 'misc', label: 'Miscellaneous' },
   ] as const;
 
   const priorities = [
@@ -132,7 +144,9 @@ export default function EncryptedCredentialForm({
       formData.api_key ||
       formData.secret_value ||
       formData.token_value ||
-      formData.certificate_data
+      formData.certificate_data ||
+      formData.misc_value ||
+      formData.document_content_base64
     );
   };
 
@@ -184,6 +198,11 @@ export default function EncryptedCredentialForm({
           secret_value: formData.secret_value.trim() || undefined,
           token_value: formData.token_value.trim() || undefined,
           certificate_data: formData.certificate_data.trim() || undefined,
+          misc_value: formData.misc_value.trim() || undefined,
+          document_name: formData.document_name || undefined,
+          document_mime_type: formData.document_mime_type || undefined,
+          document_content_base64: formData.document_content_base64 || undefined,
+          document_size_bytes: formData.document_size_bytes || undefined,
         });
 
         credentialData = {
@@ -196,6 +215,11 @@ export default function EncryptedCredentialForm({
           secret_value: null,
           token_value: null,
           certificate_data: null,
+          misc_value: null,
+          document_name: null,
+          document_mime_type: null,
+          document_content_base64: null,
+          document_size_bytes: null,
         };
       } else {
         // Store as plaintext (not recommended for production)
@@ -206,6 +230,11 @@ export default function EncryptedCredentialForm({
           secret_value: formData.secret_value.trim() || null,
           token_value: formData.token_value.trim() || null,
           certificate_data: formData.certificate_data.trim() || null,
+          misc_value: formData.misc_value.trim() || null,
+          document_name: formData.document_name || null,
+          document_mime_type: formData.document_mime_type || null,
+          document_content_base64: formData.document_content_base64 || null,
+          document_size_bytes: formData.document_size_bytes || null,
           secret_blob: null,
           encrypted_at: null,
         };
@@ -464,6 +493,32 @@ export default function EncryptedCredentialForm({
                   value={formData.certificate_data}
                   onChange={(e) => setFormData({ ...formData, certificate_data: e.target.value })}
                   placeholder="Certificate content (PEM format)"
+                  rows={6}
+                />
+              </div>
+            )}
+
+            {formData.credential_type === 'document' && (
+              <div className="space-y-2">
+                <Label htmlFor="document_content_base64">Document (base64)</Label>
+                <Textarea
+                  id="document_content_base64"
+                  value={formData.document_content_base64}
+                  onChange={(e) => setFormData({ ...formData, document_content_base64: e.target.value })}
+                  placeholder="Paste base64 document content"
+                  rows={4}
+                />
+              </div>
+            )}
+
+            {formData.credential_type === 'misc' && (
+              <div className="space-y-2">
+                <Label htmlFor="misc_value">Sensitive Value</Label>
+                <Textarea
+                  id="misc_value"
+                  value={formData.misc_value}
+                  onChange={(e) => setFormData({ ...formData, misc_value: e.target.value })}
+                  placeholder="Multiline secret value"
                   rows={6}
                 />
               </div>

@@ -18,7 +18,7 @@ export interface EncryptedCredential {
   user_id: string;
   title: string;
   description?: string | null;
-  credential_type: 'api_key' | 'login' | 'secret' | 'token' | 'certificate';
+  credential_type: 'api_key' | 'login' | 'secret' | 'token' | 'certificate' | 'document' | 'misc';
   priority: 'low' | 'medium' | 'high' | 'critical';
   username?: string | null;
   url?: string | null;
@@ -39,6 +39,11 @@ export interface EncryptedCredential {
   secret_value?: string | null;
   token_value?: string | null;
   certificate_data?: string | null;
+  misc_value?: string | null;
+  document_name?: string | null;
+  document_mime_type?: string | null;
+  document_content_base64?: string | null;
+  document_size_bytes?: number | null;
 }
 
 // Decrypted credential data structure
@@ -48,13 +53,18 @@ export interface DecryptedSecrets {
   secret_value?: string | null;
   token_value?: string | null;
   certificate_data?: string | null;
+  misc_value?: string | null;
+  document_name?: string | null;
+  document_mime_type?: string | null;
+  document_content_base64?: string | null;
+  document_size_bytes?: number | null;
 }
 
 // Input for creating/updating credentials
 export interface CredentialInput {
   title: string;
   description?: string;
-  credential_type: 'api_key' | 'login' | 'secret' | 'token' | 'certificate';
+  credential_type: 'api_key' | 'login' | 'secret' | 'token' | 'certificate' | 'document' | 'misc';
   priority: 'low' | 'medium' | 'high' | 'critical';
   username?: string;
   url?: string;
@@ -119,6 +129,11 @@ export async function createEncryptedCredential(input: CredentialInput): Promise
         secret_value: null,
         token_value: null,
         certificate_data: null,
+        misc_value: null,
+        document_name: null,
+        document_mime_type: null,
+        document_content_base64: null,
+        document_size_bytes: null,
       };
     } catch (error) {
       throw new CryptoError(
@@ -141,6 +156,11 @@ export async function createEncryptedCredential(input: CredentialInput): Promise
       secret_value: null,
       token_value: null,
       certificate_data: null,
+      misc_value: null,
+      document_name: null,
+      document_mime_type: null,
+      document_content_base64: null,
+      document_size_bytes: null,
       secret_blob: null,
       encrypted_at: null,
     };
@@ -228,6 +248,11 @@ export async function decryptCredentialSecrets(credential: EncryptedCredential):
     secret_value: credential.secret_value,
     token_value: credential.token_value,
     certificate_data: credential.certificate_data,
+    misc_value: credential.misc_value,
+    document_name: credential.document_name,
+    document_mime_type: credential.document_mime_type,
+    document_content_base64: credential.document_content_base64,
+    document_size_bytes: credential.document_size_bytes,
   };
 }
 
@@ -278,6 +303,11 @@ export async function updateEncryptedCredential(
         updateData.secret_value = null;
         updateData.token_value = null;
         updateData.certificate_data = null;
+        updateData.misc_value = null;
+        updateData.document_name = null;
+        updateData.document_mime_type = null;
+        updateData.document_content_base64 = null;
+        updateData.document_size_bytes = null;
       } catch (error) {
         throw new CryptoError(
           CryptoErrorType.ENCRYPTION_FAILED,
@@ -297,6 +327,11 @@ export async function updateEncryptedCredential(
       updateData.secret_value = null;
       updateData.token_value = null;
       updateData.certificate_data = null;
+      updateData.misc_value = null;
+      updateData.document_name = null;
+      updateData.document_mime_type = null;
+      updateData.document_content_base64 = null;
+      updateData.document_size_bytes = null;
       updateData.secret_blob = null;
       updateData.encrypted_at = null;
     }

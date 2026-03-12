@@ -44,6 +44,8 @@ export const SearchAndFilters = ({
     { value: 'secret', label: 'Secret' },
     { value: 'token', label: 'Token' },
     { value: 'certificate', label: 'Certificate' },
+    { value: 'document', label: 'Document' },
+    { value: 'misc', label: 'Miscellaneous' },
   ];
 
   const toggleTag = (tag: string) => {

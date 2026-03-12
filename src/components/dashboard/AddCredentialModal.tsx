@@ -21,7 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useEncryption } from '@/hooks/useVault';
 import { supabase, getCurrentUsername } from '@/integrations/supabase/client';
-import { X, Plus, Upload } from 'lucide-react';
+import { X, Plus, Upload, FileText, Trash2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Category } from '../SelfHostedDashboard';
 
@@ -32,8 +32,33 @@ interface AddCredentialModalProps {
   onCredentialAdded: () => void;
 }
 
-type CredentialType = 'api_key' | 'login' | 'secret' | 'token' | 'certificate';
+type CredentialType =
+  | 'api_key'
+  | 'login'
+  | 'secret'
+  | 'token'
+  | 'certificate'
+  | 'document'
+  | 'misc';
 type Priority = 'low' | 'medium' | 'high' | 'critical';
+
+const DOCUMENT_ACCEPT = '.pdf,.doc,.docx,.odt,.txt,.md';
+const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024;
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = '';
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 export const AddCredentialModal = ({
   isOpen,
@@ -52,6 +77,11 @@ export const AddCredentialModal = ({
     secret_value: '',
     token_value: '',
     certificate_data: '',
+    misc_value: '',
+    document_name: '',
+    document_mime_type: '',
+    document_content_base64: '',
+    document_size_bytes: 0,
     url: '',
     category: '',
     notes: '',
@@ -62,6 +92,7 @@ export const AddCredentialModal = ({
   const [noExpiration, setNoExpiration] = useState(false);
   const [loading, setLoading] = useState(false);
   const certificateFileInputRef = useRef<HTMLInputElement>(null);
+  const documentFileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { encryptCredential, isUnlocked } = useEncryption();
 
@@ -71,6 +102,8 @@ export const AddCredentialModal = ({
     { value: 'secret', label: 'Secret' },
     { value: 'token', label: 'Token' },
     { value: 'certificate', label: 'Certificate' },
+    { value: 'document', label: 'Document' },
+    { value: 'misc', label: 'Miscellaneous' },
   ] as const;
 
   const priorities = [
@@ -84,45 +117,63 @@ export const AddCredentialModal = ({
     e.preventDefault();
     if (!formData.title.trim()) {
       toast({
-        title: "Error",
-        description: "Title is required",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Title is required',
+        variant: 'destructive',
       });
       return;
     }
     if (formData.credential_type === 'certificate' && !formData.certificate_data.trim()) {
       toast({
-        title: "Error",
-        description: "Certificate content is required for certificate credentials",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Certificate content is required for certificate credentials',
+        variant: 'destructive',
+      });
+      return;
+    }
+    if (formData.credential_type === 'document' && !formData.document_content_base64) {
+      toast({
+        title: 'Error',
+        description: 'Please upload a document before saving this credential',
+        variant: 'destructive',
+      });
+      return;
+    }
+    if (formData.credential_type === 'misc' && !formData.misc_value.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a value for this miscellaneous credential',
+        variant: 'destructive',
       });
       return;
     }
 
     if (!isUnlocked) {
       toast({
-        title: "Error",
-        description: "Vault must be unlocked to add credentials",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Vault must be unlocked to add credentials',
+        variant: 'destructive',
       });
       return;
     }
 
     setLoading(true);
     try {
-      // For self-hosted version, use the current username from settings
       const currentUsername = getCurrentUsername();
 
-      // Encrypt the sensitive credential data
       const { secret_blob, encrypted_at } = await encryptCredential({
         password: formData.password.trim() || undefined,
         api_key: formData.api_key.trim() || undefined,
         secret_value: formData.secret_value.trim() || undefined,
         token_value: formData.token_value.trim() || undefined,
         certificate_data: formData.certificate_data.trim() || undefined,
+        misc_value: formData.misc_value.trim() || undefined,
+        document_name: formData.document_name || undefined,
+        document_mime_type: formData.document_mime_type || undefined,
+        document_content_base64: formData.document_content_base64 || undefined,
+        document_size_bytes: formData.document_size_bytes || undefined,
       });
 
-      // Insert the credential with encrypted data
       const { error } = await supabase.from('credentials').insert({
         user_id: currentUsername,
         title: formData.title.trim(),
@@ -142,8 +193,8 @@ export const AddCredentialModal = ({
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "Credential added successfully",
+        title: 'Success',
+        description: 'Credential added successfully',
       });
 
       onCredentialAdded();
@@ -151,10 +202,11 @@ export const AddCredentialModal = ({
       resetForm();
     } catch (error: unknown) {
       console.error('Error adding credential:', error);
+      const message = error instanceof Error ? error.message : 'Failed to add credential';
       toast({
-        title: "Error",
-        description: error.message || "Failed to add credential",
-        variant: "destructive",
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -173,6 +225,11 @@ export const AddCredentialModal = ({
       secret_value: '',
       token_value: '',
       certificate_data: '',
+      misc_value: '',
+      document_name: '',
+      document_mime_type: '',
+      document_content_base64: '',
+      document_size_bytes: 0,
       url: '',
       category: '',
       notes: '',
@@ -203,10 +260,7 @@ export const AddCredentialModal = ({
 
   const handleCertificateFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-
-    if (!file) {
-      return;
-    }
+    if (!file) return;
 
     try {
       const content = await file.text();
@@ -225,6 +279,56 @@ export const AddCredentialModal = ({
     } finally {
       e.target.value = '';
     }
+  };
+
+  const handleDocumentFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_DOCUMENT_BYTES) {
+      toast({
+        title: 'File too large',
+        description: `Document exceeds ${formatBytes(MAX_DOCUMENT_BYTES)} limit.`,
+        variant: 'destructive',
+      });
+      e.target.value = '';
+      return;
+    }
+
+    try {
+      const buffer = await file.arrayBuffer();
+      const base64 = bytesToBase64(new Uint8Array(buffer));
+      setFormData((prev) => ({
+        ...prev,
+        document_name: file.name,
+        document_mime_type: file.type || 'application/octet-stream',
+        document_content_base64: base64,
+        document_size_bytes: file.size,
+      }));
+      toast({
+        title: 'Document loaded',
+        description: `${file.name} is ready to save.`,
+      });
+    } catch (error) {
+      console.error('Error reading document file:', error);
+      toast({
+        title: 'Upload failed',
+        description: 'Could not read document file.',
+        variant: 'destructive',
+      });
+    } finally {
+      e.target.value = '';
+    }
+  };
+
+  const clearDocument = () => {
+    setFormData((prev) => ({
+      ...prev,
+      document_name: '',
+      document_mime_type: '',
+      document_content_base64: '',
+      document_size_bytes: 0,
+    }));
   };
 
   return (
@@ -246,7 +350,7 @@ export const AddCredentialModal = ({
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 className="bg-gray-800 border-gray-700 text-white"
                 placeholder="e.g., GitHub API Key"
               />
@@ -256,7 +360,7 @@ export const AddCredentialModal = ({
               <Label htmlFor="type" className="text-white">Type</Label>
               <Select
                 value={formData.credential_type}
-                onValueChange={(value: CredentialType) => setFormData({...formData, credential_type: value})}
+                onValueChange={(value: CredentialType) => setFormData({ ...formData, credential_type: value })}
               >
                 <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
                   <SelectValue />
@@ -277,14 +381,13 @@ export const AddCredentialModal = ({
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="bg-gray-800 border-gray-700 text-white"
               placeholder="Brief description of this credential"
               rows={2}
             />
           </div>
 
-          {/* Credential Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {formData.credential_type === 'login' && (
               <>
@@ -293,7 +396,7 @@ export const AddCredentialModal = ({
                   <Input
                     id="username"
                     value={formData.username}
-                    onChange={(e) => setFormData({...formData, username: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                     className="bg-gray-800 border-gray-700 text-white"
                   />
                 </div>
@@ -303,7 +406,7 @@ export const AddCredentialModal = ({
                     id="password"
                     type="password"
                     value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     className="bg-gray-800 border-gray-700 text-white"
                   />
                 </div>
@@ -317,7 +420,7 @@ export const AddCredentialModal = ({
                   id="api_key"
                   type="password"
                   value={formData.api_key}
-                  onChange={(e) => setFormData({...formData, api_key: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, api_key: e.target.value })}
                   className="bg-gray-800 border-gray-700 text-white"
                 />
               </div>
@@ -380,12 +483,78 @@ export const AddCredentialModal = ({
               </div>
             )}
 
+            {formData.credential_type === 'document' && (
+              <div className="md:col-span-2 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <Label className="text-white">Document</Label>
+                  <input
+                    ref={documentFileInputRef}
+                    type="file"
+                    accept={DOCUMENT_ACCEPT}
+                    className="hidden"
+                    onChange={handleDocumentFileUpload}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => documentFileInputRef.current?.click()}
+                    className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Document
+                  </Button>
+                </div>
+
+                {formData.document_name ? (
+                  <div className="flex items-center justify-between rounded-md border border-gray-700 bg-gray-800/70 px-3 py-2">
+                    <div className="min-w-0">
+                      <p className="text-sm text-gray-100 truncate flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-cyan-400" />
+                        {formData.document_name}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {formatBytes(formData.document_size_bytes)}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={clearDocument}
+                      className="text-gray-400 hover:text-white hover:bg-gray-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-400">
+                    Supported: PDF, DOC, DOCX, ODT, TXT, MD (up to {formatBytes(MAX_DOCUMENT_BYTES)}).
+                  </p>
+                )}
+              </div>
+            )}
+
+            {formData.credential_type === 'misc' && (
+              <div className="md:col-span-2 space-y-2">
+                <Label htmlFor="misc_value" className="text-white">Sensitive Value</Label>
+                <Textarea
+                  id="misc_value"
+                  value={formData.misc_value}
+                  onChange={(e) => setFormData({ ...formData, misc_value: e.target.value })}
+                  className="bg-gray-800 border-gray-700 text-white font-mono text-sm"
+                  placeholder="Paste any sensitive multiline text, scripts, or commands here"
+                  rows={8}
+                />
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="url" className="text-white">URL</Label>
               <Input
                 id="url"
                 value={formData.url}
-                onChange={(e) => setFormData({...formData, url: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                 className="bg-gray-800 border-gray-700 text-white"
                 placeholder="https://example.com"
               />
@@ -411,7 +580,7 @@ export const AddCredentialModal = ({
                 id="expires_at"
                 type="date"
                 value={formData.expires_at}
-                onChange={(e) => setFormData({...formData, expires_at: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, expires_at: e.target.value })}
                 disabled={noExpiration}
                 className="bg-gray-800 border-gray-700 text-white disabled:opacity-40 disabled:cursor-not-allowed"
               />
@@ -423,7 +592,7 @@ export const AddCredentialModal = ({
               <Label htmlFor="category" className="text-white">Category</Label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => setFormData({...formData, category: value})}
+                onValueChange={(value) => setFormData({ ...formData, category: value })}
               >
                 <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
                   <SelectValue placeholder="Select category" />
@@ -442,7 +611,7 @@ export const AddCredentialModal = ({
               <Label htmlFor="priority" className="text-white">Priority</Label>
               <Select
                 value={formData.priority}
-                onValueChange={(value: Priority) => setFormData({...formData, priority: value})}
+                onValueChange={(value: Priority) => setFormData({ ...formData, priority: value })}
               >
                 <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
                   <SelectValue />
@@ -458,7 +627,6 @@ export const AddCredentialModal = ({
             </div>
           </div>
 
-          {/* Tags */}
           <div className="space-y-2">
             <Label className="text-white">Tags</Label>
             <div className="flex items-center space-x-2">
@@ -505,7 +673,7 @@ export const AddCredentialModal = ({
             <Textarea
               id="notes"
               value={formData.notes}
-              onChange={(e) => setFormData({...formData, notes: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               className="bg-gray-800 border-gray-700 text-white"
               placeholder="Additional notes about this credential"
               rows={3}

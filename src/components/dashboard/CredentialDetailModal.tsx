@@ -21,6 +21,9 @@ import {
   Shield,
   Code,
   Award,
+  FileText,
+  Braces,
+  Download,
   ExternalLink,
   Calendar,
   Clock
@@ -49,6 +52,11 @@ export const CredentialDetailModal = ({
     secret_value?: string;
     token_value?: string;
     certificate_data?: string;
+    misc_value?: string;
+    document_name?: string;
+    document_mime_type?: string;
+    document_content_base64?: string;
+    document_size_bytes?: number;
   }>({});
   const [isDecryptingSecrets, setIsDecryptingSecrets] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -73,6 +81,10 @@ export const CredentialDetailModal = ({
         return <Code className="h-5 w-5" />;
       case 'certificate':
         return <Award className="h-5 w-5" />;
+      case 'document':
+        return <FileText className="h-5 w-5" />;
+      case 'misc':
+        return <Braces className="h-5 w-5" />;
       default:
         return <Key className="h-5 w-5" />;
     }
@@ -168,6 +180,36 @@ export const CredentialDetailModal = ({
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const downloadDocument = () => {
+    const base64 = decryptedSecrets.document_content_base64 ?? credential.document_content_base64;
+    const fileName = decryptedSecrets.document_name ?? credential.document_name ?? 'document.bin';
+    const mimeType = decryptedSecrets.document_mime_type ?? credential.document_mime_type ?? 'application/octet-stream';
+    if (!base64) return;
+
+    try {
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = fileName;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      updateLastAccessed();
+    } catch (error) {
+      console.error('Failed to download document:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to download stored document',
+        variant: 'destructive',
+      });
+    }
   };
 
   useEffect(() => {
@@ -313,6 +355,36 @@ export const CredentialDetailModal = ({
                 value={decryptedSecrets.certificate_data ?? credential.certificate_data ?? null}
                 field="certificate_data"
               />
+              <SensitiveField
+                label="Misc Sensitive Value"
+                value={decryptedSecrets.misc_value ?? credential.misc_value ?? null}
+                field="misc_value"
+              />
+
+              {(decryptedSecrets.document_content_base64 ?? credential.document_content_base64) && (
+                <div className="space-y-2 min-w-0">
+                  <label className="text-sm font-medium text-gray-300">Document</label>
+                  <div className="flex items-center justify-between rounded-md border border-gray-700 bg-gray-800/70 px-3 py-2 gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm text-gray-100 truncate">
+                        {decryptedSecrets.document_name ?? credential.document_name ?? 'Stored document'}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {decryptedSecrets.document_mime_type ?? credential.document_mime_type ?? 'application/octet-stream'}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={downloadDocument}
+                      className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               {credential.secret_blob && !isUnlocked && (
                 <p className="text-xs text-amber-400 bg-amber-950/20 border border-amber-800/40 rounded-md px-3 py-2">

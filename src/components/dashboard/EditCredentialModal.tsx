@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,10 @@ import {
   X,
   Plus,
   Save,
-  Loader2
+  Loader2,
+  Upload,
+  FileText,
+  Trash2,
 } from 'lucide-react';
 import { Credential, Category } from '../SelfHostedDashboard';
 
@@ -29,16 +32,36 @@ interface EditCredentialModalProps {
   onCredentialUpdated: () => void;
 }
 
+const DOCUMENT_ACCEPT = '.pdf,.doc,.docx,.odt,.txt,.md';
+const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024;
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = '';
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export const EditCredentialModal = ({
   credential,
   onClose,
   categories,
   onCredentialUpdated,
 }: EditCredentialModalProps) => {
+  const documentFileInputRef = useRef<HTMLInputElement>(null);
+  const certificateFileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<{
     title: string;
     description: string;
-    credential_type: 'api_key' | 'login' | 'secret' | 'token' | 'certificate';
+    credential_type: 'api_key' | 'login' | 'secret' | 'token' | 'certificate' | 'document' | 'misc';
     priority: 'low' | 'medium' | 'high' | 'critical';
     username: string;
     password: string;
@@ -46,6 +69,11 @@ export const EditCredentialModal = ({
     secret_value: string;
     token_value: string;
     certificate_data: string;
+    misc_value: string;
+    document_name: string;
+    document_mime_type: string;
+    document_content_base64: string;
+    document_size_bytes: number;
     url: string;
     category: string;
     notes: string;
@@ -61,6 +89,11 @@ export const EditCredentialModal = ({
     secret_value: '',
     token_value: '',
     certificate_data: '',
+    misc_value: '',
+    document_name: '',
+    document_mime_type: '',
+    document_content_base64: '',
+    document_size_bytes: 0,
     url: '',
     category: '',
     notes: '',
@@ -85,6 +118,11 @@ export const EditCredentialModal = ({
               secret_value: result.secret_value || '',
               token_value: result.token_value || '',
               certificate_data: result.certificate_data || '',
+              misc_value: result.misc_value || '',
+              document_name: result.document_name || '',
+              document_mime_type: result.document_mime_type || '',
+              document_content_base64: result.document_content_base64 || '',
+              document_size_bytes: String(result.document_size_bytes || ''),
             };
           } catch (e) {
             console.error('Failed to decrypt credential secrets for editing', e);
@@ -101,6 +139,11 @@ export const EditCredentialModal = ({
           secret_value: decryptedSecrets.secret_value ?? '',
           token_value: decryptedSecrets.token_value ?? '',
           certificate_data: decryptedSecrets.certificate_data ?? '',
+          misc_value: decryptedSecrets.misc_value ?? '',
+          document_name: decryptedSecrets.document_name ?? '',
+          document_mime_type: decryptedSecrets.document_mime_type ?? '',
+          document_content_base64: decryptedSecrets.document_content_base64 ?? '',
+          document_size_bytes: Number(decryptedSecrets.document_size_bytes ?? 0),
           url: credential.url || '',
           category: credential.category || '',
           notes: credential.notes || '',
@@ -116,13 +159,40 @@ export const EditCredentialModal = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.credential_type === 'certificate' && !formData.certificate_data.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Certificate content is required for certificate credentials',
+        variant: 'destructive',
+      });
+      return;
+    }
+    if (formData.credential_type === 'document' && !formData.document_content_base64) {
+      toast({
+        title: 'Error',
+        description: 'Please upload a document before saving this credential',
+        variant: 'destructive',
+      });
+      return;
+    }
+    if (formData.credential_type === 'misc' && !formData.misc_value.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a value for this miscellaneous credential',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
       // Encrypt any sensitive data that was entered
       const hasSensitiveData = !!(formData.password.trim() || formData.api_key.trim() ||
                                    formData.secret_value.trim() || formData.token_value.trim() ||
-                                   formData.certificate_data.trim());
+                                   formData.certificate_data.trim() || formData.misc_value.trim() ||
+                                   formData.document_content_base64);
 
       let newSecretBlob = credential.secret_blob ?? null;
       let newEncryptedAt = credential.encrypted_at ?? null;
@@ -134,6 +204,11 @@ export const EditCredentialModal = ({
           secret_value: formData.secret_value.trim() || undefined,
           token_value: formData.token_value.trim() || undefined,
           certificate_data: formData.certificate_data.trim() || undefined,
+          misc_value: formData.misc_value.trim() || undefined,
+          document_name: formData.document_name || undefined,
+          document_mime_type: formData.document_mime_type || undefined,
+          document_content_base64: formData.document_content_base64 || undefined,
+          document_size_bytes: formData.document_size_bytes || undefined,
         });
         newSecretBlob = encrypted.secret_blob;
         newEncryptedAt = encrypted.encrypted_at;
@@ -199,6 +274,78 @@ export const EditCredentialModal = ({
     }
   };
 
+  const handleCertificateFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const content = await file.text();
+      setFormData((prev) => ({ ...prev, certificate_data: content }));
+      toast({
+        title: 'Certificate loaded',
+        description: `${file.name} is ready to save.`,
+      });
+    } catch (error) {
+      console.error('Error reading certificate file:', error);
+      toast({
+        title: 'Upload failed',
+        description: 'Could not read certificate file. Please paste content instead.',
+        variant: 'destructive',
+      });
+    } finally {
+      e.target.value = '';
+    }
+  };
+
+  const handleDocumentFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_DOCUMENT_BYTES) {
+      toast({
+        title: 'File too large',
+        description: `Document exceeds ${formatBytes(MAX_DOCUMENT_BYTES)} limit.`,
+        variant: 'destructive',
+      });
+      e.target.value = '';
+      return;
+    }
+
+    try {
+      const buffer = await file.arrayBuffer();
+      const base64 = bytesToBase64(new Uint8Array(buffer));
+      setFormData((prev) => ({
+        ...prev,
+        document_name: file.name,
+        document_mime_type: file.type || 'application/octet-stream',
+        document_content_base64: base64,
+        document_size_bytes: file.size,
+      }));
+      toast({
+        title: 'Document loaded',
+        description: `${file.name} is ready to save.`,
+      });
+    } catch (error) {
+      console.error('Error reading document file:', error);
+      toast({
+        title: 'Upload failed',
+        description: 'Could not read document file.',
+        variant: 'destructive',
+      });
+    } finally {
+      e.target.value = '';
+    }
+  };
+
+  const clearDocument = () => {
+    setFormData((prev) => ({
+      ...prev,
+      document_name: '',
+      document_mime_type: '',
+      document_content_base64: '',
+      document_size_bytes: 0,
+    }));
+  };
+
   return (
     <Dialog open={!!credential} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700 text-white">
@@ -242,6 +389,8 @@ export const EditCredentialModal = ({
                 <option value="secret">Secret</option>
                 <option value="token">Token</option>
                 <option value="certificate">Certificate</option>
+                <option value="document">Document</option>
+                <option value="misc">Miscellaneous</option>
               </select>
             </div>
           </div>
@@ -319,13 +468,97 @@ export const EditCredentialModal = ({
 
             {formData.credential_type === 'certificate' && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Certificate Data</label>
+                <div className="flex items-center justify-between gap-3">
+                  <label className="text-sm font-medium text-gray-300">Certificate Data</label>
+                  <input
+                    ref={certificateFileInputRef}
+                    type="file"
+                    accept=".pem,.crt,.cer,.txt"
+                    className="hidden"
+                    onChange={handleCertificateFileUpload}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => certificateFileInputRef.current?.click()}
+                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload File
+                  </Button>
+                </div>
                 <Textarea
                   value={formData.certificate_data}
                   onChange={(e) => setFormData({ ...formData, certificate_data: e.target.value })}
                   className="bg-gray-800 border-gray-700 text-white font-mono text-xs"
                   rows={5}
                   placeholder="Paste certificate content here"
+                />
+              </div>
+            )}
+
+            {formData.credential_type === 'document' && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <label className="text-sm font-medium text-gray-300">Document</label>
+                  <input
+                    ref={documentFileInputRef}
+                    type="file"
+                    accept={DOCUMENT_ACCEPT}
+                    className="hidden"
+                    onChange={handleDocumentFileUpload}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => documentFileInputRef.current?.click()}
+                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Document
+                  </Button>
+                </div>
+
+                {formData.document_name ? (
+                  <div className="flex items-center justify-between rounded-md border border-gray-700 bg-gray-800/70 px-3 py-2">
+                    <div className="min-w-0">
+                      <p className="text-sm text-gray-100 truncate flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-cyan-400" />
+                        {formData.document_name}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {formatBytes(formData.document_size_bytes)}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={clearDocument}
+                      className="text-gray-400 hover:text-white hover:bg-gray-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-400">
+                    Supported: PDF, DOC, DOCX, ODT, TXT, MD (up to {formatBytes(MAX_DOCUMENT_BYTES)}).
+                  </p>
+                )}
+              </div>
+            )}
+
+            {formData.credential_type === 'misc' && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Sensitive Value</label>
+                <Textarea
+                  value={formData.misc_value}
+                  onChange={(e) => setFormData({ ...formData, misc_value: e.target.value })}
+                  className="bg-gray-800 border-gray-700 text-white font-mono text-xs"
+                  rows={8}
+                  placeholder="Paste any sensitive multiline text, scripts, or commands here"
                 />
               </div>
             )}

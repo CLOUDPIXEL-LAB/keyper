@@ -198,6 +198,11 @@ export function useEncryption() {
     secret_value?: string;
     token_value?: string;
     certificate_data?: string;
+    misc_value?: string;
+    document_name?: string;
+    document_mime_type?: string;
+    document_content_base64?: string;
+    document_size_bytes?: number;
   }): Promise<{
     secret_blob: SecretBlobV1 | null;
     encrypted_at: string | null;
@@ -213,6 +218,11 @@ export function useEncryption() {
       secret_value: credential.secret_value || null,
       token_value: credential.token_value || null,
       certificate_data: credential.certificate_data || null,
+      misc_value: credential.misc_value || null,
+      document_name: credential.document_name || null,
+      document_mime_type: credential.document_mime_type || null,
+      document_content_base64: credential.document_content_base64 || null,
+      document_size_bytes: credential.document_size_bytes || null,
     };
 
     // Only encrypt if there's actual secret data
@@ -239,6 +249,11 @@ export function useEncryption() {
     secret_value?: string;
     token_value?: string;
     certificate_data?: string;
+    misc_value?: string;
+    document_name?: string;
+    document_mime_type?: string;
+    document_content_base64?: string;
+    document_size_bytes?: number;
   }> => {
     if (!vault.isUnlocked) {
       throw new CryptoError(CryptoErrorType.VAULT_LOCKED, 'Vault must be unlocked to decrypt credentials');
