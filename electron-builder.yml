@@ -30,9 +30,8 @@ directories:
   output: dist-electron
   buildResources: public
 
-# Keyper is a purely static SPA served via the custom app:// protocol.
-# The renderer has NO runtime Node dependencies, so node_modules must NOT
-# be included — doing so would balloon the installer by hundreds of MB.
+# Keyper is a static SPA in the renderer, but the Electron main process ships
+# one native runtime dependency for local desktop SQLite support.
 files:
   - dist/** # compiled Vite/React output (the app itself)
   - electron-dist/** # compiled Electron main + preload + CJS marker
@@ -41,8 +40,12 @@ files:
   - public/favicon.png
   - package.json
 
-# No native Node modules — no ABI rebuild needed.
-npmRebuild: false
+# better-sqlite3 must be rebuilt against Electron's ABI during packaging.
+npmRebuild: true
+
+# Native .node binaries cannot live inside app.asar.
+asarUnpack:
+  - node_modules/better-sqlite3/**
 
 # ── Linux ─────────────────────────────────────────────────────────────────────
 

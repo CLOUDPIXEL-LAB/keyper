@@ -84,8 +84,22 @@ let sqliteDb: any = null;
 let sqliteDbPath: string | null = null;
 
 function getBetterSqlite3(): any {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  return require('better-sqlite3');
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    return require('better-sqlite3');
+  } catch (error) {
+    const originalMessage = error instanceof Error ? error.message : String(error);
+
+    if (originalMessage.includes('NODE_MODULE_VERSION')) {
+      throw new Error(
+        'Keyper could not load its bundled SQLite engine because this build contains a native module compiled for the wrong runtime. ' +
+        'This is a packaging problem in the app build, not the end user\'s installed Node.js version. ' +
+        'Please rebuild the app after running "npm run electron:sync-native".'
+      );
+    }
+
+    throw error;
+  }
 }
 
 function getDefaultSqlitePath(): string {
