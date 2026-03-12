@@ -12,25 +12,15 @@ updates:
           - "*"
       minor-and-patch:
         applies-to: security-updates
-        update-types: [
-          "patch",
-          "minor"
-        ]
+        update-types: ["patch", "minor"]
       support-dependencies:
         applies-to: version-updates
-        update-types: [
-          "patch",
-          "minor"
-        ]
-      ignore:
-        - dependency-name: "npm"
-          update-types: [ "version-update:semver-major" ]
-          
+        update-types: ["patch", "minor"]
+    ignore:
+      - dependency-name: "npm"
+        update-types: ["version-update:semver-major"]
+
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
-    groups:
-      ignore:
-        - dependency-name: "npm"
-          update-types: [ "version-update:semver-major" ]
