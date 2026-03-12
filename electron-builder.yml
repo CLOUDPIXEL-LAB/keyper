@@ -71,10 +71,11 @@ linux:
     encryption, Argon2 key derivation, PWA support, and a professional-grade
     security architecture.
   desktop:
-    Name: Keyper
-    StartupWMClass: keyper
-    Comment: Self-hosted credential manager with zero-knowledge encryption
-    Categories: Development;Utility;
+    entry:
+      Name: Keyper
+      StartupWMClass: keyper
+      Comment: Self-hosted credential manager with zero-knowledge encryption
+      Categories: Development;Utility;
 
 deb:
   artifactName: "keyper_${version}_${arch}.deb"
