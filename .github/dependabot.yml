@@ -1,28 +1,35 @@
+# Dependabot configuration file
+
 version: 2
 updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
     groups:
-      support-dependencies:
-        applies-to: version-updates
+      all:
         patterns:
           - "*"
-        update-types:
-          - "patch"
-          - "minor"
-          - "major"
       minor-and-patch:
         applies-to: security-updates
-        patterns:
-          - "*"
-        update-types:
-          - "patch"
-          - "minor"
+        update-types: [
+            "version-update:semver-patch",
+            "version-update:semver-minor"
+        ]
+      support-dependencies:
+        applies-to: version-updates
+        update-types: [
+          "version-update:semver-patch",
+          "version-update:semver-minor"
+        ]
       ignore:
-        applies to:
-        update-types: 
-          - "major"
-    assignees:
-      - "Copilot"
+        - dependency-name: "npm"
+          update-types: [ "version-update:semver-major" ]
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      ignore:
+        - dependency-name: "npm"
+          update-types: [ "version-update:semver-major" ]
