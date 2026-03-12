@@ -53,7 +53,7 @@ docker build -t keyper .
 docker run -d -p 8080:80 --name keyper --restart unless-stopped keyper
 ```
 
-No environment variables or volumes are required. All configuration (Supabase credentials or SQLite provider selection) is entered in-app and persists only in the user's browser `localStorage`.
+No environment variables or volumes are required. Configuration (Supabase credentials, provider selection, username, optional SQLite path/name) is entered in-app. In browser-hosted usage, config is stored in browser `localStorage` and SQLite data persists in browser storage. In Electron, SQLite can also use a file on disk.
 
 ### HTTPS in production
 
@@ -78,12 +78,13 @@ keyper --port 4173
 
 ### Electron desktop app
 
-See [Install and Run](/getting-started/install-and-run/) for download links and install instructions for the desktop installer packages (AppImage, deb, macOS dmg).
+See [Install and Run](/getting-started/install-and-run/) for the currently published desktop download links and local build options for additional Electron targets.
 
 ## Operational recommendations
 
 - Run Keyper over HTTPS in production.
 - Keep Supabase project credentials and policies tightly controlled.
+- Be explicit about SQLite storage mode in user-facing docs: browser/PWA uses browser-local persistence, while Electron can also use a disk-backed database file.
 - Validate that the SQL setup script matches the current app release before onboarding users.
 - For existing databases, apply release migrations (for example `migration-add-document-misc-types.sql`) before enabling new credential features in production.
 - Periodically audit docs against implementation to avoid security misunderstandings.

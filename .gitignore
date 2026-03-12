@@ -53,7 +53,7 @@ credentials-to-remove.txt
 .dev.vars
 
 # Other
-docs/SECURITY_IMPROVEMENT_TASKS.md
-test-passphrase-reset.ts
-verify-deployment.js
 keyper-audit.md
+sqlite-implementation.md
+post.md
+sqlite.png

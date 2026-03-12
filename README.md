@@ -256,18 +256,18 @@ Keyper supports two database backends — choose the one that fits your workflow
 | Setup required            | None — auto-configured  | Project creation + SQL script |
 | Internet connection       | ❌ Not required         | ✅ Required                   |
 | Multi-device sync         | ❌ Not supported        | ✅ Supported                  |
-| Works in browser/PWA      | ❌ No                   | ✅ Yes                        |
+| Works in browser/PWA      | ✅ Yes                  | ✅ Yes                        |
 | Works in Electron desktop | ✅ Yes                  | ✅ Yes                        |
-| Data location             | Your device (IndexedDB) | Your Supabase project         |
+| Data location             | Your device (IndexedDB in browser/PWA, optional file path in Electron) | Your Supabase project         |
 
 ### Option A: SQLite (Local — Zero Config)
 
-1. Start Keyper: `keyper` (Electron desktop) and open the app
+1. Start Keyper and open the app in your browser, PWA, or Electron desktop build
 2. In the setup wizard, select **"SQLite (Local)"** as your database provider
 3. **Master Passphrase**: Create your encryption passphrase
 4. **Start Managing**: Add your first encrypted credential! 🎉
 
-> SQLite mode stores your entire encrypted vault (schema, credentials, categories) in your browser's **IndexedDB** automatically — no SQL scripts or external services required.
+> SQLite mode stores your encrypted vault locally with no external service required. In browser/PWA mode it uses **IndexedDB** automatically; in Electron you can also point Keyper at a SQLite file on disk.
 
 ### Option B: Supabase (Hosted Cloud)
 

@@ -7,6 +7,8 @@ description: Install Keyper locally and start the app.
 
 ### Option 1: Download a desktop app (no Node required)
 
+Current published installer links are for Linux. The Electron build pipeline also supports macOS and Windows packaging from source, but those binaries are not linked on this page today.
+
 | Platform              | Package         | Download                                                                                             |
 | --------------------- | --------------- | ---------------------------------------------------------------------------------------------------- |
 | Linux                 | AppImage        | [Keyper-1.1.1.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.1.AppImage)   |
@@ -74,7 +76,7 @@ npm run build && npm start   # production preview
 
 1. Open the app URL (default `http://localhost:4173` for npm/npx, `http://localhost:8080` for Docker, or the Electron window).
 2. In the setup wizard, **choose your database provider**:
-   - **SQLite (Local)** — zero-config, no account required; schema is created automatically. Best for Electron desktop users who want offline-first local storage.
+   - **SQLite (Local)** — zero-config, no account required; schema is created automatically. In browser/PWA mode it persists locally in IndexedDB. In Electron it can also target a file on disk.
    - **Supabase** — enter your Supabase URL and anon/publishable key, then run the SQL setup script to create required tables/policies. Existing users should also run `migration-add-document-misc-types.sql` to enable `document` and `misc` credential types.
 3. Return to the app, test connection, and save.
 4. Unlock or initialize your vault using your master passphrase.

@@ -9,6 +9,12 @@ description: Common issues and practical recovery paths.
 - Confirm anon/publishable key is used (not service role key).
 - Confirm setup SQL has been run successfully.
 
+## SQLite data seems missing
+
+- In browser/PWA mode, SQLite data is stored per browser/app install. Switching browsers, clearing site data, or using a different profile will not show the same local vault.
+- In Electron, confirm you are opening the same configured SQLite file path if you chose a custom file-backed database.
+- If no SQLite path/name was set, Keyper uses its default local database for that runtime.
+
 ## New credential types fail (`document` / `misc`)
 
 - Run `migration-add-document-misc-types.sql` on existing databases.

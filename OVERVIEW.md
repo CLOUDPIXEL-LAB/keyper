@@ -420,10 +420,10 @@ workbox: {
 ### Distribution Channels
 
 1. **NPM Package**: Global installation via `npm install -g @pinkpixel/keyper`
-2. **Direct Download**: GitHub releases with pre-built desktop installers
+2. **Direct Download**: Published desktop installers where available for the current release
 3. **Docker Image**: Containerized deployment (nginx-based, production-ready)
 4. **Cloud Deployment**: Cloudflare Pages, Netlify, Vercel support
-5. **Electron Desktop App**: Native app for Linux and macOS
+5. **Electron Desktop App**: Native desktop packaging support, with Linux installers currently documented
 
 ### CLI Integration
 
@@ -457,19 +457,19 @@ The container serves the compiled Vite/React SPA on port 80 internally. No Node.
 
 ### Electron Desktop App
 
-Pre-built installers are available on the [GitHub Releases](https://github.com/pinkpixel-dev/keyper/releases) page:
+Current published installer links are documented for Linux builds. Electron packaging also supports additional targets from source:
 
 | Platform | Format   | Architecture  |
 | -------- | -------- | ------------- |
 | Linux    | AppImage | x86_64, ARM64 |
 | Linux    | `.deb`   | x86_64, ARM64 |
-| macOS    | DMG      | Universal     |
 
 To build from source:
 
 ```bash
 npm run electron:build:linux   # AppImage + deb
 npm run electron:build:mac     # DMG (must run on macOS)
+npm run electron:build:win     # NSIS / Windows build tooling required
 ```
 
 ### Self-Hosting Options
@@ -520,7 +520,7 @@ npm run electron:build:mac     # DMG (must run on macOS)
 | **Core Security**  | ✅ Complete | Zero-knowledge encryption           |
 | **User Interface** | ✅ Complete | Full responsive design              |
 | **Database Layer** | ✅ Complete | Supabase + SQLite dual-provider     |
-| **SQLite Support** | ✅ Complete | Local-first, zero-config (Electron) |
+| **SQLite Support** | ✅ Complete | Local-first, zero-config (browser/PWA + Electron) |
 | **PWA Features**   | ✅ Complete | Full offline support                |
 | **CLI Tools**      | ✅ Complete | Multi-platform support              |
 | **Docker Build**   | ✅ Complete | nginx-based container               |
