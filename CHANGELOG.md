@@ -5,7 +5,44 @@ All notable changes to Keyper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.1] - 2026-03-12 - 🔍 **Credential Detail Reveal/Copy UX Improvements**
+## [1.1.1] - 2026-03-12 - 🔍 **Credential Detail UX · 🗄️ SQLite Local Database Support**
+
+### 🗄️ **SQLite Local Database Support**
+
+- **Added** full SQLite provider as an alternative to Supabase for completely local, zero-network credential storage
+  - Works in **both browser/PWA and Electron desktop** modes
+  - Browser/PWA stores the database locally in IndexedDB (with localStorage fallback)
+  - Electron desktop can additionally target a custom file path on disk
+  - No account, server, or internet connection required — ideal for fully offline and air-gapped use
+- **Added** `src/integrations/database/sqlite-client.ts` — browser-native SQL.js-backed SQLite engine
+  - `SqliteQueryBuilder` — Supabase-compatible query builder so all existing `supabase.from(...)` callsites transparently route to SQLite with zero refactoring
+  - In-memory database with IndexedDB persistence per named database key
+  - Full CRUD support: `select`, `insert`, `update`, `upsert`, `delete` with chained `.eq()`, `.order()`, `.limit()`, `.single()`
+  - Automatic schema creation (`ensureSqliteSchema`) on first open: `credentials`, `vault_config`, and `categories` tables with all indexes
+  - Default categories seeded automatically on first-run: Development, Personal, Work, Social Media, Finance, Cloud Services, Security
+- **Added** multi-provider routing in `src/integrations/supabase/client.ts`:
+  - `getDatabaseProvider()` / `saveDatabaseProvider()` — persists provider choice in `localStorage`
+  - `supabase` export now transparently delegates to the active provider (Supabase or SQLite)
+  - `initializeSqliteProvider()` and `testSqliteProviderConnection()` helpers
+- **Added** SQLite configuration UI in `Settings.tsx`:
+  - Database Provider selector (Supabase / SQLite)
+  - Optional SQLite path/name field (empty = default browser-local database)
+  - Provider-aware connection test and status messages
+  - Provider-aware setup instructions (SQLite auto-creates schema; Supabase requires SQL Editor run)
+- **Updated** `DashboardSettings.tsx` passphrase reset instructions to show provider-specific steps:
+  - SQLite users: guided to DB Browser for SQLite to edit `vault_config.bcrypt_hash` directly
+  - Supabase users: existing Supabase Dashboard-based reset flow unchanged
+- **Updated** reset-local-config message to be provider-agnostic ("database connection settings")
+
+### 🐛 **SQLite Bug Fixes**
+
+- **Fixed** critical bug where `SqliteQueryBuilder.select()` was overwriting the in-flight mutation action (`insert`, `update`, `upsert`, `delete`) with `select`, causing vault creation to silently fail
+  - **Root cause**: chained `.upsert({...}).select().single()` — standard Supabase pattern for "write and return row" — was being treated as a plain SELECT; the query returned PGRST116 → "Failed to save vault configuration: Unknown error"
+  - **Fix**: `select()` no longer changes the action when a mutation has already been set, correctly matching Supabase client semantics
+  - All other mutation chains (e.g., `.insert().select()` in `EncryptedCredentialsApi`) are also fixed by this change
+- **Fixed** empty categories dropdown when creating a new vault via SQLite
+  - **Root cause**: `ensureSqliteSchema` created the `categories` table but never seeded default rows — so the first-time vault creation had no categories to display
+  - **Fix**: default categories are now seeded on first database initialisation when the table is empty
 
 ### ✨ **Improved Credential Detail Experience**
 

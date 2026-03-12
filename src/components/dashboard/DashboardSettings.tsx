@@ -6,14 +6,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Shield, 
-  UserPlus, 
-  Trash2, 
-  Settings, 
-  RefreshCw, 
-  AlertTriangle, 
-  Info, 
+import {
+  Shield,
+  UserPlus,
+  Trash2,
+  Settings,
+  RefreshCw,
+  AlertTriangle,
+  Info,
   Database,
   Key,
   Users,
@@ -21,7 +21,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getCurrentUsername, clearSupabaseCredentials, supabase, saveSupabaseCredentials, getSupabaseCredentials } from '@/integrations/supabase/client';
+import { getCurrentUsername, clearSupabaseCredentials, supabase, saveSupabaseCredentials, getSupabaseCredentials, saveCurrentUsername, getDatabaseProvider } from '@/integrations/supabase/client';
 import { secureVault } from '@/services/SecureVault';
 import setupSqlScript from '/supabase-setup.sql?raw';
 import updateSqlScript from '/migration-add-document-misc-types.sql?raw';
@@ -38,6 +38,7 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
   const [showUpdateSqlScript, setShowUpdateSqlScript] = useState(false);
   const { toast } = useToast();
   const currentUser = getCurrentUsername();
+  const dbProvider = getDatabaseProvider();
   // Note: Admin functions removed for security - no backdoors or admin overrides
   const adminUser = null; // Removed: getAdminUser() - no admin backdoors
   const isSuperAdmin = false; // Removed: isCurrentUserAdmin() - no admin privileges
@@ -72,17 +73,17 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
 
     try {
       setIsCreating(true);
-      
+
       // Check if user already exists in vault_config
       const { data: existingUsers, error: checkError } = await supabase
         .from('vault_config')
         .select('user_id')
         .eq('user_id', newUsername.trim());
-      
+
       if (checkError && checkError.code !== 'PGRST116') {
         throw new Error(`Failed to check existing users: ${checkError.message}`);
       }
-      
+
       if (existingUsers && existingUsers.length > 0) {
         toast({
           title: "Error",
@@ -91,35 +92,35 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
         });
         return;
       }
-      
+
       // Create a new vault for the user
       // IMPORTANT: We need to temporarily switch context to create vault for new user
       console.log('🔧 Creating vault for new user:', newUsername.trim());
       console.log('🔧 Admin context before:', getCurrentUsername());
-      
+
       // Lock the current vault to clear any existing state
       secureVault.lock();
       console.log('🔧 Locked vault to clear state');
-      
+
       // Create bcrypt hash for the new user's passphrase
       const { hashPassphrase } = await import('@/crypto/bcrypt');
       const bcryptHash = await hashPassphrase(newPassphrase);
-      
+
       // Temporarily save the new user as current user for vault creation
       const adminCredentials = getSupabaseCredentials();
-      saveSupabaseCredentials(adminCredentials.supabaseUrl, adminCredentials.supabaseKey, newUsername.trim());
-      
+      saveCurrentUsername(newUsername.trim());
+
       console.log('🔧 Switched context to:', getCurrentUsername());
       const wrappedDEK = await secureVault.createNewVault(newPassphrase);
-      
+
       // Lock the vault again to clear the new user's state
       secureVault.lock();
       console.log('🔧 Locked vault after user creation');
-      
+
       // Switch back to admin user
-      saveSupabaseCredentials(adminCredentials.supabaseUrl, adminCredentials.supabaseKey, currentUser);
+      saveCurrentUsername(currentUser);
       console.log('🔧 Switched back to admin:', getCurrentUsername());
-      
+
       // Save the wrapped DEK and bcrypt hash to the database for the new user
       const { error: insertError } = await supabase
         .from('vault_config')
@@ -128,11 +129,11 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
           wrapped_dek: wrappedDEK,
           bcrypt_hash: bcryptHash,
         });
-      
+
       if (insertError) {
         throw new Error(`Failed to create user vault: ${insertError.message}`);
       }
-      
+
       // Create default categories for the new user
       const defaultCategories = [
         { user_id: newUsername.trim(), name: 'Development', color: '#3b82f6', icon: 'code', description: 'Development tools and APIs' },
@@ -143,25 +144,25 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
         { user_id: newUsername.trim(), name: 'Cloud Services', color: '#8b5cf6', icon: 'cloud', description: 'Cloud platforms and services' },
         { user_id: newUsername.trim(), name: 'Security', color: '#ef4444', icon: 'shield', description: 'Security tools and certificates' }
       ];
-      
+
       const { error: categoriesError } = await supabase
         .from('categories')
         .insert(defaultCategories);
-      
+
       if (categoriesError) {
         console.warn('Failed to create default categories for new user:', categoriesError);
         // Don't fail the user creation for this
       }
-      
+
       toast({
         title: "Success! 🎉",
         description: `User '${newUsername}' created successfully. They can now login with their credentials.`,
       });
-      
+
       setNewUsername('');
       setNewPassphrase('');
       onUserCreated?.();
-      
+
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Failed to create user";
       console.error('Error creating user:', error);
@@ -197,7 +198,7 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
 5. Choose "All time" as time range
 6. Click Clear data
 7. Refresh this page`;
-    
+
     navigator.clipboard.writeText(instructions);
     toast({
       title: "Instructions Copied",
@@ -280,14 +281,14 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
                     />
                   </div>
                 </div>
-                
+
                 <Alert>
                   <Info className="h-4 w-4" />
                   <AlertDescription>
                     The new user will be able to login with these credentials and change their passphrase later.
                   </AlertDescription>
                 </Alert>
-                
+
                 <Button
                   onClick={handleCreateUser}
                   disabled={isCreating || !newUsername || !newPassphrase}
@@ -314,9 +315,9 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
                 <Alert>
                   <Shield className="h-4 w-4" />
                   <AlertDescription>
-                    For maximum security, admin privileges and user creation have been disabled. 
+                    For maximum security, admin privileges and user creation have been disabled.
                     This removes all backdoors and security vulnerabilities. <br/>
-                    Current user: <strong>{currentUser}</strong> | 
+                    Current user: <strong>{currentUser}</strong> |
                     Security Level: <strong>Maximum (No Admin Backdoors)</strong>
                   </AlertDescription>
                 </Alert>
@@ -350,7 +351,7 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
                 Full Database Setup Script
               </CardTitle>
               <CardDescription>
-                Use this when setting up a brand-new Supabase database for Keyper.
+                Use this when setting up a brand-new Supabase database for Keyper. (Supabase only — SQLite schema is created automatically.)
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -438,7 +439,7 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
             <CardContent className="space-y-4">
               <div className="space-y-3">
                 <p className="text-sm text-gray-300">
-                  This will clear your Supabase connection settings and require you to set them up again.
+                  This will clear your database connection settings and require you to set them up again.
                 </p>
                 <Button
                   onClick={handleResetLocalData}
@@ -451,7 +452,7 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -466,33 +467,44 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>Good News:</strong> Your encrypted data is safe! You can reset your passphrase through your Supabase dashboard.
+                  <strong>Good News:</strong> Your encrypted data is safe! You can reset your passphrase by updating the <code>bcrypt_hash</code> value directly in your database.
                 </AlertDescription>
               </Alert>
-              
+
               <div className="space-y-4">
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-gray-200">
                     To reset your master passphrase:
                   </p>
-                  <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside pl-4">
-                    <li>Login to your <strong>Supabase Dashboard</strong></li>
-                    <li>Navigate to the table containing your master passphrase UUID</li>
-                    <li>Visit <a href="https://bcrypt-generator.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">https://bcrypt-generator.com/</a></li>
-                    <li>Under "Text to Hash", enter your <strong>new desired passphrase</strong></li>
-                    <li>Click "Generate" to create the hash</li>
-                    <li>Copy the generated hash</li>
-                    <li>Paste it into the column containing the previous hashed passphrase</li>
-                    <li>Save the changes</li>
-                  </ol>
+                  {dbProvider === 'sqlite' ? (
+                    <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside pl-4">
+                      <li>Visit <a href="https://bcrypt-generator.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">https://bcrypt-generator.com/</a></li>
+                      <li>Under "Text to Hash", enter your <strong>new desired passphrase</strong></li>
+                      <li>Click "Generate" and copy the resulting bcrypt hash</li>
+                      <li>Open your SQLite database file with a tool such as <a href="https://sqlitebrowser.org/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">DB Browser for SQLite</a></li>
+                      <li>Navigate to the <code>vault_config</code> table, find your user row</li>
+                      <li>Paste the new hash into the <code>bcrypt_hash</code> column and save</li>
+                    </ol>
+                  ) : (
+                    <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside pl-4">
+                      <li>Login to your <strong>Supabase Dashboard</strong></li>
+                      <li>Navigate to the <code>vault_config</code> table in the Table Editor</li>
+                      <li>Visit <a href="https://bcrypt-generator.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">https://bcrypt-generator.com/</a></li>
+                      <li>Under "Text to Hash", enter your <strong>new desired passphrase</strong></li>
+                      <li>Click "Generate" to create the hash</li>
+                      <li>Copy the generated hash</li>
+                      <li>Paste it into the <code>bcrypt_hash</code> column for your user row</li>
+                      <li>Save the changes</li>
+                    </ol>
+                  )}
                 </div>
-                
+
                 <Alert>
                   <AlertDescription>
                     <strong>Security Note:</strong> It's impossible to convert a hash back to a string - your data remains secure!
                   </AlertDescription>
                 </Alert>
-                
+
                 <div className="p-4 bg-muted/50 rounded-lg border border-blue-500/20">
                   <p className="text-sm text-blue-200 font-medium mb-2">Important:</p>
                   <ul className="text-xs text-gray-300 space-y-1">
@@ -504,7 +516,7 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -579,9 +591,9 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
                   </div>
                 </div>
               </div>
-              
+
               <Separator />
-              
+
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Security Architecture</Label>
                 <p className="text-sm text-gray-400">

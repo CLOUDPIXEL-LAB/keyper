@@ -24,9 +24,17 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
+  DB_PROVIDER_KEY,
+  SQLITE_DB_PATH_KEY,
+  type DatabaseProvider,
+  isElectronApp,
+  saveDatabaseProvider,
   saveSupabaseCredentials,
   clearSupabaseCredentials,
+  clearSqliteDatabasePath,
   createTestSupabaseClient,
+  testSqliteProviderConnection,
+  initializeSqliteProvider,
   refreshSupabaseClient,
   SUPABASE_URL_KEY,
   SUPABASE_KEY_KEY,
@@ -38,6 +46,14 @@ interface SettingsProps {
 }
 
 export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete }) => {
+  const runningInElectron = isElectronApp();
+  const [databaseProvider, setDatabaseProvider] = useState<DatabaseProvider>(() => {
+    const provider = localStorage.getItem(DB_PROVIDER_KEY);
+    return provider === 'sqlite' ? 'sqlite' : 'supabase';
+  });
+  const [sqliteDbPath, setSqliteDbPath] = useState<string>(() => {
+    return localStorage.getItem(SQLITE_DB_PATH_KEY) || '';
+  });
   // Initialize state directly from localStorage like the reference app
   const [supabaseUrl, setSupabaseUrl] = useState<string>(() => {
     return localStorage.getItem(SUPABASE_URL_KEY) || '';
@@ -58,50 +74,58 @@ export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete }) =
   // No need for useEffect - credentials are loaded directly in state initializers
 
   const testConnection = async () => {
-    if (!supabaseUrl || !supabaseKey) {
-      setErrorMessage('Please enter both Supabase URL and API key');
-      setConnectionStatus('error');
-      return;
-    }
-
     setIsConnecting(true);
     setConnectionStatus('idle');
     setErrorMessage('');
 
     try {
-      // Debug logging
-      console.log('Testing connection with:', {
-        url: supabaseUrl,
-        keyLength: supabaseKey.length,
-        username: username || 'self-hosted-user'
-      });
+      if (databaseProvider === 'sqlite') {
+        const sqliteResult = await testSqliteProviderConnection(sqliteDbPath.trim() || undefined);
+        if (sqliteResult.error) {
+          throw new Error(sqliteResult.error.message);
+        }
 
-      // Create a test client with the provided credentials
-      const testClient = createTestSupabaseClient(supabaseUrl, supabaseKey);
-      
-      // Test the connection by trying to query the credentials table
-      const { data, error } = await testClient
-        .from('credentials')
-        .select('count', { count: 'exact', head: true });
+        const finalUsername = username.trim() || 'self-hosted-user';
+        saveDatabaseProvider('sqlite');
+        if (sqliteResult.data?.path) {
+          localStorage.setItem(SQLITE_DB_PATH_KEY, sqliteResult.data.path);
+        } else if (sqliteDbPath.trim()) {
+          localStorage.setItem(SQLITE_DB_PATH_KEY, sqliteDbPath.trim());
+        } else {
+          localStorage.removeItem(SQLITE_DB_PATH_KEY);
+        }
+        localStorage.setItem(SUPABASE_USERNAME_KEY, finalUsername);
+      } else {
+        if (!supabaseUrl || !supabaseKey) {
+          throw new Error('Please enter both Supabase URL and API key');
+        }
 
-      if (error) {
-        throw new Error(`Database connection failed: ${error.message}`);
+        console.log('Testing connection with:', {
+          url: supabaseUrl,
+          keyLength: supabaseKey.length,
+          username: username || 'self-hosted-user'
+        });
+
+        const testClient = createTestSupabaseClient(supabaseUrl, supabaseKey);
+        const { error } = await testClient
+          .from('credentials')
+          .select('count', { count: 'exact', head: true });
+
+        if (error) {
+          throw new Error(`Database connection failed: ${error.message}`);
+        }
+
+        const finalUsername = username.trim() || 'self-hosted-user';
+        saveSupabaseCredentials(supabaseUrl, supabaseKey, finalUsername);
       }
 
       setConnectionStatus('success');
       toast({
         title: "Connection Successful! 🎉",
-        description: "Successfully connected to your Supabase instance.",
+        description: databaseProvider === 'sqlite'
+          ? 'Successfully connected to your SQLite database.'
+          : 'Successfully connected to your Supabase instance.',
       });
-
-      // Save credentials if connection is successful
-      const finalUsername = username.trim() || 'self-hosted-user';
-      console.log('Saving credentials:', { url: supabaseUrl, keyLength: supabaseKey.length, username: finalUsername });
-      const saveResult = saveSupabaseCredentials(supabaseUrl, supabaseKey, finalUsername);
-      console.log('Save result:', saveResult);
-      
-      // Note: Don't automatically call onConfigurationComplete here
-      // Let user manually save and close with the Save & Close button
     } catch (error) {
       console.error('Connection test failed:', error);
       setConnectionStatus('error');
@@ -117,19 +141,20 @@ export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete }) =
   };
 
   const clearConfiguration = () => {
-    // Clear credentials from localStorage
     clearSupabaseCredentials();
-    // Reset form state to empty strings (not default values)
+    clearSqliteDatabasePath();
+    localStorage.removeItem(DB_PROVIDER_KEY);
     setSupabaseUrl('');
     setSupabaseKey('');
+    setSqliteDbPath('');
+    setDatabaseProvider('supabase');
     setUsername('');
     setConnectionStatus('idle');
     setErrorMessage('');
-    // Refresh the main client to use default credentials
     refreshSupabaseClient();
     toast({
       title: "Configuration Cleared",
-      description: "Supabase credentials have been cleared. You can now enter new credentials.",
+      description: "Database configuration has been cleared. You can now enter new credentials.",
     });
   };
 
@@ -147,22 +172,29 @@ export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete }) =
 
   // Manual save and close function
   const handleSaveAndClose = () => {
-    // Save current values
     const finalUsername = username.trim() || 'self-hosted-user';
-    console.log('HandleSaveAndClose - saving:', { url: supabaseUrl, keyLength: supabaseKey.length, username: finalUsername });
-    if (supabaseUrl && supabaseKey) {
-      const saveResult = saveSupabaseCredentials(supabaseUrl, supabaseKey, finalUsername);
-      console.log('HandleSaveAndClose - save result:', saveResult);
+    if (databaseProvider === 'sqlite') {
+      saveDatabaseProvider('sqlite');
+      localStorage.setItem(SUPABASE_USERNAME_KEY, finalUsername);
+      if (sqliteDbPath.trim()) {
+        localStorage.setItem(SQLITE_DB_PATH_KEY, sqliteDbPath.trim());
+      } else {
+        localStorage.removeItem(SQLITE_DB_PATH_KEY);
+      }
+      void initializeSqliteProvider(sqliteDbPath.trim() || undefined);
+      toast({
+        title: "Settings Saved! 💾",
+        description: "SQLite has been configured for this device.",
+      });
+    } else if (supabaseUrl && supabaseKey) {
+      saveSupabaseCredentials(supabaseUrl, supabaseKey, finalUsername);
       toast({
         title: "Settings Saved! 💾",
         description: "Your configuration has been saved.",
       });
     }
-    
-    // Close settings and trigger completion callback
-    if (onConfigurationComplete) {
-      onConfigurationComplete();
-    }
+    refreshSupabaseClient();
+    onConfigurationComplete?.();
   };
 
   // Manual close without saving
@@ -175,12 +207,12 @@ export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete }) =
   const sqlScript = `-- =====================================================
 -- 🔐 KEYPER DATABASE SETUP (Single Script)
 -- =====================================================
--- 
+--
 -- Complete database setup for Keyper - encrypted vault system
 -- This script creates all tables, indexes, policies, and functions needed.
--- 
+--
 -- Run this ENTIRE script in your Supabase SQL Editor.
--- 
+--
 -- Made with ❤️ by Pink Pixel ✨
 -- Date: August 23, 2025 (Security Enhanced)
 -- =====================================================
@@ -206,7 +238,7 @@ CREATE TABLE IF NOT EXISTS credentials (
   last_accessed TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  
+
   -- Encrypted storage (all sensitive data stored here)
   secret_blob JSONB NOT NULL,
   encrypted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -221,7 +253,7 @@ CREATE TABLE IF NOT EXISTS vault_config (
   bcrypt_hash TEXT, -- Bcrypt hash of master passphrase for secure reset (nullable for legacy users)
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  
+
   -- Ensure one config per user
   UNIQUE(user_id)
 );
@@ -236,7 +268,7 @@ CREATE TABLE IF NOT EXISTS categories (
   description TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  
+
   -- Ensure unique category names per user
   UNIQUE(user_id, name)
 );
@@ -322,13 +354,13 @@ BEGIN
     LOOP
         EXECUTE 'DROP POLICY IF EXISTS ' || quote_ident(r.policyname) || ' ON credentials';
     END LOOP;
-    
+
     -- Drop all policies for vault_config table
     FOR r IN (SELECT policyname FROM pg_policies WHERE tablename = 'vault_config' AND schemaname = 'public')
     LOOP
         EXECUTE 'DROP POLICY IF EXISTS ' || quote_ident(r.policyname) || ' ON vault_config';
     END LOOP;
-    
+
     -- Drop all policies for categories table
     FOR r IN (SELECT policyname FROM pg_policies WHERE tablename = 'categories' AND schemaname = 'public')
     LOOP
@@ -403,13 +435,13 @@ SET search_path = ''  -- CRITICAL: Set empty search path for security
 AS $$
 BEGIN
   RETURN QUERY
-  SELECT 
+  SELECT
     COUNT(*) as total_credentials,
     COALESCE(jsonb_object_agg(credential_type, type_count), '{}'::jsonb) as by_type,
     COALESCE(jsonb_object_agg(COALESCE(category, 'Uncategorized'), cat_count), '{}'::jsonb) as by_category,
     COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days') as recent_count
   FROM (
-    SELECT 
+    SELECT
       credential_type,
       category,
       created_at,
@@ -435,26 +467,26 @@ SET search_path = ''  -- CRITICAL: Set empty search path for security
 AS $$
 BEGIN
   RETURN QUERY
-  SELECT 
+  SELECT
     t.table_name::TEXT,
     COALESCE(c.relrowsecurity, false) as rls_enabled,
     COALESCE(p.policy_count, 0) as policy_count,
-    CASE 
+    CASE
       WHEN COALESCE(c.relrowsecurity, false) AND COALESCE(p.policy_count, 0) >= 4 THEN '✅ OK'
       WHEN COALESCE(c.relrowsecurity, false) AND COALESCE(p.policy_count, 0) < 4 THEN '⚠️ MISSING_POLICIES'
       WHEN NOT COALESCE(c.relrowsecurity, false) THEN '❌ RLS_DISABLED'
       ELSE '❓ UNKNOWN'
     END as status
   FROM information_schema.tables t
-  LEFT JOIN pg_catalog.pg_class c ON c.relname = t.table_name 
+  LEFT JOIN pg_catalog.pg_class c ON c.relname = t.table_name
     AND c.relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = 'public')
   LEFT JOIN (
     SELECT tablename, COUNT(*) as policy_count
-    FROM pg_catalog.pg_policies 
+    FROM pg_catalog.pg_policies
     WHERE schemaname = 'public'
     GROUP BY tablename
   ) p ON p.tablename = t.table_name
-  WHERE t.table_schema = 'public' 
+  WHERE t.table_schema = 'public'
     AND t.table_name IN ('credentials', 'vault_config', 'categories')
     AND t.table_type = 'BASE TABLE';
 END;
@@ -465,7 +497,7 @@ $$;
 -- ============================================================================
 
 -- Insert default categories for organization
-INSERT INTO categories (user_id, name, color, icon, description) VALUES 
+INSERT INTO categories (user_id, name, color, icon, description) VALUES
   ('self-hosted-user', 'Development', '#3b82f6', 'code', 'Development tools and APIs'),
   ('self-hosted-user', 'Personal', '#10b981', 'user', 'Personal accounts and services'),
   ('self-hosted-user', 'Work', '#f59e0b', 'briefcase', 'Work-related credentials'),
@@ -497,14 +529,14 @@ COMMENT ON FUNCTION check_rls_status IS 'Check Row Level Security configuration 
 -- ============================================================================
 
 -- Verify table creation
-SELECT 
+SELECT
   table_name,
-  CASE 
+  CASE
     WHEN table_name = ANY(ARRAY['credentials', 'vault_config', 'categories']) THEN '✅ Created'
     ELSE '❌ Missing'
   END as status
-FROM information_schema.tables 
-WHERE table_schema = 'public' 
+FROM information_schema.tables
+WHERE table_schema = 'public'
   AND table_name IN ('credentials', 'vault_config', 'categories')
 ORDER BY table_name;
 
@@ -523,7 +555,7 @@ SELECT COUNT(*) as total_categories FROM categories WHERE user_id = 'self-hosted
 -- =====================================================
 --
 -- Your Keyper database is now ready with:
--- 
+--
 -- ✅ credentials table (with encryption support)
 -- ✅ vault_config table (secure key management)
 -- ✅ categories table (for organization)
@@ -582,7 +614,7 @@ ALTER TABLE credentials
         <SettingsIcon className="h-8 w-8 text-cyan-400" />
         <div>
           <h1 className="text-3xl font-bold text-white">Keyper Settings</h1>
-          <p className="text-gray-400">Configure your self-hosted Supabase instance</p>
+          <p className="text-gray-400">Choose and configure your Keyper database provider</p>
         </div>
       </div>
 
@@ -607,13 +639,62 @@ ALTER TABLE credentials
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Database className="h-5 w-5 text-cyan-400" />
-                Supabase Configuration
+                Database Provider Configuration
               </CardTitle>
               <CardDescription>
-                Connect Keyper to your Supabase instance for secure credential storage.
+                Configure Supabase for hosted or remote usage, or SQLite for local-first storage on this device.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="database-provider">Database Provider</Label>
+                <select
+                  id="database-provider"
+                  value={databaseProvider}
+                  onChange={(e) => {
+                    const provider = e.target.value === 'sqlite' ? 'sqlite' : 'supabase';
+                    setDatabaseProvider(provider);
+                    setConnectionStatus('idle');
+                    setErrorMessage('');
+                  }}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="supabase">Supabase (Web/PWA + Desktop)</option>
+                  <option value="sqlite">SQLite (Local-First: Browser + Desktop)</option>
+                </select>
+              </div>
+
+              {databaseProvider === 'sqlite' && (
+                <Alert className="border-amber-500 bg-amber-950/20">
+                  <AlertCircle className="h-4 w-4 text-amber-400" />
+                  <AlertDescription className="text-amber-200">
+                    SQLite keeps data local to this device. In the browser or PWA it is stored locally in browser storage.
+                    In the desktop app it can also use a file on disk.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {databaseProvider === 'sqlite' ? (
+                <div className="space-y-2">
+                  <Label htmlFor="sqlite-db-path">
+                    {runningInElectron ? 'SQLite Database File (Optional)' : 'SQLite Database Name (Optional)'}
+                  </Label>
+                  <Input
+                    id="sqlite-db-path"
+                    type="text"
+                    placeholder={runningInElectron ? 'Default app data path will be used if empty' : 'Default browser-local database will be used if empty'}
+                    value={sqliteDbPath}
+                    onChange={(e) => setSqliteDbPath(e.target.value)}
+                    className="font-mono"
+                  />
+                  <p className="text-sm text-gray-400">
+                    {runningInElectron
+                      ? 'Leave empty to use Keyper\'s default local data directory.'
+                      : 'Leave empty to use Keyper\'s default browser-local SQLite database. A custom name creates a separate local database in this browser.'}
+                  </p>
+                </div>
+              ) : (
+                <>
               <div className="space-y-2">
                 <Label htmlFor="supabase-url">Supabase Project URL</Label>
                 <Input
@@ -652,11 +733,33 @@ ALTER TABLE credentials
                   💡 Use different usernames to separate credentials for multiple users on the same instance
                 </p>
               </div>
+                </>
+              )}
+
+              {databaseProvider === 'sqlite' && (
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    type="text"
+                    placeholder="e.g., john, admin, team1 (leave empty for default)"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="font-mono"
+                  />
+                  <p className="text-sm text-gray-400">
+                    Usernames still separate credentials and vault configuration inside your local SQLite file.
+                  </p>
+                </div>
+              )}
 
               <div className="flex gap-3 pt-4">
                 <Button
                   onClick={testConnection}
-                  disabled={isConnecting || !supabaseUrl || !supabaseKey}
+                  disabled={
+                    isConnecting ||
+                    (databaseProvider === 'supabase' && (!supabaseUrl || !supabaseKey))
+                  }
                   className="flex items-center gap-2"
                 >
                   {isConnecting ? (
@@ -682,7 +785,9 @@ ALTER TABLE credentials
                 <Button
                   onClick={handleSaveAndClose}
                   className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700"
-                  disabled={!supabaseUrl || !supabaseKey}
+                  disabled={
+                    (databaseProvider === 'supabase' && (!supabaseUrl || !supabaseKey))
+                  }
                 >
                   <CheckCircle className="h-4 w-4" />
                   Save & Close
@@ -716,8 +821,10 @@ ALTER TABLE credentials
                       <XCircle className="h-4 w-4 text-red-500" />
                     )}
                     <AlertDescription>
-                      {connectionStatus === 'success' 
-                        ? 'Successfully connected to Supabase! Your credentials are saved.'
+                      {connectionStatus === 'success'
+                        ? databaseProvider === 'sqlite'
+                          ? 'Successfully connected to SQLite! Your local database is ready.'
+                          : 'Successfully connected to Supabase! Your credentials are saved.'
                         : `Connection failed: ${errorMessage}`
                       }
                     </AlertDescription>
@@ -734,10 +841,35 @@ ALTER TABLE credentials
                 Database Setup Required
               </CardTitle>
               <CardDescription>
-                Before connecting, you need to set up the database schema in your Supabase instance.
+                Follow setup instructions for your selected provider.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {databaseProvider === 'sqlite' ? (
+                <>
+                  <div className="space-y-3">
+                    <p className="text-sm text-gray-300">
+                      <strong>Step 1:</strong> Choose SQLite as your provider for local-first storage.
+                    </p>
+                    <p className="text-sm text-gray-300">
+                      <strong>Step 2:</strong> {runningInElectron ? 'Optionally set a database file path, or leave it empty to use the default local path.' : 'Optionally enter a database name, or leave it empty to use the default browser-local database.'}
+                    </p>
+                    <p className="text-sm text-gray-300">
+                      <strong>Step 3:</strong> Click <strong>Test Connection</strong>. Keyper will auto-create the SQLite schema locally for you.
+                    </p>
+                    <p className="text-sm text-gray-300">
+                      <strong>Step 4:</strong> Save your configuration and continue into the vault.
+                    </p>
+                  </div>
+                  <Alert className="border-amber-500 bg-amber-950/20">
+                    <AlertCircle className="h-4 w-4 text-amber-400" />
+                    <AlertDescription className="text-amber-200">
+                      SQLite stays local to the current device. Browser/PWA usage stores the database locally in that browser, while the desktop app can also target a file on disk.
+                    </AlertDescription>
+                  </Alert>
+                </>
+              ) : (
+                <>
               <div className="space-y-3">
                 <p className="text-sm text-gray-300">
                   <strong>Step 1:</strong> Go to your Supabase dashboard → SQL Editor
@@ -853,6 +985,8 @@ ALTER TABLE credentials
                   Show Update Script Preview
                 </Button>
               )}
+                </>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -878,9 +1012,9 @@ ALTER TABLE credentials
                   <Badge variant="secondary">Self-Hosted</Badge>
                 </div>
               </div>
-              
+
               <Separator />
-              
+
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Made with ❤️ by Pink Pixel</Label>
                 <p className="text-sm text-gray-400">Dream it, Pixel it ✨</p>

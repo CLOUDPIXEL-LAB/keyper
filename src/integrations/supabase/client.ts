@@ -1,50 +1,117 @@
-// Keyper Supabase Client Configuration - Self-Hosting Support
-// Made with ❤️ by Pink Pixel
-// This file provides the Supabase client with both default and custom configurations.
+// Keyper database client configuration with provider support.
+// Made with love by Pink Pixel.
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
+import {
+  sqliteClient,
+  initializeSqliteDatabase,
+  testSqliteConnection,
+  type DbResponse,
+} from '@/integrations/database/sqlite-client';
+
+export type DatabaseProvider = 'supabase' | 'sqlite';
 
 // Default Supabase configuration - placeholder values for self-hosted version
-// Users will configure their own Supabase instance through the Settings UI
-const DEFAULT_SUPABASE_URL = "https://your-project.supabase.co";
-const DEFAULT_SUPABASE_KEY = "your-anon-key";
+const DEFAULT_SUPABASE_URL = 'https://your-project.supabase.co';
+const DEFAULT_SUPABASE_KEY = 'your-anon-key';
 
-// Storage keys for Supabase credentials
+// Storage keys
+export const DB_PROVIDER_KEY = 'keyper-db-provider';
 export const SUPABASE_URL_KEY = 'keyper-supabase-url';
 export const SUPABASE_KEY_KEY = 'keyper-supabase-key';
 export const SUPABASE_USERNAME_KEY = 'keyper-username';
+export const SQLITE_DB_PATH_KEY = 'keyper-sqlite-db-path';
 
+function isBrowser(): boolean {
+  return typeof window !== 'undefined';
+}
+
+export function isElectronApp(): boolean {
+  return Boolean(isBrowser() && window.keyperElectron?.isElectron);
+}
+
+export const getDatabaseProvider = (): DatabaseProvider => {
+  if (!isBrowser()) return 'supabase';
+  const provider = localStorage.getItem(DB_PROVIDER_KEY);
+  return provider === 'sqlite' ? 'sqlite' : 'supabase';
+};
+
+export const saveDatabaseProvider = (provider: DatabaseProvider): boolean => {
+  if (!isBrowser()) return false;
+  try {
+    localStorage.setItem(DB_PROVIDER_KEY, provider);
+    return true;
+  } catch (error) {
+    console.error('Error saving database provider:', error);
+    return false;
+  }
+};
+
+export const getSqliteDatabasePath = (): string => {
+  if (!isBrowser()) return '';
+  return localStorage.getItem(SQLITE_DB_PATH_KEY) || '';
+};
+
+export const saveSqliteDatabasePath = (path: string): boolean => {
+  if (!isBrowser()) return false;
+  try {
+    if (path.trim()) {
+      localStorage.setItem(SQLITE_DB_PATH_KEY, path.trim());
+    } else {
+      localStorage.removeItem(SQLITE_DB_PATH_KEY);
+    }
+    return true;
+  } catch (error) {
+    console.error('Error saving SQLite DB path:', error);
+    return false;
+  }
+};
+
+export const clearSqliteDatabasePath = (): boolean => {
+  if (!isBrowser()) return false;
+  try {
+    localStorage.removeItem(SQLITE_DB_PATH_KEY);
+    return true;
+  } catch (error) {
+    console.error('Error clearing SQLite DB path:', error);
+    return false;
+  }
+};
 
 // Helper function to get the current Supabase URL and key
 export const getSupabaseCredentials = () => {
   try {
-    // Try to get custom credentials from localStorage
     const customUrl = localStorage.getItem(SUPABASE_URL_KEY);
     const customKey = localStorage.getItem(SUPABASE_KEY_KEY);
     const username = localStorage.getItem(SUPABASE_USERNAME_KEY);
 
-    // Use custom values if they exist, otherwise fall back to defaults
     return {
       supabaseUrl: customUrl || DEFAULT_SUPABASE_URL,
       supabaseKey: customKey || DEFAULT_SUPABASE_KEY,
-      username: username || 'self-hosted-user'
+      username: username || 'self-hosted-user',
     };
   } catch (error) {
-    console.error("Error retrieving Supabase credentials from localStorage:", error);
-    // Fall back to defaults if localStorage is not available or throws an error
+    console.error('Error retrieving Supabase credentials from localStorage:', error);
     return {
       supabaseUrl: DEFAULT_SUPABASE_URL,
       supabaseKey: DEFAULT_SUPABASE_KEY,
-      username: 'self-hosted-user'
+      username: 'self-hosted-user',
     };
   }
 };
 
-// Helper function to check if credentials are configured (non-default)
+// Helper function to check if Supabase credentials are configured (non-default)
 export const hasCustomSupabaseCredentials = () => {
   const credentials = getSupabaseCredentials();
-  return credentials.supabaseUrl !== DEFAULT_SUPABASE_URL && 
-         credentials.supabaseKey !== DEFAULT_SUPABASE_KEY;
+  return credentials.supabaseUrl !== DEFAULT_SUPABASE_URL && credentials.supabaseKey !== DEFAULT_SUPABASE_KEY;
+};
+
+export const hasConfiguredDatabase = () => {
+  const provider = getDatabaseProvider();
+  if (provider === 'sqlite') {
+    return true;
+  }
+  return hasCustomSupabaseCredentials();
 };
 
 // Function to clear custom Supabase credentials and revert to defaults
@@ -53,22 +120,31 @@ export const clearSupabaseCredentials = () => {
     localStorage.removeItem(SUPABASE_URL_KEY);
     localStorage.removeItem(SUPABASE_KEY_KEY);
     localStorage.removeItem(SUPABASE_USERNAME_KEY);
-    console.log("Supabase credentials cleared, reverting to defaults");
+    console.log('Supabase credentials cleared, reverting to defaults');
     return true;
   } catch (error) {
-    console.error("Error clearing Supabase credentials:", error);
+    console.error('Error clearing Supabase credentials:', error);
     return false;
   }
 };
-
 
 // Helper function to get the current username for filtering
 export const getCurrentUsername = () => {
   try {
     return localStorage.getItem(SUPABASE_USERNAME_KEY) || 'self-hosted-user';
   } catch (error) {
-    console.error("Error retrieving username from localStorage:", error);
+    console.error('Error retrieving username from localStorage:', error);
     return 'self-hosted-user';
+  }
+};
+
+export const saveCurrentUsername = (username: string): boolean => {
+  try {
+    localStorage.setItem(SUPABASE_USERNAME_KEY, username.trim() || 'self-hosted-user');
+    return true;
+  } catch (error) {
+    console.error('Error saving username:', error);
+    return false;
   }
 };
 
@@ -80,98 +156,82 @@ export const saveSupabaseCredentials = (url: string, key: string, username?: str
     if (username) {
       localStorage.setItem(SUPABASE_USERNAME_KEY, username);
     }
-    console.log("Supabase credentials saved to localStorage");
+    localStorage.setItem(DB_PROVIDER_KEY, 'supabase');
+    console.log('Supabase credentials saved to localStorage');
     return true;
   } catch (error) {
-    console.error("Error saving Supabase credentials:", error);
+    console.error('Error saving Supabase credentials:', error);
     return false;
   }
 };
 
-
-// Create Supabase client with current credentials
 let supabaseClient: ReturnType<typeof createClient<Database>>;
 
-// Initialize the client lazily to ensure we have the latest credentials
-const initializeClient = () => {
+const initializeSupabaseClient = () => {
   const { supabaseUrl, supabaseKey } = getSupabaseCredentials();
 
-  // Create client with options for better error handling
   supabaseClient = createClient<Database>(supabaseUrl, supabaseKey, {
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true
-    }
+      detectSessionInUrl: true,
+    },
   });
 
   return supabaseClient;
 };
 
-// Export the supabase client, initializing it if needed
-export const supabase = initializeClient();
+initializeSupabaseClient();
 
-// Function to create a new client with the latest credentials
-// Use this when credentials have been updated and a new client is needed
+const getActiveClient = () => {
+  const provider = getDatabaseProvider();
+  if (provider === 'sqlite') {
+    return sqliteClient;
+  }
+  return supabaseClient;
+};
+
+// Export a compatibility client so existing supabase.from(...) callsites keep working.
+export const supabase = {
+  from(table: string) {
+    return getActiveClient().from(table);
+  },
+};
+
+// Function to create a new Supabase client with the latest credentials
 export const createSupabaseClient = () => {
   const { supabaseUrl, supabaseKey } = getSupabaseCredentials();
 
-  // Create client with options for better error handling
   return createClient<Database>(supabaseUrl, supabaseKey, {
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true
-    }
+      detectSessionInUrl: true,
+    },
   });
 };
 
-// Function to create a test client with custom credentials
-// This is used in Settings to test a connection before saving
+// Function to create a test Supabase client with custom credentials
 export const createTestSupabaseClient = (url: string, key: string) => {
-  // Basic validation
   if (!url || !key) {
     throw new Error('URL and API key are required');
   }
 
-  // Validate URL format - but be much more flexible for local instances
   try {
     const urlObj = new URL(url);
-    
-    // Check if it's a valid HTTP/HTTPS URL
+
     if (!['http:', 'https:'].includes(urlObj.protocol)) {
       throw new Error('URL must use http:// or https:// protocol');
     }
-    
-    // More flexible validation - accept any valid URL
-    // Remove the restrictive hostname checks that were blocking local instances
+
     const hostname = urlObj.hostname.toLowerCase();
-    
+
     console.log('Supabase URL validation - accepting all valid HTTP/HTTPS URLs:', {
-      url: url,
-      hostname: hostname,
+      url,
+      hostname,
       protocol: urlObj.protocol,
-      port: urlObj.port || (urlObj.protocol === 'https:' ? '443' : '80')
+      port: urlObj.port || (urlObj.protocol === 'https:' ? '443' : '80'),
     });
-    
-    // Only provide informational logging, don't block any URLs
-    if (hostname.includes('supabase.co') || hostname.includes('supabase.com')) {
-      console.log('✅ Detected Supabase Cloud instance');
-    } else if (hostname === 'localhost' || hostname === '127.0.0.1' || 
-               hostname.startsWith('192.168.') || hostname.startsWith('10.') || 
-               hostname.startsWith('172.16.') || hostname.startsWith('172.17.') || 
-               hostname.startsWith('172.18.') || hostname.startsWith('172.19.') || 
-               hostname.startsWith('172.20.') || hostname.startsWith('172.21.') || 
-               hostname.startsWith('172.22.') || hostname.startsWith('172.23.') || 
-               hostname.startsWith('172.24.') || hostname.startsWith('172.25.') || 
-               hostname.startsWith('172.26.') || hostname.startsWith('172.27.') || 
-               hostname.startsWith('172.28.') || hostname.startsWith('172.29.') || 
-               hostname.startsWith('172.30.') || hostname.startsWith('172.31.')) {
-      console.log('✅ Detected local/private network instance');
-    } else {
-      console.log('✅ Detected custom domain instance');
-    }
-    
   } catch (error) {
     if (error instanceof TypeError) {
       throw new Error(`Invalid URL format: ${url}. Please ensure it includes the protocol (http:// or https://)`);
@@ -179,21 +239,34 @@ export const createTestSupabaseClient = (url: string, key: string) => {
     throw error;
   }
 
-  // Create test client - removed all URL restrictions
   return createClient<Database>(url, key, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
-      detectSessionInUrl: false
-    }
+      detectSessionInUrl: false,
+    },
   });
 };
 
-// Function to refresh the main supabase client after credentials change
+export const initializeSqliteProvider = async (dbPath?: string): Promise<DbResponse<{ path?: string }>> => {
+  return initializeSqliteDatabase(dbPath || getSqliteDatabasePath());
+};
+
+export const testSqliteProviderConnection = async (dbPath?: string): Promise<DbResponse<{ path?: string }>> => {
+  return testSqliteConnection(dbPath || getSqliteDatabasePath());
+};
+
+// Function to refresh the active client after credentials/provider change
 export const refreshSupabaseClient = () => {
-  // Reinitialize the client with new credentials
-  const newClient = initializeClient();
-  // Update the exported reference
-  Object.assign(supabase, newClient);
+  if (getDatabaseProvider() === 'sqlite') {
+    void initializeSqliteProvider().then((sqliteInit) => {
+      if (sqliteInit.error) {
+        console.error('Failed to initialize SQLite provider:', sqliteInit.error.message);
+      }
+    });
+    return supabase;
+  }
+
+  initializeSupabaseClient();
   return supabase;
 };

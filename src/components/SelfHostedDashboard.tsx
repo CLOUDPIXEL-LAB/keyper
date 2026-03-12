@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { getSupabaseCredentials, hasCustomSupabaseCredentials, getCurrentUsername, supabase, refreshSupabaseClient } from '@/integrations/supabase/client';
+import { getSupabaseCredentials, hasConfiguredDatabase, getCurrentUsername, supabase, refreshSupabaseClient } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Settings as SettingsIcon, ArrowLeft, Plus, Shield, RefreshCw, Database, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -102,14 +102,13 @@ export const SelfHostedDashboard: React.FC = () => {
   const [selectedCredential, setSelectedCredential] = useState<Credential | null>(null);
   const { toast } = useToast();
 
-  // Check if Supabase is configured on component mount
+  // Check if a database provider is configured on component mount
   useEffect(() => {
-    // Use new helper function to check if credentials are configured
-    const hasCustomCredentials = hasCustomSupabaseCredentials();
-    setIsConfigured(hasCustomCredentials);
+    const hasConfiguredStorage = hasConfiguredDatabase();
+    setIsConfigured(hasConfiguredStorage);
 
     // Always try to fetch data if configured
-    if (hasCustomCredentials) {
+    if (hasConfiguredStorage) {
       fetchCredentials();
       fetchCategories();
     } else {
@@ -229,8 +228,8 @@ export const SelfHostedDashboard: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-cyan-950">
         <div className="container mx-auto py-8">
           <div className="mb-6">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={handleBackToDashboard}
               className="flex items-center gap-2"
             >
@@ -252,8 +251,8 @@ export const SelfHostedDashboard: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-cyan-950">
         <div className="container mx-auto py-8">
           <div className="mb-6">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={handleBackToDashboard}
               className="flex items-center gap-2"
             >
@@ -294,7 +293,7 @@ export const SelfHostedDashboard: React.FC = () => {
               Database Configuration Required
             </CardTitle>
             <CardDescription>
-              Set up your Supabase database connection to securely store your encrypted credentials.
+              Choose a database provider and configure how Keyper should store your encrypted credentials.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -302,15 +301,15 @@ export const SelfHostedDashboard: React.FC = () => {
               <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
                 <div className="flex-shrink-0 w-6 h-6 bg-cyan-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
                 <div>
-                  <h4 className="font-medium">Set up your Supabase project</h4>
-                  <p className="text-sm text-muted-foreground">Create a new project at supabase.com and run the database setup script</p>
+                  <h4 className="font-medium">Choose your database provider</h4>
+                  <p className="text-sm text-muted-foreground">Use SQLite for local-first storage on this device, or Supabase for hosted and remote storage.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
                 <div className="flex-shrink-0 w-6 h-6 bg-cyan-500 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
                 <div>
                   <h4 className="font-medium">Configure connection</h4>
-                  <p className="text-sm text-muted-foreground">Enter your Supabase URL and anon/publishable key to connect Keyper to your database</p>
+                  <p className="text-sm text-muted-foreground">SQLite can be created locally by Keyper. Supabase requires your project URL, anon/publishable key, and setup script.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
@@ -321,7 +320,7 @@ export const SelfHostedDashboard: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="pt-4">
               <Button
                 onClick={handleShowDatabaseSettings}
@@ -329,7 +328,7 @@ export const SelfHostedDashboard: React.FC = () => {
                 size="lg"
               >
                 <Database className="h-4 w-4 mr-2" />
-                Configure Database Connection
+                Configure Database
               </Button>
             </div>
           </CardContent>

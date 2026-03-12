@@ -21,12 +21,14 @@
 import {
   app,
   BrowserWindow,
+  ipcMain,
   protocol,
   net,
   shell,
   session,
 } from 'electron';
 import * as path from 'path';
+import * as fs from 'fs';
 import { pathToFileURL } from 'url';
 
 // ── Register the custom "app" scheme BEFORE app.ready ─────────────────────────
@@ -56,6 +58,333 @@ const WIN_WIDTH = 1300;
 const WIN_HEIGHT = 840;
 const WIN_MIN_WIDTH = 960;
 const WIN_MIN_HEIGHT = 640;
+
+type SqliteAction = 'select' | 'insert' | 'update' | 'delete' | 'upsert';
+
+interface SqliteQueryPayload {
+  table: string;
+  action: SqliteAction;
+  select?: string;
+  filters?: Array<{ column: string; value: unknown }>;
+  order?: { column: string; ascending: boolean };
+  limit?: number;
+  values?: Record<string, unknown> | Record<string, unknown>[];
+  single?: boolean;
+  head?: boolean;
+  count?: 'exact';
+}
+
+type SqliteResult = {
+  data: unknown;
+  error: { message: string; code?: string } | null;
+  count?: number | null;
+};
+
+let sqliteDb: any = null;
+let sqliteDbPath: string | null = null;
+
+function getBetterSqlite3(): any {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  return require('better-sqlite3');
+}
+
+function getDefaultSqlitePath(): string {
+  return path.join(app.getPath('userData'), 'keyper.sqlite');
+}
+
+function isSafeIdentifier(value: string): boolean {
+  return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(value);
+}
+
+function quoteIdentifier(value: string): string {
+  if (!isSafeIdentifier(value)) {
+    throw new Error(`Unsafe SQL identifier: ${value}`);
+  }
+  return `"${value}"`;
+}
+
+function nowIsoString(): string {
+  return new Date().toISOString();
+}
+
+function normalizeSqliteValue(value: unknown): unknown {
+  if (value === undefined) return null;
+  if (Array.isArray(value)) return JSON.stringify(value);
+  if (value !== null && typeof value === 'object') return JSON.stringify(value);
+  return value;
+}
+
+function maybeParseJson(value: unknown): unknown {
+  if (typeof value !== 'string') return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
+function mapRow(table: string, row: Record<string, unknown>): Record<string, unknown> {
+  const mapped = { ...row };
+  if (table === 'credentials') {
+    mapped.tags = maybeParseJson(mapped.tags);
+    mapped.secret_blob = maybeParseJson(mapped.secret_blob);
+  }
+  if (table === 'vault_config') {
+    mapped.wrapped_dek = maybeParseJson(mapped.wrapped_dek);
+  }
+  return mapped;
+}
+
+function ensureSqliteSchema(db: any): void {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS credentials (
+      id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+      user_id TEXT NOT NULL DEFAULT 'self-hosted-user',
+      title TEXT NOT NULL,
+      description TEXT,
+      credential_type TEXT NOT NULL DEFAULT 'secret',
+      priority TEXT NOT NULL DEFAULT 'medium',
+      username TEXT,
+      url TEXT,
+      tags TEXT DEFAULT '[]',
+      category TEXT,
+      notes TEXT,
+      expires_at TEXT,
+      last_accessed TEXT,
+      created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+      updated_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+      secret_blob TEXT,
+      encrypted_at TEXT,
+      password TEXT,
+      api_key TEXT,
+      secret_value TEXT,
+      token_value TEXT,
+      certificate_data TEXT,
+      misc_value TEXT,
+      document_name TEXT,
+      document_mime_type TEXT,
+      document_content_base64 TEXT,
+      document_size_bytes INTEGER
+    );
+
+    CREATE TABLE IF NOT EXISTS vault_config (
+      id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+      user_id TEXT NOT NULL UNIQUE DEFAULT 'self-hosted-user',
+      wrapped_dek TEXT,
+      raw_dek TEXT,
+      bcrypt_hash TEXT,
+      created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+      updated_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    );
+
+    CREATE TABLE IF NOT EXISTS categories (
+      id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+      user_id TEXT NOT NULL DEFAULT 'self-hosted-user',
+      name TEXT NOT NULL,
+      color TEXT DEFAULT '#6366f1',
+      icon TEXT DEFAULT 'folder',
+      description TEXT,
+      created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+      updated_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+      UNIQUE(user_id, name)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_credentials_user_id ON credentials(user_id);
+    CREATE INDEX IF NOT EXISTS idx_credentials_updated_at ON credentials(updated_at);
+    CREATE INDEX IF NOT EXISTS idx_vault_config_user_id ON vault_config(user_id);
+    CREATE INDEX IF NOT EXISTS idx_categories_user_id ON categories(user_id);
+  `);
+}
+
+function openSqliteDatabase(requestedPath?: string): { db: any; path: string } {
+  const dbPath = (requestedPath || '').trim() || getDefaultSqlitePath();
+  const normalizedPath = path.resolve(dbPath);
+
+  if (sqliteDb && sqliteDbPath === normalizedPath) {
+    return { db: sqliteDb, path: normalizedPath };
+  }
+
+  if (sqliteDb) {
+    sqliteDb.close();
+    sqliteDb = null;
+    sqliteDbPath = null;
+  }
+
+  fs.mkdirSync(path.dirname(normalizedPath), { recursive: true });
+  const BetterSqlite3 = getBetterSqlite3();
+  const db = new BetterSqlite3(normalizedPath);
+  db.pragma('journal_mode = WAL');
+  db.pragma('foreign_keys = ON');
+  ensureSqliteSchema(db);
+
+  sqliteDb = db;
+  sqliteDbPath = normalizedPath;
+  return { db, path: normalizedPath };
+}
+
+function buildWhereClause(filters: Array<{ column: string; value: unknown }> = []): { whereSql: string; params: unknown[] } {
+  if (filters.length === 0) {
+    return { whereSql: '', params: [] };
+  }
+  const clauses: string[] = [];
+  const params: unknown[] = [];
+  for (const filter of filters) {
+    clauses.push(`${quoteIdentifier(filter.column)} = ?`);
+    params.push(normalizeSqliteValue(filter.value));
+  }
+  return {
+    whereSql: ` WHERE ${clauses.join(' AND ')}`,
+    params,
+  };
+}
+
+function upsertConflictColumns(table: string): string[] {
+  if (table === 'vault_config') return ['user_id'];
+  if (table === 'categories') return ['user_id', 'name'];
+  return ['id'];
+}
+
+function runSqliteQuery(payload: SqliteQueryPayload): SqliteResult {
+  const { db } = openSqliteDatabase();
+  const table = quoteIdentifier(payload.table);
+  const action = payload.action;
+  const filters = payload.filters || [];
+  const single = Boolean(payload.single);
+
+  if (action === 'select') {
+    const isCountSelect = payload.select === 'count' || payload.count === 'exact';
+    const { whereSql, params } = buildWhereClause(filters);
+    const orderSql = payload.order
+      ? ` ORDER BY ${quoteIdentifier(payload.order.column)} ${payload.order.ascending ? 'ASC' : 'DESC'}`
+      : '';
+    const limitSql = payload.limit ? ` LIMIT ${Math.max(1, payload.limit)}` : '';
+
+    if (isCountSelect) {
+      const countRow = db.prepare(`SELECT COUNT(*) AS count FROM ${table}${whereSql}`).get(...params) as { count: number };
+      return {
+        data: payload.head ? null : [{ count: countRow.count }],
+        error: null,
+        count: countRow.count,
+      };
+    }
+
+    const selectSql = `SELECT * FROM ${table}${whereSql}${orderSql}${limitSql}`;
+    const rows = (db.prepare(selectSql).all(...params) as Record<string, unknown>[]).map((row) =>
+      mapRow(payload.table, row),
+    );
+
+    if (single) {
+      if (rows.length === 0) {
+        return {
+          data: null,
+          error: { message: 'No rows found', code: 'PGRST116' },
+        };
+      }
+      return { data: rows[0], error: null };
+    }
+
+    return { data: rows, error: null };
+  }
+
+  if (action === 'insert' || action === 'upsert') {
+    if (!payload.values) {
+      throw new Error(`${action} requires values`);
+    }
+    const rows = Array.isArray(payload.values) ? payload.values : [payload.values];
+    const inserted: Record<string, unknown>[] = [];
+
+    const insertMany = db.transaction((items: Record<string, unknown>[]) => {
+      for (const row of items) {
+        const keys = Object.keys(row);
+        if (keys.length === 0) continue;
+        const columnsSql = keys.map(quoteIdentifier).join(', ');
+        const placeholders = keys.map(() => '?').join(', ');
+        const values = keys.map((key) => normalizeSqliteValue(row[key]));
+
+        if (action === 'insert') {
+          const sql = `INSERT INTO ${table} (${columnsSql}) VALUES (${placeholders}) RETURNING *`;
+          const insertedRow = db.prepare(sql).get(...values) as Record<string, unknown>;
+          inserted.push(mapRow(payload.table, insertedRow));
+          continue;
+        }
+
+        const conflictCols = upsertConflictColumns(payload.table);
+        const conflictSql = conflictCols.map(quoteIdentifier).join(', ');
+        const updateCols = keys.filter((key) => !conflictCols.includes(key));
+        const updateSql =
+          updateCols.length > 0
+            ? updateCols.map((key) => `${quoteIdentifier(key)} = excluded.${quoteIdentifier(key)}`).join(', ')
+            : `${quoteIdentifier(conflictCols[0])} = excluded.${quoteIdentifier(conflictCols[0])}`;
+
+        const sql = `INSERT INTO ${table} (${columnsSql}) VALUES (${placeholders}) ON CONFLICT(${conflictSql}) DO UPDATE SET ${updateSql} RETURNING *`;
+        const upsertedRow = db.prepare(sql).get(...values) as Record<string, unknown>;
+        inserted.push(mapRow(payload.table, upsertedRow));
+      }
+    });
+
+    insertMany(rows);
+
+    if (single) {
+      if (inserted.length === 0) {
+        return {
+          data: null,
+          error: { message: 'No rows found', code: 'PGRST116' },
+        };
+      }
+      return { data: inserted[0], error: null };
+    }
+    return { data: inserted, error: null };
+  }
+
+  if (action === 'update') {
+    if (!payload.values || Array.isArray(payload.values)) {
+      throw new Error('update requires a single values object');
+    }
+    const updateValuesObject = payload.values as Record<string, unknown>;
+    const keys = Object.keys(updateValuesObject);
+    if (keys.length === 0) {
+      return { data: [], error: null };
+    }
+    const setSql = keys.map((key) => `${quoteIdentifier(key)} = ?`).join(', ');
+    const setValues = keys.map((key) => normalizeSqliteValue(updateValuesObject[key]));
+    const { whereSql, params } = buildWhereClause(filters);
+    const sql = `UPDATE ${table} SET ${setSql}, updated_at = ?${whereSql} RETURNING *`;
+    const rows = (db.prepare(sql).all(...setValues, nowIsoString(), ...params) as Record<string, unknown>[]).map((row) =>
+      mapRow(payload.table, row),
+    );
+
+    if (single) {
+      if (rows.length === 0) {
+        return {
+          data: null,
+          error: { message: 'No rows found', code: 'PGRST116' },
+        };
+      }
+      return { data: rows[0], error: null };
+    }
+    return { data: rows, error: null };
+  }
+
+  if (action === 'delete') {
+    const { whereSql, params } = buildWhereClause(filters);
+    const rows = (db.prepare(`DELETE FROM ${table}${whereSql} RETURNING *`).all(...params) as Record<string, unknown>[]).map(
+      (row) => mapRow(payload.table, row),
+    );
+
+    if (single) {
+      if (rows.length === 0) {
+        return {
+          data: null,
+          error: { message: 'No rows found', code: 'PGRST116' },
+        };
+      }
+      return { data: rows[0], error: null };
+    }
+    return { data: rows, error: null };
+  }
+
+  throw new Error(`Unsupported SQLite action: ${action}`);
+}
 
 // ── Window factory ────────────────────────────────────────────────────────────
 function createWindow(): BrowserWindow {
@@ -167,6 +496,39 @@ app.whenReady().then(() => {
         'Cross-Origin-Embedder-Policy': ['require-corp'],
       },
     });
+  });
+
+  ipcMain.handle('keyper:sqlite:init', async (_event, payload?: { path?: string }) => {
+    try {
+      const opened = openSqliteDatabase(payload?.path);
+      return { ok: true, path: opened.path };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to initialize SQLite database';
+      return { ok: false, error: message };
+    }
+  });
+
+  ipcMain.handle('keyper:sqlite:test', async (_event, payload?: { path?: string }) => {
+    try {
+      const opened = openSqliteDatabase(payload?.path);
+      opened.db.prepare('SELECT 1 AS ok').get();
+      return { ok: true, path: opened.path };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to connect to SQLite database';
+      return { ok: false, error: message };
+    }
+  });
+
+  ipcMain.handle('keyper:sqlite:query', async (_event, payload: SqliteQueryPayload) => {
+    try {
+      return runSqliteQuery(payload);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'SQLite query failed';
+      return {
+        data: null,
+        error: { message, code: 'SQLITE_QUERY_FAILED' },
+      };
+    }
   });
 
   createWindow();

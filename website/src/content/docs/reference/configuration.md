@@ -5,7 +5,8 @@ description: Build/runtime config points and where they live.
 
 ## Key application configs
 
-- Supabase client and local keys: `src/integrations/supabase/client.ts`
+- Database provider router + Supabase client: `src/integrations/supabase/client.ts`
+- SQLite local engine (sql.js / IndexedDB): `src/integrations/database/sqlite-client.ts`
 - CSP runtime policy: `src/security/ContentSecurityPolicy.ts`
 - Build and chunk strategy: `vite.config.ts`
 - PWA manifest and caching: `vite.config.ts` (`VitePWA` section)
@@ -13,6 +14,8 @@ description: Build/runtime config points and where they live.
 - In-app operational SQL tab (setup + migration scripts): `src/components/dashboard/DashboardSettings.tsx`
 
 ## SQL script sources
+
+> **Note:** SQL scripts are only required for the **Supabase** provider. SQLite schema is created and seeded automatically on first launch.
 
 - Full setup script: `supabase-setup.sql`
 - Existing DB upgrade script: `migration-add-document-misc-types.sql`

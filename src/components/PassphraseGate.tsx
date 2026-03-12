@@ -1,9 +1,9 @@
 /**
  * PassphraseGate - Vault unlock UI component
- * 
+ *
  * Provides a secure interface for unlocking the encrypted vault.
  * Features auto-lock timer, passphrase strength validation, and elegant UI.
- * 
+ *
  * Made with ❤️ by Pink Pixel ✨
  */
 
@@ -16,7 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { getCurrentUsername, saveSupabaseCredentials, getSupabaseCredentials } from '@/integrations/supabase/client';
+import { saveCurrentUsername } from '@/integrations/supabase/client';
 import {
   Lock,
   Unlock,
@@ -121,7 +121,7 @@ useEffect(() => {
         setError('Database connection failed. Please check your configuration.');
       }
     };
-    
+
     checkFirstTimeUser();
   }, [username]); // Re-check when username changes
 
@@ -138,12 +138,12 @@ useEffect(() => {
   // Update countdown timer
   useEffect(() => {
     if (!isUnlocked) return;
-    
+
     const interval = setInterval(() => {
       const remaining = vaultManager.getTimeUntilAutoLock();
       setTimeUntilLock(remaining);
     }, 1000);
-    
+
     return () => clearInterval(interval);
   }, [isUnlocked]);
 
@@ -159,32 +159,31 @@ useEffect(() => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!username || username.trim() === '') {
       setError("Username is required");
       return;
     }
-    
+
     const trimmedPassphrase = passphrase.trim();
     if (!trimmedPassphrase || trimmedPassphrase.length < 8) {
       setError("Passphrase must be at least 8 characters long");
       return;
     }
-    
+
     setIsUnlocking(true);
     setError(null);
-    
+
     try {
       // Set the current username in localStorage before any vault operations
-      const { supabaseUrl, supabaseKey } = getSupabaseCredentials();
-      saveSupabaseCredentials(supabaseUrl, supabaseKey, username.trim());
-      
+      saveCurrentUsername(username.trim());
+
       // Lock the vault to clear any existing state when switching users
       vaultManager.lockVault();
       console.log('🔧 Locked vault due to user context switch');
-      
+
       const isFirstTime = await vaultManager.isFirstTimeUser();
-      
+
       if (isFirstTime) {
         console.log('🆕 Creating new vault...');
         await vaultManager.createVault(trimmedPassphrase);
@@ -257,7 +256,7 @@ useEffect(() => {
             </Card>
           </div>
         )}
-        
+
         {children}
       </div>
     );
@@ -288,13 +287,13 @@ useEffect(() => {
               {isFirstTime ? 'Create Master Passphrase' : 'Enter Master Passphrase'}
             </CardTitle>
             <CardDescription>
-              {isFirstTime 
+              {isFirstTime
                 ? 'Create a strong passphrase to secure your credential vault'
                 : 'Enter your passphrase to unlock your secure credential vault'
               }
             </CardDescription>
           </CardHeader>
-        
+
         <CardContent className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-4">
@@ -310,7 +309,7 @@ useEffect(() => {
                   disabled={isUnlocking}
                 />
               </div>
-              
+
               {/* Passphrase field */}
               <div className="space-y-2">
                 <Label htmlFor="passphrase">Master Passphrase</Label>
@@ -334,7 +333,7 @@ useEffect(() => {
                     {showPassphrase ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
-                
+
                 {/* Passphrase strength indicator */}
                 {passphrase && passphraseAnalysis && (
                   <div className="space-y-2">
@@ -363,16 +362,16 @@ useEffect(() => {
                 )}
               </div>
             </div>
-            
+
             {error && (
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
                 {error.includes('Database connection failed') && onDatabaseError && (
                   <div className="mt-3">
-                    <Button 
+                    <Button
                       type="button"
-                      variant="outline" 
+                      variant="outline"
                       size="sm"
                       onClick={onDatabaseError}
                       className="w-full"
@@ -384,7 +383,7 @@ useEffect(() => {
                 )}
               </Alert>
             )}
-            
+
             <Button
               type="submit"
               className="w-full"
@@ -403,21 +402,21 @@ useEffect(() => {
               )}
             </Button>
           </form>
-          
+
           <Alert>
             <Info className="h-4 w-4" />
             <AlertDescription className="text-sm">
               Your passphrase is used for client-side encryption. Losing it means losing access to your encrypted data.
             </AlertDescription>
           </Alert>
-          
+
           <Alert className="border-blue-200 bg-blue-50/50">
             <Info className="h-4 w-4 text-blue-600" />
             <AlertDescription className="text-sm text-blue-800">
               <strong>Multi-User Tip:</strong> When switching between different user accounts, refresh the page after logging out for optimal vault isolation.
             </AlertDescription>
           </Alert>
-          
+
           {showMetrics && (
             <div className="pt-4 border-t">
               <div className="text-xs text-muted-foreground text-center">

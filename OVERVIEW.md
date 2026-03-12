@@ -57,7 +57,7 @@ _Dream it, Pixel it_ - **Made with ❤️ by Pink Pixel**
 
 ```mermaid
 graph TB
-    subgraph "Client (Browser)"
+    subgraph "Client (Browser / Electron)"
         UI[React App]
         Crypto[Crypto Layer]
         PWA[Service Worker]
@@ -69,17 +69,23 @@ graph TB
     end
 
     subgraph "Database Layer"
+        Router{DB Provider Router}
         Supabase[Supabase]
+        SQLite[SQLite / sql.js]
         PG[(PostgreSQL)]
+        IDB[(IndexedDB)]
         RLS[Row Level Security]
     end
 
     UI --> Crypto
-    Crypto --> Supabase
+    Crypto --> Router
+    Router -->|Supabase mode| Supabase
+    Router -->|SQLite mode| SQLite
     CLI --> Vite
     Vite --> UI
     Supabase --> PG
     PG --> RLS
+    SQLite --> IDB
 ```
 
 ### Core Design Principles
@@ -147,12 +153,13 @@ sequenceDiagram
 
 ### Backend & Database
 
-| Technology         | Version | Purpose                                    |
-| ------------------ | ------- | ------------------------------------------ |
-| **Node.js**        | 18+     | Runtime for CLI and build tools            |
-| **Supabase**       | 2.53.0  | Backend-as-a-Service platform              |
-| **PostgreSQL**     | 15+     | Relational database with advanced features |
-| **Docker / nginx** | 1.27+   | Containerised SPA serving                  |
+| Technology         | Version | Purpose                                     |
+| ------------------ | ------- | ------------------------------------------- |
+| **Node.js**        | 18+     | Runtime for CLI and build tools             |
+| **Supabase**       | 2.53.0  | Backend-as-a-Service platform (cloud mode)  |
+| **PostgreSQL**     | 15+     | Relational database with advanced features  |
+| **sql.js**         | 1.12.0  | SQLite compiled to WebAssembly (local mode) |
+| **Docker / nginx** | 1.27+   | Containerised SPA serving                   |
 
 ### Security & Cryptography
 
@@ -206,7 +213,8 @@ keyper/
 │   │   └── types.ts          # Crypto type definitions
 │   ├── 📁 hooks/              # React hooks
 │   ├── 📁 integrations/       # External service integrations
-│   │   └── 📁 supabase/       # Supabase client
+│   │   ├── 📁 supabase/       # Supabase client + provider router
+│   │   └── 📁 database/       # SQLite / sql.js client (local mode)
 │   ├── 📁 lib/                # Utility libraries
 │   ├── 📁 pages/              # Route components
 │   ├── 📁 security/           # Security utilities
@@ -445,7 +453,7 @@ docker build -t keyper .
 docker run -d -p 8080:80 --name keyper --restart unless-stopped keyper
 ```
 
-The container serves the compiled Vite/React SPA on port 80 internally. No Node.js or environment variables required on the host — all Supabase credentials are entered in-app and stored in browser `localStorage`.
+The container serves the compiled Vite/React SPA on port 80 internally. No Node.js or environment variables required on the host — all configuration (Supabase credentials or SQLite provider selection) is entered in-app and stored in browser `localStorage`.
 
 ### Electron Desktop App
 
@@ -503,20 +511,21 @@ npm run electron:build:mac     # DMG (must run on macOS)
 - **Status**: Stable Production Release 🟢
 - **License**: Apache 2.0
 - **Emergency System**: Advanced troubleshooting enabled ⚡
-- **Local Database Support**: Full compatibility with local Supabase instances 🌐
+- **Local Database Support**: SQLite (sql.js + IndexedDB) for zero-config offline-first local storage 🗄️
 
 ### Feature Completeness
 
-| Feature Category   | Status      | Notes                       |
-| ------------------ | ----------- | --------------------------- |
-| **Core Security**  | ✅ Complete | Zero-knowledge encryption   |
-| **User Interface** | ✅ Complete | Full responsive design      |
-| **Database Layer** | ✅ Complete | Comprehensive schema        |
-| **PWA Features**   | ✅ Complete | Full offline support        |
-| **CLI Tools**      | ✅ Complete | Multi-platform support      |
-| **Docker Build**   | ✅ Complete | nginx-based container       |
-| **Desktop App**    | ✅ Complete | Electron v33, all platforms |
-| **Documentation**  | ✅ Complete | Comprehensive guides        |
+| Feature Category   | Status      | Notes                               |
+| ------------------ | ----------- | ----------------------------------- |
+| **Core Security**  | ✅ Complete | Zero-knowledge encryption           |
+| **User Interface** | ✅ Complete | Full responsive design              |
+| **Database Layer** | ✅ Complete | Supabase + SQLite dual-provider     |
+| **SQLite Support** | ✅ Complete | Local-first, zero-config (Electron) |
+| **PWA Features**   | ✅ Complete | Full offline support                |
+| **CLI Tools**      | ✅ Complete | Multi-platform support              |
+| **Docker Build**   | ✅ Complete | nginx-based container               |
+| **Desktop App**    | ✅ Complete | Electron v33, all platforms         |
+| **Documentation**  | ✅ Complete | Comprehensive guides                |
 
 ### Known Limitations
 

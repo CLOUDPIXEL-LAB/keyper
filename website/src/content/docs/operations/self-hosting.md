@@ -53,7 +53,7 @@ docker build -t keyper .
 docker run -d -p 8080:80 --name keyper --restart unless-stopped keyper
 ```
 
-No environment variables or volumes are required. All Supabase credentials are entered in-app and persist only in the user's browser `localStorage`.
+No environment variables or volumes are required. All configuration (Supabase credentials or SQLite provider selection) is entered in-app and persists only in the user's browser `localStorage`.
 
 ### HTTPS in production
 

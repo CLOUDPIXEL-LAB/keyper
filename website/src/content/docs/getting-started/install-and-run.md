@@ -42,7 +42,7 @@ docker compose up -d
 HOST_PORT=3030 docker compose up -d
 ```
 
-The container exposes the compiled SPA on port 80 internally. No volumes or environment variables are needed — all Supabase credentials are entered in-app and stored in browser `localStorage`.
+The container exposes the compiled SPA on port 80 internally. No volumes or environment variables are needed — all configuration (Supabase credentials or SQLite provider selection) is entered in-app and stored in browser `localStorage`.
 
 ### Option 3: Global npm install
 
@@ -73,11 +73,11 @@ npm run build && npm start   # production preview
 ## First run
 
 1. Open the app URL (default `http://localhost:4173` for npm/npx, `http://localhost:8080` for Docker, or the Electron window).
-2. In settings, add your Supabase URL and anon/publishable key.
-3. Run the SQL setup script to create required tables/policies.
-   - Existing users should also run the update script (`migration-add-document-misc-types.sql`) so `document` and `misc` credential types are enabled on current databases.
-4. Return to the app, test connection, and save.
-5. Unlock or initialize your vault using your master passphrase.
+2. In the setup wizard, **choose your database provider**:
+   - **SQLite (Local)** — zero-config, no account required; schema is created automatically. Best for Electron desktop users who want offline-first local storage.
+   - **Supabase** — enter your Supabase URL and anon/publishable key, then run the SQL setup script to create required tables/policies. Existing users should also run `migration-add-document-misc-types.sql` to enable `document` and `misc` credential types.
+3. Return to the app, test connection, and save.
+4. Unlock or initialize your vault using your master passphrase.
 
 ## Verify health
 

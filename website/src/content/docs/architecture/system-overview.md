@@ -7,7 +7,7 @@ description: High-level architecture and module boundaries.
 
 1. UI layer: Dashboard, filters, modals, settings, passphrase gate.
 2. Vault layer: in-memory unlock state, DEK management, encrypt/decrypt operations.
-3. Storage layer: Supabase tables for credentials, categories, and vault config.
+3. Storage layer: Supabase (Postgres) or SQLite (sql.js / IndexedDB) tables for credentials, categories, and vault config — selected at runtime via the database provider setting.
 
 ## Key data path
 

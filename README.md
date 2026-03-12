@@ -11,6 +11,7 @@
 [![React](https://img.shields.io/badge/React-19.1-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Ready-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
+[![SQLite](https://img.shields.io/badge/SQLite-Local--First-003B57?style=for-the-badge&logo=sqlite)](https://www.sqlite.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)](https://hub.docker.com/)
 [![Electron](https://img.shields.io/badge/Electron-v33-47848F?style=for-the-badge&logo=electron)](https://www.electronjs.org/)
 [![PWA](https://img.shields.io/badge/PWA-Enabled-5A0FC8?style=for-the-badge)](https://web.dev/progressive-web-apps/)
@@ -109,7 +110,9 @@ Get Keyper running on your own infrastructure in under 5 minutes!
 ### Prerequisites
 
 - **Node.js 18+** installed on your system
-- **Supabase account** (free tier works perfectly!)
+- **Database (choose one)**:
+  - 🗄️ **SQLite (local mode)** — no account or server required, zero configuration, works in browser and Electron desktop
+  - ☁️ **Supabase** — free tier works perfectly for hosted/remote/multi-device usage
 - **Modern web browser** (Chrome, Firefox, Safari, Edge)
 
 ### ⚡ 1-Minute Installation
@@ -128,7 +131,7 @@ keyper --port 3000
 # 🌐 http://localhost:4173 (or your custom port)
 ```
 
-**That's it!** 🎉 Follow the in-app setup wizard to configure your Supabase database.
+**That's it!** 🎉 Follow the in-app setup wizard to configure your database (choose **SQLite** for zero-config local storage, or **Supabase** for hosted cloud storage).
 
 ### 🌐 Try the Demo
 
@@ -214,7 +217,7 @@ docker build -t keyper .
 docker run -d -p 8080:80 --name keyper --restart unless-stopped keyper
 ```
 
-> **Note:** All Supabase credentials are stored in browser `localStorage` — no environment variables or volumes are required.
+> **Note:** Keyper stores all configuration (Supabase credentials or SQLite provider selection) in browser `localStorage` — no environment variables or volumes are required.
 
 ### Method 5: ⚡ Electron Desktop App
 
@@ -246,7 +249,29 @@ Installers are output to `dist-electron/`.
 
 ## 🗄️ Database Setup
 
-### Step 1: Create Your Supabase Project
+Keyper supports two database backends — choose the one that fits your workflow:
+
+| Feature                   | SQLite (Local)          | Supabase (Cloud)              |
+| ------------------------- | ----------------------- | ----------------------------- |
+| Setup required            | None — auto-configured  | Project creation + SQL script |
+| Internet connection       | ❌ Not required         | ✅ Required                   |
+| Multi-device sync         | ❌ Not supported        | ✅ Supported                  |
+| Works in browser/PWA      | ❌ No                   | ✅ Yes                        |
+| Works in Electron desktop | ✅ Yes                  | ✅ Yes                        |
+| Data location             | Your device (IndexedDB) | Your Supabase project         |
+
+### Option A: SQLite (Local — Zero Config)
+
+1. Start Keyper: `keyper` (Electron desktop) and open the app
+2. In the setup wizard, select **"SQLite (Local)"** as your database provider
+3. **Master Passphrase**: Create your encryption passphrase
+4. **Start Managing**: Add your first encrypted credential! 🎉
+
+> SQLite mode stores your entire encrypted vault (schema, credentials, categories) in your browser's **IndexedDB** automatically — no SQL scripts or external services required.
+
+### Option B: Supabase (Hosted Cloud)
+
+#### Step 1: Create Your Supabase Project
 
 1. Visit [supabase.com](https://supabase.com) and sign up/login
 2. Click **"New Project"**
@@ -257,7 +282,7 @@ Installers are output to `dist-electron/`.
 
 4. Wait 1-2 minutes for setup completion
 
-### Step 2: Get Your Credentials
+#### Step 2: Get Your Credentials
 
 1. In Supabase dashboard: **Settings** → **API**
 2. Copy these values:
@@ -266,7 +291,7 @@ Installers are output to `dist-electron/`.
 
 ⚠️ **Important**: Use the **anon/public** key, NOT the service_role key!
 
-### Step 3: Configure Keyper
+#### Step 3: Configure Keyper
 
 1. Start Keyper: `keyper`
 2. Open [http://localhost:4173](http://localhost:4173)
@@ -389,10 +414,19 @@ Keyper works as a Progressive Web App for a native app experience!
 
 **Quick Overview:**
 
+**For Supabase users:**
+
 1. Access your Supabase dashboard and navigate to the `vault_config` table
 2. Generate a new bcrypt hash using your desired new passphrase
 3. Replace the `bcrypt_hash` value in your database
 4. Login with your new passphrase
+
+**For SQLite (local) users:**
+
+1. Open your browser's DevTools → Application → IndexedDB → find the Keyper database
+2. Alternatively, use the in-app **Settings → Reset** tab for guided instructions
+3. Generate a new bcrypt hash using your desired new passphrase
+4. Replace the `bcrypt_hash` value in the `vault_config` table and reload
 
 **Security Benefits:**
 
@@ -406,7 +440,7 @@ Keyper works as a Progressive Web App for a native app experience!
 
 1. Check the [Self-Hosting Guide](SELF-HOSTING.md)
 2. Review browser console for errors (F12 → Console)
-3. Verify Supabase project logs
+3. Verify your database provider logs (Supabase dashboard → Logs, or browser DevTools → Console for SQLite errors)
 4. Use the master passphrase reset process above for password issues
 5. Report issues on [GitHub](https://github.com/pinkpixel-dev/keyper/issues)
 
@@ -419,7 +453,7 @@ Keyper works as a Progressive Web App for a native app experience!
 ### Your Data, Your Control
 
 - ✅ **Self-Hosted** - Run on your own infrastructure
-- ✅ **Private Database** - Your Supabase instance
+- ✅ **Private Database** - Your Supabase instance or local SQLite storage
 - ✅ **No Tracking** - Zero telemetry or analytics
 - ✅ **Open Source** - Fully auditable code
 
@@ -428,7 +462,7 @@ Keyper works as a Progressive Web App for a native app experience!
 - 🔒 **Row Level Security** - Database-level access control
 - 🔐 **Encryption** - Data encrypted at rest and in transit
 - 👤 **User Isolation** - Each user sees only their data
-- 🛡️ **Secure Authentication** - Supabase Auth integration
+- 🛡️ **Offline-First Option** - SQLite mode requires no internet and stores data entirely on-device
 
 ### Multi-User Notes
 
@@ -442,7 +476,7 @@ Keyper works as a Progressive Web App for a native app experience!
 - **Frontend**: React 19.1 + TypeScript
 - **Build Tool**: Vite 7.0
 - **Styling**: Tailwind CSS + shadcn/ui
-- **Backend**: Supabase (PostgreSQL + Auth)
+- **Database**: Supabase (PostgreSQL + Auth) or SQLite (sql.js / IndexedDB)
 - **State Management**: TanStack Query
 - **Forms**: React Hook Form + Zod
 - **PWA**: Vite PWA Plugin + Workbox
@@ -463,7 +497,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## Made with 💖
 
-**Created by Pink Pixel** ✨  
+**Created by Pink Pixel** ✨
 _Dream it, Pixel it_
 
 - 🌐 **Website**: [pinkpixel.dev](https://pinkpixel.dev)
