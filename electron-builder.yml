@@ -55,7 +55,8 @@ linux:
     # snap is excluded from local builds — requires snapcraft to be installed.
     # Uncomment and add to target list to build in CI.
   category: Development
-  icon: public/icon.png # 256\u00d7256+ PNG recommended
+  # Use the explicit Linux icon set for desktop menus, launchers, and AppImage metadata.
+  icon: public/icons
   # Explicit artifact names avoid the @scope/ prefix confusion
   artifactName: "Keyper-${version}-${arch}.${ext}"
   executableName: keyper
