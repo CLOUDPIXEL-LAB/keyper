@@ -65,6 +65,16 @@ const BROWSER_SQLITE_STORAGE_DB = 'keyper-browser-sqlite';
 const BROWSER_SQLITE_STORAGE_STORE = 'databases';
 const BROWSER_SQLITE_STORAGE_KEY = 'keyper-browser-sqlite-fallback';
 const DEFAULT_BROWSER_DATABASE_NAME = 'default';
+const DEFAULT_CATEGORY_USER_ID = 'self-hosted-user';
+const DEFAULT_CATEGORIES = [
+  ['Development', '#3b82f6', 'code', 'Development tools and APIs'],
+  ['Personal', '#10b981', 'user', 'Personal accounts and services'],
+  ['Work', '#f59e0b', 'briefcase', 'Work-related credentials'],
+  ['Social Media', '#ec4899', 'users', 'Social media accounts'],
+  ['Finance', '#06b6d4', 'credit-card', 'Banking and financial services'],
+  ['Cloud Services', '#8b5cf6', 'cloud', 'Cloud platforms and services'],
+  ['Security', '#ef4444', 'shield', 'Security tools and certificates'],
+] as const;
 
 let sqlJsModulePromise: Promise<SqlJsModule> | null = null;
 let browserDatabaseState:
@@ -102,10 +112,18 @@ function getActiveBrowserDatabasePath(): string | undefined {
   return window.localStorage.getItem('keyper-sqlite-db-path') || undefined;
 }
 
+function getSqlWasmPath(): string {
+  if (typeof process !== 'undefined' && process.env.VITEST) {
+    return `${process.cwd()}/node_modules/sql.js/dist/sql-wasm.wasm`;
+  }
+
+  return sqlWasmUrl;
+}
+
 async function getSqlJsModule(): Promise<SqlJsModule> {
   if (!sqlJsModulePromise) {
     sqlJsModulePromise = initSqlJs({
-      locateFile: () => sqlWasmUrl,
+      locateFile: () => getSqlWasmPath(),
     }) as Promise<SqlJsModule>;
   }
 
@@ -178,30 +196,29 @@ function ensureSqliteSchema(db: SqlJsDatabase): void {
     CREATE INDEX IF NOT EXISTS idx_categories_user_id ON categories(user_id);
   `);
 
-  // Get current username from localStorage (browser) or use default
-  const currentUserId = typeof window !== 'undefined' 
-    ? (window.localStorage.getItem('keyper-username') || 'self-hosted-user')
-    : 'self-hosted-user';
-
-  // Seed default categories for current user if they don't have any
+  // Seed shared default categories so every user can see them.
   const countResult = db.prepare('SELECT COUNT(*) AS count FROM categories WHERE user_id = ?');
   try {
-    countResult.bind([currentUserId]);
+    countResult.bind([DEFAULT_CATEGORY_USER_ID]);
     countResult.step();
     const count = Number(countResult.getAsObject().count ?? 0);
     if (count === 0) {
+      const categoryPlaceholders = DEFAULT_CATEGORIES
+        .map(() => '(?, ?, ?, ?, ?)')
+        .join(',\n          ');
+      const categoryValues = DEFAULT_CATEGORIES.flatMap(([name, color, icon, description]) => [
+        DEFAULT_CATEGORY_USER_ID,
+        name,
+        color,
+        icon,
+        description,
+      ]);
       const stmt = db.prepare(`
         INSERT INTO categories (user_id, name, color, icon, description) VALUES
-          (?, 'Development', '#3b82f6', 'code', 'Development tools and APIs'),
-          (?, 'Personal', '#10b981', 'user', 'Personal accounts and services'),
-          (?, 'Work', '#f59e0b', 'briefcase', 'Work-related credentials'),
-          (?, 'Social Media', '#ec4899', 'users', 'Social media accounts'),
-          (?, 'Finance', '#06b6d4', 'credit-card', 'Banking and financial services'),
-          (?, 'Cloud Services', '#8b5cf6', 'cloud', 'Cloud platforms and services'),
-          (?, 'Security', '#ef4444', 'shield', 'Security tools and certificates');
+          ${categoryPlaceholders};
       `);
       try {
-        stmt.bind([currentUserId, currentUserId, currentUserId, currentUserId, currentUserId, currentUserId, currentUserId]);
+        stmt.bind(categoryValues);
         stmt.step();
       } finally {
         stmt.free();

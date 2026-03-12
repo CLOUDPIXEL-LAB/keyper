@@ -176,8 +176,23 @@ export const SelfHostedDashboard: React.FC = () => {
         return isDefaultCategory || isUserCategory;
       });
 
-      setCategories(filteredCategories);
-      } catch (error: unknown) {
+      const dedupedCategories = Array.from(
+        filteredCategories.reduce((map, category) => {
+          const existing = map.get(category.name);
+          const existingIsDefault = !existing?.user_id || existing.user_id === 'self-hosted-user';
+          const nextIsUserSpecific = category.user_id === currentUsername;
+
+          // Prefer the current user's category over the shared default if both exist.
+          if (!existing || (existingIsDefault && nextIsUserSpecific)) {
+            map.set(category.name, category);
+          }
+
+          return map;
+        }, new Map<string, typeof filteredCategories[number]>()),
+      ).map(([, category]) => category);
+
+      setCategories(dedupedCategories);
+    } catch (error: unknown) {
       console.error('Error fetching categories:', error);
     }
   };

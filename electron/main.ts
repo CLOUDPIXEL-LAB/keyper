@@ -82,6 +82,16 @@ type SqliteResult = {
 
 let sqliteDb: any = null;
 let sqliteDbPath: string | null = null;
+const DEFAULT_CATEGORY_USER_ID = 'self-hosted-user';
+const DEFAULT_CATEGORIES = [
+  ['Development', '#3b82f6', 'code', 'Development tools and APIs'],
+  ['Personal', '#10b981', 'user', 'Personal accounts and services'],
+  ['Work', '#f59e0b', 'briefcase', 'Work-related credentials'],
+  ['Social Media', '#ec4899', 'users', 'Social media accounts'],
+  ['Finance', '#06b6d4', 'credit-card', 'Banking and financial services'],
+  ['Cloud Services', '#8b5cf6', 'cloud', 'Cloud platforms and services'],
+  ['Security', '#ef4444', 'shield', 'Security tools and certificates'],
+] as const;
 
 function getBetterSqlite3(): any {
   try {
@@ -208,6 +218,27 @@ function ensureSqliteSchema(db: any): void {
     CREATE INDEX IF NOT EXISTS idx_vault_config_user_id ON vault_config(user_id);
     CREATE INDEX IF NOT EXISTS idx_categories_user_id ON categories(user_id);
   `);
+
+  const existingDefaultCount = db
+    .prepare('SELECT COUNT(*) AS count FROM categories WHERE user_id = ?')
+    .get(DEFAULT_CATEGORY_USER_ID) as { count?: number };
+
+  if (Number(existingDefaultCount?.count ?? 0) > 0) {
+    return;
+  }
+
+  const insertDefaultCategory = db.prepare(`
+    INSERT INTO categories (user_id, name, color, icon, description)
+    VALUES (?, ?, ?, ?, ?)
+  `);
+
+  const insertMany = db.transaction((categories: typeof DEFAULT_CATEGORIES) => {
+    for (const [name, color, icon, description] of categories) {
+      insertDefaultCategory.run(DEFAULT_CATEGORY_USER_ID, name, color, icon, description);
+    }
+  });
+
+  insertMany(DEFAULT_CATEGORIES);
 }
 
 function openSqliteDatabase(requestedPath?: string): { db: any; path: string } {
