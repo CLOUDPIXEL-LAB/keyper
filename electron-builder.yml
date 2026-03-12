@@ -97,9 +97,8 @@ win:
     - target: nsis
       arch:
         - x64
-  # electron-builder can convert a PNG to .ico if @electron/windows-sign
-  # or nsis-resources are available; otherwise supply a real .ico here.
-  icon: public/icon.png
+  # Use a real multi-size .ico for Windows packaging and shortcuts.
+  icon: public/icon.ico
 
 nsis:
   oneClick: false
@@ -107,8 +106,8 @@ nsis:
   createDesktopShortcut: true
   createStartMenuShortcut: true
   shortcutName: Keyper
-  installerIcon: public/icon.png
-  uninstallerIcon: public/icon.png
+  installerIcon: public/icon.ico
+  uninstallerIcon: public/icon.ico
 
 # ── macOS (cross-compile not supported — must build on macOS) ─────────────────
 

@@ -53,6 +53,7 @@ credentials-to-remove.txt
 .dev.vars
 
 # Other
+LOG.txt
 keyper-audit.md
 sqlite-implementation.md
 post.md
