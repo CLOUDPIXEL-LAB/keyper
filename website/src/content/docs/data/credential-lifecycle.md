@@ -19,8 +19,8 @@ description: How credentials are created, updated, revealed, and deleted.
 ## Reveal
 
 1. Edit flow (`EditCredentialModal`) decrypts `secret_blob` when vault is unlocked and pre-fills form values.
-2. Detail flow (`CredentialDetailModal`) currently shows legacy plaintext columns and does not yet decrypt `secret_blob`.
-3. This means encrypted-only records are best inspected through edit flow at present.
+2. Detail flow (`CredentialDetailModal`) decrypts `secret_blob` when vault is unlocked and exposes reveal/copy controls for sensitive fields.
+3. If the vault is locked, detail view shows a helper message prompting unlock before revealing encrypted values.
 
 ## Delete
 

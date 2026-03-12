@@ -321,7 +321,7 @@ CREATE TABLE categories (
 | **PassphraseGate**   | Vault security checkpoint | Auto-lock, biometric support        |
 | **DashboardHeader**  | Navigation and branding   | Search, user profile, actions       |
 | **CredentialsGrid**  | Main credential display   | Filtering, sorting, infinite scroll |
-| **CredentialModal**  | Detailed credential view  | Edit, copy, security indicators     |
+| **CredentialModal**  | Detailed credential view  | Reveal, copy, edit, delete actions  |
 | **SearchAndFilters** | Advanced filtering system | Real-time search, tag filtering     |
 
 ### Responsive Behavior
@@ -482,7 +482,7 @@ npm run electron:build:mac     # DMG (must run on macOS)
 
 ### Version Information
 
-- **Current Version**: 1.1.0
+- **Current Version**: 1.1.1
 - **Release Date**: March 2026
 - **Last Updated**: March 2026
 - **Status**: Stable Production Release 🟢

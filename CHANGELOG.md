@@ -5,6 +5,23 @@ All notable changes to Keyper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-03-12 - 🔍 **Credential Detail Reveal/Copy UX Improvements**
+
+### ✨ **Improved Credential Detail Experience**
+
+- **Added** secure secret reveal in `CredentialDetailModal` by decrypting `secret_blob` when the vault is unlocked
+  - Users can now inspect encrypted values directly from the detail view without entering edit mode
+- **Improved** copy workflow in detail view for sensitive fields (password, API key, secret value, token, certificate)
+  - Existing eye/copy controls now work with encrypted-only records
+- **Added** vault-state guidance in detail view
+  - Clear helper message when the vault is locked and encrypted values cannot be shown yet
+
+### 🎨 **Layout & Readability Fixes**
+
+- **Improved** detail modal width for better credential visibility on desktop
+- **Fixed** horizontal overflow/cutoff in sensitive field rows
+- **Added** robust wrapping for long revealed values (keys/secrets/certificates) so they stay within the modal instead of clipping
+
 ## [1.1.0] - 2026-03-01 - 🐳 **Docker Build & ⚡ Electron Desktop App**
 
 ### 🐳 **Docker Support**

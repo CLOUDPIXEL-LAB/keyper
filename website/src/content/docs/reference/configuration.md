@@ -18,4 +18,4 @@ description: Build/runtime config points and where they live.
 
 ## Versioning notes
 
-Current package version in app repo is `1.0.10`; there are still places in code/docs that display older values (`0.1.0` and `1.0.9`).
+Current package version in app repo is `1.1.1`. Keep app docs, website docs, and distribution artifact references in sync at release time.

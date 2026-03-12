@@ -29,9 +29,9 @@ Desktop installers are available on the **[Keyper website](https://keyper.pinkpi
 
 | Platform | Package         | Download                                                                                             |
 | -------- | --------------- | ---------------------------------------------------------------------------------------------------- |
-| 🐧 Linux | AppImage        | [Keyper-1.1.0.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.0.AppImage)   |
-| 🐧 Linux | `.deb` (x86_64) | [keyper_1.1.0_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.0_amd64.deb) |
-| 🐧 Linux | `.deb` (ARM64)  | [keyper_1.1.0_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.0_arm64.deb) |
+| 🐧 Linux | AppImage        | [Keyper-1.1.1.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.1.AppImage)   |
+| 🐧 Linux | `.deb` (x86_64) | [keyper_1.1.1_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_amd64.deb) |
+| 🐧 Linux | `.deb` (ARM64)  | [keyper_1.1.1_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_arm64.deb) |
 
 ---
 
@@ -66,6 +66,7 @@ Desktop installers are available on the **[Keyper website](https://keyper.pinkpi
 - ⚡ **Priority Levels** - Low, Medium, High, Critical
 - 📅 **Expiration Tracking** - Never miss renewal dates
 - 🔍 **Real-time Search** - Find credentials instantly
+- 👁️ **Quick Reveal & Copy** - Reveal and copy sensitive values directly from the credential detail view
 
 ### 🛡️ **Enterprise-Grade Security**
 

@@ -5,8 +5,8 @@ description: Implementation and documentation gaps observed during repository au
 
 ## Version display drift
 
-- Package version is `1.0.10`.
-- Multiple docs and UI strings still mention `0.1.0` or `1.0.9`.
+- Package version is `1.1.1`.
+- Some distribution docs may lag behind package version when new desktop binaries have not been published yet.
 
 ## Security/capability drift
 
@@ -17,7 +17,7 @@ description: Implementation and documentation gaps observed during repository au
 
 - Active dashboard path uses `AddCredentialModal`, `EditCredentialModal`, `CredentialDetailModal`.
 - `EncryptedCredentialForm`, `EncryptedCredentialDetailModal`, and `EncryptedCredentialsApi` exist but are not the main wired flow.
-- `CredentialDetailModal` still expects legacy plaintext fields for reveal and does not currently decrypt `secret_blob`.
+- `CredentialDetailModal` now decrypts `secret_blob` for reveal/copy in unlocked state, but legacy plaintext-oriented fields/components still exist in parts of the codebase.
 
 ## Data model assumptions
 

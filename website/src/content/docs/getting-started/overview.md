@@ -31,6 +31,8 @@ Keyper is a self-hosted credential manager built as a browser-first application 
 
 Current application behavior is driven by active dashboard components (`AddCredentialModal`, `EditCredentialModal`, `CredentialDetailModal`). Some enhanced encrypted components exist in the codebase but are not the primary path in the current UI.
 
+Credential details now support in-place secret reveal/copy actions in unlocked state, so users can inspect API keys and similar values without entering edit mode.
+
 ## Screenshots
 
 For a full visual gallery, visit [Getting Started -> Screenshots](/getting-started/screenshots/).

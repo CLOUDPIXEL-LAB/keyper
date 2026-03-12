@@ -9,21 +9,21 @@ description: Install Keyper locally and start the app.
 
 | Platform              | Package         | Download                                                                                             |
 | --------------------- | --------------- | ---------------------------------------------------------------------------------------------------- |
-| Linux                 | AppImage        | [Keyper-1.1.0.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.0.AppImage)   |
-| Linux (Debian/Ubuntu) | `.deb` (x86_64) | [keyper_1.1.0_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.0_amd64.deb) |
-| Linux (Debian/Ubuntu) | `.deb` (ARM64)  | [keyper_1.1.0_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.0_arm64.deb) |
+| Linux                 | AppImage        | [Keyper-1.1.1.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.1.AppImage)   |
+| Linux (Debian/Ubuntu) | `.deb` (x86_64) | [keyper_1.1.1_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_amd64.deb) |
+| Linux (Debian/Ubuntu) | `.deb` (ARM64)  | [keyper_1.1.1_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_arm64.deb) |
 
 **Linux AppImage quick start:**
 
 ```bash
-chmod +x Keyper-1.1.0.AppImage
-./Keyper-1.1.0.AppImage
+chmod +x Keyper-1.1.1.AppImage
+./Keyper-1.1.1.AppImage
 ```
 
 **Linux .deb quick start:**
 
 ```bash
-sudo dpkg -i keyper_1.1.0_amd64.deb
+sudo dpkg -i keyper_1.1.1_amd64.deb
 keyper   # or launch from your applications menu
 ```
 

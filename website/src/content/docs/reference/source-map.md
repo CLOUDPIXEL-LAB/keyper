@@ -30,7 +30,7 @@ This page is a practical index of where behavior lives in the repository today.
 
 - `src/components/dashboard/AddCredentialModal.tsx`: create form + encryption path.
 - `src/components/dashboard/EditCredentialModal.tsx`: update form + decrypt/re-encrypt path.
-- `src/components/dashboard/CredentialDetailModal.tsx`: detail view and delete action.
+- `src/components/dashboard/CredentialDetailModal.tsx`: detail view with secret reveal/copy (via `secret_blob` decryption), edit, and delete actions.
 - `src/components/dashboard/CredentialsGrid.tsx`: list/grid rendering and item selection.
 - `src/components/PassphraseGate.tsx`: first-time vault creation and unlock UX.
 - `src/hooks/useVault.ts`: vault state hook and encryption helper methods.
@@ -56,4 +56,3 @@ This page is a practical index of where behavior lives in the repository today.
 - `website/src/styles/keyper-theme.css`: dark-theme variables and typography.
 - `website/src/content/docs/**`: documentation content.
 - `website/wrangler.toml`: docs-site Cloudflare Pages deployment config.
-

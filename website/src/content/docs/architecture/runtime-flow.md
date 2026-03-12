@@ -29,7 +29,7 @@ description: Step-by-step application behavior from load to credential operation
 2. Secret fields are encrypted via `useEncryption().encryptCredential()`.
 3. Row is inserted/updated in `credentials` with `secret_blob` and `encrypted_at`.
 4. Edit flow can decrypt `secret_blob` via `useEncryption().decryptCredential()` to prefill fields.
-5. The current detail modal still renders legacy plaintext fields (`password`, `api_key`, etc.) and does not yet decrypt `secret_blob` for display.
+5. Detail flow (`CredentialDetailModal`) also decrypts `secret_blob` when vault is unlocked, allowing secure reveal/copy actions without entering edit mode.
 
 ## Auto-lock behavior
 
