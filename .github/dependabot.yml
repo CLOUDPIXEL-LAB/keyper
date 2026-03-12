@@ -9,6 +9,10 @@ updates:
         applies-to: version-updates
         patterns:
           - "*"
+        update-types:
+          - "patch"
+          - "minor"
+          - "major"
       minor-and-patch:
         applies-to: security-updates
         patterns:
@@ -16,7 +20,11 @@ updates:
         update-types:
           - "patch"
           - "minor"
-    ignore:
-      update-types: version-update:semver-major
+      ignore:
+        applies to:
+          - security-updates
+          - version-updates
+        update-types: 
+          - "major"
     assignees:
       - "Copilot"
