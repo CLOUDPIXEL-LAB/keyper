@@ -70,18 +70,33 @@ jobs:
       - name: Compile Electron main process
         run: npm run electron:compile
 
+      - name: Prepare release metadata
+        id: release_meta
+        shell: pwsh
+        run: |
+          $releaseTag = "${{ env.RELEASE_TAG }}"
+          $releaseVersion = $releaseTag -replace '^v', ''
+          "release_tag=$releaseTag" >> $env:GITHUB_OUTPUT
+          "release_version=$releaseVersion" >> $env:GITHUB_OUTPUT
+
       - name: Package Windows installer
+        shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CI: "true"
-        run: npx electron-builder --win --publish never --config.extraMetadata.version=${{ env.RELEASE_TAG }} --config.win.artifactName="Keyper Setup ${RELEASE_TAG}-win-x64.exe"
+        run: |
+          npx electron-builder `
+            --win `
+            --publish never `
+            "--config.extraMetadata.version=${{ steps.release_meta.outputs.release_version }}" `
+            "--config.win.artifactName=Keyper Setup ${{ steps.release_meta.outputs.release_tag }}-win-x64.exe"
 
       - name: Verify installer output
         shell: pwsh
         run: |
-          $installers = Get-ChildItem -Path release -Filter '*Setup*.exe' -File
+          $installers = Get-ChildItem -Path dist-electron -Filter '*Setup*.exe' -File
           if ($installers.Count -eq 0) {
-            Write-Error 'No NSIS installer was generated under release/.'
+            Write-Error 'No NSIS installer was generated under dist-electron/.'
           }
           $installers | ForEach-Object { Write-Host "Installer: $($_.FullName)" }
 
@@ -90,10 +105,16 @@ jobs:
         with:
           name: windows-installer
           path: |
-            release/*Setup*.exe
+            dist-electron/*Setup*.exe
 
       - name: Upload to GitHub Release
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "$RELEASE_TAG" release/*Setup*.exe --clobber
+        run: |
+          $installers = Get-ChildItem -Path dist-electron -Filter '*Setup*.exe' -File | Select-Object -ExpandProperty FullName
+          if ($installers.Count -eq 0) {
+            Write-Error 'No installer files were found to upload.'
+          }
+          gh release upload "${{ steps.release_meta.outputs.release_tag }}" $installers --clobber
