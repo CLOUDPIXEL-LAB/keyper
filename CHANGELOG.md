@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.1] - 2026-03-12 - 🔍 **Credential Detail UX · 🗄️ SQLite Local Database Support**
 
+### 🖥️ **Desktop Distribution**
+
+- **Added** published Windows installer download for the current release (`KeyperSetup.v1.1.1.exe`)
+- **Updated** documentation and docs site download tables to include the Windows installer alongside the published Linux desktop packages
+
 ### 🗄️ **SQLite Local Database Support**
 
 - **Added** full SQLite provider as an alternative to Supabase for completely local, zero-network credential storage

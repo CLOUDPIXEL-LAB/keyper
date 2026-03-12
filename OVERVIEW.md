@@ -423,7 +423,7 @@ workbox: {
 2. **Direct Download**: Published desktop installers where available for the current release
 3. **Docker Image**: Containerized deployment (nginx-based, production-ready)
 4. **Cloud Deployment**: Cloudflare Pages, Netlify, Vercel support
-5. **Electron Desktop App**: Native desktop packaging support, with Linux installers currently documented
+5. **Electron Desktop App**: Native desktop packaging support, with published Windows and Linux installers for the current release
 
 ### CLI Integration
 
@@ -457,18 +457,25 @@ The container serves the compiled Vite/React SPA on port 80 internally. No Node.
 
 ### Electron Desktop App
 
-Current published installer links are documented for Linux builds. Electron packaging also supports additional targets from source:
+Current published installer links are available for Windows and Linux builds. Electron packaging also supports additional targets from source:
+
+| Platform | Format          | Download                                                                                             |
+| -------- | --------------- | ---------------------------------------------------------------------------------------------------- |
+| Windows  | NSIS installer  | [KeyperSetup.v1.1.1.exe](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/KeyperSetup.v1.1.1.exe) |
+| Linux    | AppImage        | [Keyper-1.1.1.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.1.AppImage)   |
+| Linux    | `.deb` (x86_64) | [keyper_1.1.1_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_amd64.deb) |
+| Linux    | `.deb` (ARM64)  | [keyper_1.1.1_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_arm64.deb) |
 
 | Platform | Format   | Architecture  |
 | -------- | -------- | ------------- |
+| Windows  | NSIS     | x64           |
 | Linux    | AppImage | x86_64, ARM64 |
 | Linux    | `.deb`   | x86_64, ARM64 |
 
-To build from source:
+To build the currently documented desktop installers from source:
 
 ```bash
 npm run electron:build:linux   # AppImage + deb
-npm run electron:build:mac     # DMG (must run on macOS)
 npm run electron:build:win     # NSIS / Windows build tooling required
 ```
 
@@ -515,17 +522,17 @@ npm run electron:build:win     # NSIS / Windows build tooling required
 
 ### Feature Completeness
 
-| Feature Category   | Status      | Notes                               |
-| ------------------ | ----------- | ----------------------------------- |
-| **Core Security**  | ✅ Complete | Zero-knowledge encryption           |
-| **User Interface** | ✅ Complete | Full responsive design              |
-| **Database Layer** | ✅ Complete | Supabase + SQLite dual-provider     |
+| Feature Category   | Status      | Notes                                             |
+| ------------------ | ----------- | ------------------------------------------------- |
+| **Core Security**  | ✅ Complete | Zero-knowledge encryption                         |
+| **User Interface** | ✅ Complete | Full responsive design                            |
+| **Database Layer** | ✅ Complete | Supabase + SQLite dual-provider                   |
 | **SQLite Support** | ✅ Complete | Local-first, zero-config (browser/PWA + Electron) |
-| **PWA Features**   | ✅ Complete | Full offline support                |
-| **CLI Tools**      | ✅ Complete | Multi-platform support              |
-| **Docker Build**   | ✅ Complete | nginx-based container               |
-| **Desktop App**    | ✅ Complete | Electron v33, all platforms         |
-| **Documentation**  | ✅ Complete | Comprehensive guides                |
+| **PWA Features**   | ✅ Complete | Full offline support                              |
+| **CLI Tools**      | ✅ Complete | Multi-platform support                            |
+| **Docker Build**   | ✅ Complete | nginx-based container                             |
+| **Desktop App**    | ✅ Complete | Electron v33, all platforms                       |
+| **Documentation**  | ✅ Complete | Comprehensive guides                              |
 
 ### Known Limitations
 

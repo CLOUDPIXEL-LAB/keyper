@@ -5,6 +5,14 @@ description: What Keyper is, who it is for, and how the app is structured.
 
 Keyper is a self-hosted credential manager built as a browser-first application with client-side encryption and configurable database persistence (Supabase or SQLite).
 
+Published desktop downloads for the current release include a Windows NSIS installer plus Linux AppImage and `.deb` packages.
+
+## Current app view
+
+![Keyper v1.1.1 dashboard with saved credentials](/screenshots/Screenshot_2026-03-12.png)
+
+_Keyper v1.1.1 dashboard showing a populated vault with saved credentials, categories, and tags._
+
 ## Product goals
 
 - Keep secrets under user control through self-hosted data storage.

@@ -18,6 +18,8 @@
 
 _A modern, secure, self-hosted credential management application for storing and organizing your digital credentials with complete privacy and control._
 
+![Keyper Screenshot](./screenshots/Screenshot_2026-03-12.png)
+
 [🚀 Quick Start](#-quick-start) • [🖼️ Screenshots](#️-screenshots) • [📦 Installation](#-installation) • [🗄️ Setup](#️-database-setup) • [📱 PWA](#-progressive-web-app) • [🔧 Troubleshooting](#-troubleshooting)
 
 </div>
@@ -28,11 +30,12 @@ _A modern, secure, self-hosted credential management application for storing and
 
 Desktop installers are available on the **[Keyper website](https://keyper.pinkpixel.dev/getting-started/install-and-run/)**.
 
-| Platform | Package         | Download                                                                                             |
-| -------- | --------------- | ---------------------------------------------------------------------------------------------------- |
-| 🐧 Linux | AppImage        | [Keyper-1.1.1.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.1.AppImage)   |
-| 🐧 Linux | `.deb` (x86_64) | [keyper_1.1.1_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_amd64.deb) |
-| 🐧 Linux | `.deb` (ARM64)  | [keyper_1.1.1_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_arm64.deb) |
+| Platform   | Package         | Download                                                                                             |
+| ---------- | --------------- | ---------------------------------------------------------------------------------------------------- |
+| 🪟 Windows | NSIS installer  | [KeyperSetup.v1.1.1.exe](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/KeyperSetup.v1.1.1.exe) |
+| 🐧 Linux   | AppImage        | [Keyper-1.1.1.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.1.AppImage)   |
+| 🐧 Linux   | `.deb` (x86_64) | [keyper_1.1.1_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_amd64.deb) |
+| 🐧 Linux   | `.deb` (ARM64)  | [keyper_1.1.1_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_arm64.deb) |
 
 ---
 
@@ -221,7 +224,14 @@ docker run -d -p 8080:80 --name keyper --restart unless-stopped keyper
 
 ### Method 5: ⚡ Electron Desktop App
 
-Run Keyper as a native desktop app on **Linux or macOS**!
+Run Keyper as a native desktop app on **Windows or Linux**!
+
+#### Published desktop downloads
+
+- **Windows installer**: [KeyperSetup.v1.1.1.exe](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/KeyperSetup.v1.1.1.exe)
+- **Linux AppImage**: [Keyper-1.1.1.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.1.AppImage)
+- **Linux `.deb` (x86_64)**: [keyper_1.1.1_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_amd64.deb)
+- **Linux `.deb` (ARM64)**: [keyper_1.1.1_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_arm64.deb)
 
 #### Preview (no packaging)
 
@@ -235,12 +245,9 @@ npm run electron:preview
 #### Build a distributable installer
 
 ```bash
-# all platforms (requires the target OS or cross-compile toolchain)
-npm run electron:build
-
-# platform-specific
+# desktop packaging from source
 npm run electron:build:linux   # AppImage + deb
-npm run electron:build:mac     # DMG + zip (Intel & Apple Silicon)
+npm run electron:build:win     # NSIS installer
 ```
 
 Installers are output to `dist-electron/`.
@@ -251,13 +258,13 @@ Installers are output to `dist-electron/`.
 
 Keyper supports two database backends — choose the one that fits your workflow:
 
-| Feature                   | SQLite (Local)          | Supabase (Cloud)              |
-| ------------------------- | ----------------------- | ----------------------------- |
-| Setup required            | None — auto-configured  | Project creation + SQL script |
-| Internet connection       | ❌ Not required         | ✅ Required                   |
-| Multi-device sync         | ❌ Not supported        | ✅ Supported                  |
-| Works in browser/PWA      | ✅ Yes                  | ✅ Yes                        |
-| Works in Electron desktop | ✅ Yes                  | ✅ Yes                        |
+| Feature                   | SQLite (Local)                                                         | Supabase (Cloud)              |
+| ------------------------- | ---------------------------------------------------------------------- | ----------------------------- |
+| Setup required            | None — auto-configured                                                 | Project creation + SQL script |
+| Internet connection       | ❌ Not required                                                        | ✅ Required                   |
+| Multi-device sync         | ❌ Not supported                                                       | ✅ Supported                  |
+| Works in browser/PWA      | ✅ Yes                                                                 | ✅ Yes                        |
+| Works in Electron desktop | ✅ Yes                                                                 | ✅ Yes                        |
 | Data location             | Your device (IndexedDB in browser/PWA, optional file path in Electron) | Your Supabase project         |
 
 ### Option A: SQLite (Local — Zero Config)

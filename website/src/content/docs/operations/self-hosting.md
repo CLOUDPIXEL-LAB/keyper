@@ -78,7 +78,7 @@ keyper --port 4173
 
 ### Electron desktop app
 
-See [Install and Run](/getting-started/install-and-run/) for the currently published desktop download links and local build options for additional Electron targets.
+See [Install and Run](/getting-started/install-and-run/) for the currently published Windows and Linux desktop download links, plus local build options for additional Electron targets.
 
 ## Operational recommendations
 

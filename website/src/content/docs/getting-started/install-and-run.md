@@ -7,13 +7,20 @@ description: Install Keyper locally and start the app.
 
 ### Option 1: Download a desktop app (no Node required)
 
-Current published installer links are for Linux. The Electron build pipeline also supports macOS and Windows packaging from source, but those binaries are not linked on this page today.
+Current published installer links are available for Windows and Linux.
 
 | Platform              | Package         | Download                                                                                             |
 | --------------------- | --------------- | ---------------------------------------------------------------------------------------------------- |
+| Windows               | NSIS installer  | [KeyperSetup.v1.1.1.exe](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/KeyperSetup.v1.1.1.exe) |
 | Linux                 | AppImage        | [Keyper-1.1.1.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.1.AppImage)   |
 | Linux (Debian/Ubuntu) | `.deb` (x86_64) | [keyper_1.1.1_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_amd64.deb) |
 | Linux (Debian/Ubuntu) | `.deb` (ARM64)  | [keyper_1.1.1_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_arm64.deb) |
+
+**Windows quick start:**
+
+1. Download [KeyperSetup.v1.1.1.exe](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/KeyperSetup.v1.1.1.exe).
+2. Run the installer and follow the setup wizard.
+3. Launch Keyper from the Start menu or desktop shortcut.
 
 **Linux AppImage quick start:**
 
@@ -70,6 +77,17 @@ npm install
 npm run dev      # Vite dev server
 # or
 npm run build && npm start   # production preview
+```
+
+### Option 6: Build Electron installers from source
+
+```bash
+git clone https://github.com/pinkpixel-dev/keyper.git
+cd keyper
+npm install
+
+npm run electron:build:linux   # AppImage + deb
+npm run electron:build:win     # NSIS installer
 ```
 
 ## First run
