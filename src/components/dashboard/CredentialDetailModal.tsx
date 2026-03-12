@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -59,6 +59,7 @@ export const CredentialDetailModal = ({
     document_size_bytes?: number;
   }>({});
   const [isDecryptingSecrets, setIsDecryptingSecrets] = useState(false);
+  const [showDocumentPreview, setShowDocumentPreview] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { decryptCredential, isUnlocked } = useEncryption();
@@ -68,6 +69,10 @@ export const CredentialDetailModal = ({
   useEffect(() => {
     decryptCredentialRef.current = decryptCredential;
   }, [decryptCredential]);
+
+  useEffect(() => {
+    setShowDocumentPreview(false);
+  }, [credential?.id]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -212,6 +217,39 @@ export const CredentialDetailModal = ({
     }
   };
 
+  const documentBase64 = decryptedSecrets.document_content_base64 ?? credential.document_content_base64 ?? '';
+  const documentName = decryptedSecrets.document_name ?? credential.document_name ?? 'document.bin';
+  const documentMimeType =
+    decryptedSecrets.document_mime_type ?? credential.document_mime_type ?? 'application/octet-stream';
+
+  const documentPreviewText = useMemo(() => {
+    if (!documentBase64) return null;
+    const lowered = documentName.toLowerCase();
+    const isTextLike =
+      documentMimeType.startsWith('text/') ||
+      documentMimeType.includes('json') ||
+      documentMimeType.includes('xml') ||
+      lowered.endsWith('.txt') ||
+      lowered.endsWith('.md');
+
+    if (!isTextLike) {
+      return null;
+    }
+
+    try {
+      const binary = atob(documentBase64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      const decoded = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+      const maxChars = 4000;
+      return decoded.length > maxChars ? `${decoded.slice(0, maxChars)}\n\n...[truncated]` : decoded;
+    } catch (error) {
+      return null;
+    }
+  }, [documentBase64, documentName, documentMimeType]);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -325,64 +363,104 @@ export const CredentialDetailModal = ({
 
             {/* Credential Fields */}
             <div className="space-y-4">
-              <SensitiveField
-                label="Username"
-                value={credential.username}
-                field="username"
-              />
-              <SensitiveField
-                label="Password"
-                value={decryptedSecrets.password ?? credential.password ?? null}
-                field="password"
-              />
-              <SensitiveField
-                label="API Key"
-                value={decryptedSecrets.api_key ?? credential.api_key ?? null}
-                field="api_key"
-              />
-              <SensitiveField
-                label="Secret Value"
-                value={decryptedSecrets.secret_value ?? credential.secret_value ?? null}
-                field="secret_value"
-              />
-              <SensitiveField
-                label="Token"
-                value={decryptedSecrets.token_value ?? credential.token_value ?? null}
-                field="token_value"
-              />
-              <SensitiveField
-                label="Certificate"
-                value={decryptedSecrets.certificate_data ?? credential.certificate_data ?? null}
-                field="certificate_data"
-              />
-              <SensitiveField
-                label="Misc Sensitive Value"
-                value={decryptedSecrets.misc_value ?? credential.misc_value ?? null}
-                field="misc_value"
-              />
+              {(credential.credential_type === 'login' || credential.credential_type === 'api_key') && (
+                <SensitiveField
+                  label="Username"
+                  value={credential.username}
+                  field="username"
+                />
+              )}
 
-              {(decryptedSecrets.document_content_base64 ?? credential.document_content_base64) && (
+              {credential.credential_type === 'login' && (
+                <SensitiveField
+                  label="Password"
+                  value={decryptedSecrets.password ?? credential.password ?? null}
+                  field="password"
+                />
+              )}
+
+              {credential.credential_type === 'api_key' && (
+                <SensitiveField
+                  label="API Key"
+                  value={decryptedSecrets.api_key ?? credential.api_key ?? null}
+                  field="api_key"
+                />
+              )}
+
+              {credential.credential_type === 'secret' && (
+                <SensitiveField
+                  label="Secret Value"
+                  value={decryptedSecrets.secret_value ?? credential.secret_value ?? null}
+                  field="secret_value"
+                />
+              )}
+
+              {credential.credential_type === 'token' && (
+                <SensitiveField
+                  label="Token"
+                  value={decryptedSecrets.token_value ?? credential.token_value ?? null}
+                  field="token_value"
+                />
+              )}
+
+              {credential.credential_type === 'certificate' && (
+                <SensitiveField
+                  label="Certificate"
+                  value={decryptedSecrets.certificate_data ?? credential.certificate_data ?? null}
+                  field="certificate_data"
+                />
+              )}
+
+              {credential.credential_type === 'misc' && (
+                <SensitiveField
+                  label="Misc Sensitive Value"
+                  value={decryptedSecrets.misc_value ?? credential.misc_value ?? null}
+                  field="misc_value"
+                />
+              )}
+
+              {credential.credential_type === 'document' && documentBase64 && (
                 <div className="space-y-2 min-w-0">
                   <label className="text-sm font-medium text-gray-300">Document</label>
                   <div className="flex items-center justify-between rounded-md border border-gray-700 bg-gray-800/70 px-3 py-2 gap-3">
                     <div className="min-w-0">
                       <p className="text-sm text-gray-100 truncate">
-                        {decryptedSecrets.document_name ?? credential.document_name ?? 'Stored document'}
+                        {documentName}
                       </p>
                       <p className="text-xs text-gray-400">
-                        {decryptedSecrets.document_mime_type ?? credential.document_mime_type ?? 'application/octet-stream'}
+                        {documentMimeType}
                       </p>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={downloadDocument}
-                      className="border-gray-600 text-gray-300 hover:bg-gray-700"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      {documentPreviewText && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setShowDocumentPreview((prev) => !prev)}
+                          className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                        >
+                          {showDocumentPreview ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+                          {showDocumentPreview ? 'Hide' : 'Preview'}
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={downloadDocument}
+                        className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Download
+                      </Button>
+                    </div>
                   </div>
+                  {showDocumentPreview && documentPreviewText && (
+                    <div className="rounded-md border border-gray-700 bg-gray-900 p-3 max-h-72 overflow-y-auto">
+                      <pre className="text-xs text-gray-200 whitespace-pre-wrap break-words">
+                        {documentPreviewText}
+                      </pre>
+                    </div>
+                  )}
                 </div>
               )}
 

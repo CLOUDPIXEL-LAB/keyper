@@ -188,28 +188,39 @@ export const EditCredentialModal = ({
     setLoading(true);
 
     try {
-      // Encrypt any sensitive data that was entered
-      const hasSensitiveData = !!(formData.password.trim() || formData.api_key.trim() ||
-                                   formData.secret_value.trim() || formData.token_value.trim() ||
-                                   formData.certificate_data.trim() || formData.misc_value.trim() ||
-                                   formData.document_content_base64);
+      const secretsByType = (() => {
+        switch (formData.credential_type) {
+          case 'login':
+            return { password: formData.password.trim() || undefined };
+          case 'api_key':
+            return { api_key: formData.api_key.trim() || undefined };
+          case 'secret':
+            return { secret_value: formData.secret_value.trim() || undefined };
+          case 'token':
+            return { token_value: formData.token_value.trim() || undefined };
+          case 'certificate':
+            return { certificate_data: formData.certificate_data.trim() || undefined };
+          case 'document':
+            return {
+              document_name: formData.document_name || undefined,
+              document_mime_type: formData.document_mime_type || undefined,
+              document_content_base64: formData.document_content_base64 || undefined,
+              document_size_bytes: formData.document_size_bytes || undefined,
+            };
+          case 'misc':
+            return { misc_value: formData.misc_value.trim() || undefined };
+          default:
+            return {};
+        }
+      })();
+
+      const hasSensitiveData = Object.values(secretsByType).some((value) => value !== undefined && value !== null && value !== '');
 
       let newSecretBlob = credential.secret_blob ?? null;
       let newEncryptedAt = credential.encrypted_at ?? null;
 
       if (hasSensitiveData) {
-        const encrypted = await encryptCredential({
-          password: formData.password.trim() || undefined,
-          api_key: formData.api_key.trim() || undefined,
-          secret_value: formData.secret_value.trim() || undefined,
-          token_value: formData.token_value.trim() || undefined,
-          certificate_data: formData.certificate_data.trim() || undefined,
-          misc_value: formData.misc_value.trim() || undefined,
-          document_name: formData.document_name || undefined,
-          document_mime_type: formData.document_mime_type || undefined,
-          document_content_base64: formData.document_content_base64 || undefined,
-          document_size_bytes: formData.document_size_bytes || undefined,
-        });
+        const encrypted = await encryptCredential(secretsByType);
         newSecretBlob = encrypted.secret_blob;
         newEncryptedAt = encrypted.encrypted_at;
       }

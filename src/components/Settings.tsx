@@ -52,6 +52,7 @@ export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete }) =
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [showSqlScript, setShowSqlScript] = useState(false);
+  const [showUpdateSqlScript, setShowUpdateSqlScript] = useState(false);
   const { toast } = useToast();
 
   // No need for useEffect - credentials are loaded directly in state initializers
@@ -555,6 +556,26 @@ SELECT COUNT(*) as total_categories FROM categories WHERE user_id = 'self-hosted
 -- Made with ❤️ by Pink Pixel - Dream it, Pixel it ✨
 `;
 
+  const updateSqlScript = `-- Add new credential types for document uploads and miscellaneous sensitive values
+-- Run this in Supabase SQL Editor for existing deployments.
+
+ALTER TABLE credentials
+  DROP CONSTRAINT IF EXISTS credentials_credential_type_check;
+
+ALTER TABLE credentials
+  ADD CONSTRAINT credentials_credential_type_check
+  CHECK (
+    credential_type IN (
+      'api_key',
+      'login',
+      'secret',
+      'token',
+      'certificate',
+      'document',
+      'misc'
+    )
+  );`;
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="flex items-center gap-3 mb-6">
@@ -739,6 +760,13 @@ SELECT COUNT(*) as total_categories FROM categories WHERE user_id = 'self-hosted
                 </AlertDescription>
               </Alert>
 
+              <Alert className="border-amber-500 bg-amber-950/20">
+                <AlertCircle className="h-4 w-4 text-amber-400" />
+                <AlertDescription className="text-amber-200">
+                  Existing databases must run the update script below before `document` and `misc` credentials will work.
+                </AlertDescription>
+              </Alert>
+
               <div className="flex gap-3 flex-wrap">
                 <Button
                   variant="outline"
@@ -755,6 +783,14 @@ SELECT COUNT(*) as total_categories FROM categories WHERE user_id = 'self-hosted
                 >
                   <Copy className="h-4 w-4" />
                   Copy Complete SQL Script
+                </Button>
+
+                <Button
+                  onClick={() => copyToClipboard(updateSqlScript, 'Existing database update SQL script')}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                >
+                  <Copy className="h-4 w-4" />
+                  Copy Update Script
                 </Button>
               </div>
 
@@ -785,6 +821,36 @@ SELECT COUNT(*) as total_categories FROM categories WHERE user_id = 'self-hosted
                   className="text-cyan-400 hover:text-cyan-300"
                 >
                   Show SQL Script Preview
+                </Button>
+              )}
+
+              {showUpdateSqlScript && (
+                <div className="mt-4">
+                  <Label className="text-sm font-medium mb-2 block">Update Script Preview:</Label>
+                  <div className="bg-gray-900 p-4 rounded-lg max-h-40 overflow-y-auto">
+                    <pre className="text-xs text-gray-300 whitespace-pre-wrap">
+                      {updateSqlScript}
+                    </pre>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowUpdateSqlScript(false)}
+                    className="mt-2"
+                  >
+                    Hide Update Preview
+                  </Button>
+                </div>
+              )}
+
+              {!showUpdateSqlScript && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowUpdateSqlScript(true)}
+                  className="text-green-400 hover:text-green-300"
+                >
+                  Show Update Script Preview
                 </Button>
               )}
             </CardContent>

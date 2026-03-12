@@ -16,11 +16,15 @@ import {
   Info, 
   Database,
   Key,
-  Users
+  Users,
+  Copy,
+  ExternalLink
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCurrentUsername, clearSupabaseCredentials, supabase, saveSupabaseCredentials, getSupabaseCredentials } from '@/integrations/supabase/client';
 import { secureVault } from '@/services/SecureVault';
+import setupSqlScript from '/supabase-setup.sql?raw';
+import updateSqlScript from '/migration-add-document-misc-types.sql?raw';
 
 interface DashboardSettingsProps {
   onUserCreated?: () => void;
@@ -30,6 +34,8 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
   const [newUsername, setNewUsername] = useState('');
   const [newPassphrase, setNewPassphrase] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [showSetupSqlScript, setShowSetupSqlScript] = useState(false);
+  const [showUpdateSqlScript, setShowUpdateSqlScript] = useState(false);
   const { toast } = useToast();
   const currentUser = getCurrentUsername();
   // Note: Admin functions removed for security - no backdoors or admin overrides
@@ -199,6 +205,14 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
     });
   };
 
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: 'Copied!',
+      description: `${label} copied to clipboard.`,
+    });
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="flex items-center gap-3 mb-6">
@@ -210,10 +224,14 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
       </div>
 
       <Tabs defaultValue="users" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             User Management
+          </TabsTrigger>
+          <TabsTrigger value="database-sql" className="flex items-center gap-2">
+            <Database className="h-4 w-4" />
+            Database SQL
           </TabsTrigger>
           <TabsTrigger value="reset" className="flex items-center gap-2">
             <RefreshCw className="h-4 w-4" />
@@ -314,6 +332,96 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCrea
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        <TabsContent value="database-sql" className="space-y-6">
+          <Alert className="border-amber-500 bg-amber-950/20">
+            <AlertTriangle className="h-4 w-4 text-amber-400" />
+            <AlertDescription className="text-amber-200">
+              New credential types (`document`, `misc`) require running the update SQL on existing databases.
+              These features will not work until the update script is applied.
+            </AlertDescription>
+          </Alert>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Database className="h-5 w-5 text-cyan-400" />
+                Full Database Setup Script
+              </CardTitle>
+              <CardDescription>
+                Use this when setting up a brand-new Supabase database for Keyper.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex gap-3 flex-wrap">
+                <Button
+                  variant="outline"
+                  onClick={() => window.open('https://supabase.com/dashboard', '_blank')}
+                  className="flex items-center gap-2"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Open Supabase Dashboard
+                </Button>
+                <Button
+                  onClick={() => copyToClipboard(setupSqlScript, 'Full setup SQL script')}
+                  className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700"
+                >
+                  <Copy className="h-4 w-4" />
+                  Copy Setup Script
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => setShowSetupSqlScript((prev) => !prev)}
+                  className="text-cyan-300 hover:text-cyan-200"
+                >
+                  {showSetupSqlScript ? 'Hide Script' : 'View Script'}
+                </Button>
+              </div>
+
+              {showSetupSqlScript && (
+                <div className="bg-gray-900 p-4 rounded-lg max-h-56 overflow-y-auto border border-gray-700">
+                  <pre className="text-xs text-gray-300 whitespace-pre-wrap">{setupSqlScript}</pre>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <RefreshCw className="h-5 w-5 text-green-400" />
+                Existing Database Update Script
+              </CardTitle>
+              <CardDescription>
+                Use this if you already have Keyper data and want to upgrade safely.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex gap-3 flex-wrap">
+                <Button
+                  onClick={() => copyToClipboard(updateSqlScript, 'Database update SQL script')}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                >
+                  <Copy className="h-4 w-4" />
+                  Copy Update Script
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => setShowUpdateSqlScript((prev) => !prev)}
+                  className="text-green-300 hover:text-green-200"
+                >
+                  {showUpdateSqlScript ? 'Hide Script' : 'View Script'}
+                </Button>
+              </div>
+
+              {showUpdateSqlScript && (
+                <div className="bg-gray-900 p-4 rounded-lg max-h-56 overflow-y-auto border border-gray-700">
+                  <pre className="text-xs text-gray-300 whitespace-pre-wrap">{updateSqlScript}</pre>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="reset" className="space-y-6">
