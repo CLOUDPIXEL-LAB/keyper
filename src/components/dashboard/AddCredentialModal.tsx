@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -21,7 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useEncryption } from '@/hooks/useVault';
 import { supabase, getCurrentUsername } from '@/integrations/supabase/client';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, Upload } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Category } from '../SelfHostedDashboard';
 
@@ -61,6 +61,7 @@ export const AddCredentialModal = ({
   const [tagInput, setTagInput] = useState('');
   const [noExpiration, setNoExpiration] = useState(false);
   const [loading, setLoading] = useState(false);
+  const certificateFileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { encryptCredential, isUnlocked } = useEncryption();
 
@@ -85,6 +86,14 @@ export const AddCredentialModal = ({
       toast({
         title: "Error",
         description: "Title is required",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (formData.credential_type === 'certificate' && !formData.certificate_data.trim()) {
+      toast({
+        title: "Error",
+        description: "Certificate content is required for certificate credentials",
         variant: "destructive",
       });
       return;
@@ -192,6 +201,32 @@ export const AddCredentialModal = ({
     }
   };
 
+  const handleCertificateFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      const content = await file.text();
+      setFormData((prev) => ({ ...prev, certificate_data: content }));
+      toast({
+        title: 'Certificate loaded',
+        description: `${file.name} is ready to save.`,
+      });
+    } catch (error) {
+      console.error('Error reading certificate file:', error);
+      toast({
+        title: 'Upload failed',
+        description: 'Could not read certificate file. Please paste content instead.',
+        variant: 'destructive',
+      });
+    } finally {
+      e.target.value = '';
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700 text-white">
@@ -296,9 +331,51 @@ export const AddCredentialModal = ({
                 <Input
                   id="secret_value"
                   type="password"
-                  value={formData.secret_value}
-                  onChange={(e) => setFormData({...formData, secret_value: e.target.value})}
+                  value={formData.credential_type === 'secret' ? formData.secret_value : formData.token_value}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      ...(formData.credential_type === 'secret'
+                        ? { secret_value: e.target.value }
+                        : { token_value: e.target.value }),
+                    })
+                  }
                   className="bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+            )}
+
+            {formData.credential_type === 'certificate' && (
+              <div className="md:col-span-2 space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="certificate_data" className="text-white">Certificate Data</Label>
+                  <>
+                    <input
+                      ref={certificateFileInputRef}
+                      type="file"
+                      accept=".pem,.crt,.cer,.txt"
+                      className="hidden"
+                      onChange={handleCertificateFileUpload}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => certificateFileInputRef.current?.click()}
+                      className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload File
+                    </Button>
+                  </>
+                </div>
+                <Textarea
+                  id="certificate_data"
+                  value={formData.certificate_data}
+                  onChange={(e) => setFormData({ ...formData, certificate_data: e.target.value })}
+                  className="bg-gray-800 border-gray-700 text-white font-mono text-sm"
+                  placeholder="Paste certificate content here (PEM format)"
+                  rows={7}
                 />
               </div>
             )}
