@@ -58,6 +58,8 @@ Desktop installers are available on the **[Keyper website](https://keyper.pinkpi
 - 🤫 **Secrets** - Sensitive configuration values
 - 🎫 **Tokens** - Authentication and access tokens
 - 📜 **Certificates** - SSL certificates and keys
+- 📄 **Documents** - Secure file uploads for `.pdf`, `.doc`, `.docx`, `.odt`, `.txt`, `.md`
+- 🧩 **Miscellaneous** - Large multiline secure notes/commands/scripts that don’t fit fixed types
 
 ### 🏷️ **Smart Organization**
 
@@ -67,6 +69,8 @@ Desktop installers are available on the **[Keyper website](https://keyper.pinkpi
 - 📅 **Expiration Tracking** - Never miss renewal dates
 - 🔍 **Real-time Search** - Find credentials instantly
 - 👁️ **Quick Reveal & Copy** - Reveal and copy sensitive values directly from the credential detail view
+- 👁️ **Inline Text Document Preview** - Text-like document credentials (`.txt`, `.md`, `text/*`) can be previewed inline in credential detail view
+- ⬇️ **Secure Document Download** - All document credentials can be downloaded from detail view
 
 ### 🛡️ **Enterprise-Grade Security**
 
@@ -269,9 +273,11 @@ Installers are output to `dist-electron/`.
 3. **Database Setup**: Configure your Supabase connection
    - Enter your Supabase URL and anon/publishable key
    - Copy and run the complete SQL setup script in Supabase SQL Editor
+   - If you already have an existing Keyper database, run the update script too (`migration-add-document-misc-types.sql`) so `document` and `misc` credential types work
    - The script creates tables with the latest security features:
      - `raw_dek` and `bcrypt_hash` columns for the new simplified security model
      - Backwards compatibility for existing users with legacy `wrapped_dek` system
+     - Latest credential type support (`api_key`, `login`, `secret`, `token`, `certificate`, `document`, `misc`)
    - Test the connection
 
 4. **Master Passphrase**: Create your encryption passphrase
@@ -328,6 +334,11 @@ Keyper works as a Progressive Web App for a native app experience!
 
 - Run the complete SQL setup script in Supabase SQL Editor
 - Ensure the script completed without errors
+
+**❌ New `document` or `misc` credentials fail to save**
+
+- Run the existing-database update script: `migration-add-document-misc-types.sql`
+- Confirm `credentials_credential_type_check` includes `document` and `misc`
 
 **❌ Dashboard shows "No credentials found"**
 

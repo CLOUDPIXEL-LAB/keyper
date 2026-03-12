@@ -45,6 +45,7 @@ _Dream it, Pixel it_ - **Made with ❤️ by Pink Pixel**
 - 🏠 **Self-Hosted Control**: Complete data ownership and privacy
 - 👤 **Multi-User Support**: Secure isolation for multiple users
 - 📱 **Modern Experience**: Progressive Web App with native-like features
+- 📄 **Secure Document Handling**: Encrypted document credential storage with metadata-aware detail UX
 - ⚡ **High Performance**: Optimized loading and runtime performance
 - 🎨 **Beautiful UI**: Glassmorphism design with accessibility in mind
 
@@ -238,7 +239,7 @@ CREATE TABLE credentials (
   user_id TEXT NOT NULL DEFAULT 'self-hosted-user',
   title TEXT NOT NULL,
   description TEXT,
-  credential_type TEXT NOT NULL CHECK (credential_type IN ('api_key', 'login', 'secret', 'token', 'certificate')),
+  credential_type TEXT NOT NULL CHECK (credential_type IN ('api_key', 'login', 'secret', 'token', 'certificate', 'document', 'misc')),
   priority TEXT NOT NULL DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'critical')),
   username TEXT,
   url TEXT,
@@ -255,6 +256,20 @@ CREATE TABLE credentials (
   encrypted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 ```
+
+### Credential payload model (`secret_blob`)
+
+Sensitive values are encrypted into `secret_blob` and are type-scoped in active add/edit flows:
+
+- `login`: `password`
+- `api_key`: `api_key`
+- `secret`: `secret_value`
+- `token`: `token_value`
+- `certificate`: `certificate_data`
+- `document`: `document_name`, `document_mime_type`, `document_content_base64`, `document_size_bytes`
+- `misc`: `misc_value`
+
+This prevents unrelated secret fields from leaking across credential types in detail views.
 
 #### **vault_config**
 

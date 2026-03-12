@@ -6,7 +6,7 @@ description: How credentials are created, updated, revealed, and deleted.
 ## Create
 
 1. User fills form in `AddCredentialModal`.
-2. Secret fields are packaged by `useEncryption().encryptCredential()`.
+2. Secret fields are packaged by `useEncryption().encryptCredential()` using a type-scoped payload (only fields relevant to selected `credential_type` are encrypted).
 3. Encrypted blob is written to `credentials.secret_blob`.
 4. Metadata is stored alongside encryption timestamp.
 
@@ -19,8 +19,14 @@ description: How credentials are created, updated, revealed, and deleted.
 ## Reveal
 
 1. Edit flow (`EditCredentialModal`) decrypts `secret_blob` when vault is unlocked and pre-fills form values.
-2. Detail flow (`CredentialDetailModal`) decrypts `secret_blob` when vault is unlocked and exposes reveal/copy controls for sensitive fields.
+2. Detail flow (`CredentialDetailModal`) decrypts `secret_blob` when vault is unlocked and exposes reveal/copy controls for type-relevant sensitive fields.
 3. If the vault is locked, detail view shows a helper message prompting unlock before revealing encrypted values.
+
+## Document-specific behavior
+
+- Uploaded document credentials store encrypted content + metadata in `secret_blob`.
+- Detail view always provides secure download for document credentials.
+- Inline preview is available for text-like document types; binary formats are download-only.
 
 ## Delete
 

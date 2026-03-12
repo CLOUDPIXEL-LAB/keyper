@@ -11,6 +11,7 @@ Keyper is a self-hosted credential manager built as a browser-first application 
 - Encrypt sensitive credential values before they reach the database.
 - Support multiple users on the same instance through `user_id` segmentation.
 - Provide a modern PWA experience with installability and fast startup.
+- Support both structured and flexible secure payloads, including encrypted document credentials and multiline misc secrets.
 
 ## Core runtime shape
 
@@ -32,6 +33,20 @@ Keyper is a self-hosted credential manager built as a browser-first application 
 Current application behavior is driven by active dashboard components (`AddCredentialModal`, `EditCredentialModal`, `CredentialDetailModal`). Some enhanced encrypted components exist in the codebase but are not the primary path in the current UI.
 
 Credential details now support in-place secret reveal/copy actions in unlocked state, so users can inspect API keys and similar values without entering edit mode.
+
+Current active credential types:
+
+- `api_key`
+- `login`
+- `secret`
+- `token`
+- `certificate`
+- `document`
+- `misc`
+
+For existing databases, run the update script in addition to the setup script so the new types are accepted by the DB constraint:
+
+- `migration-add-document-misc-types.sql`
 
 ## Screenshots
 

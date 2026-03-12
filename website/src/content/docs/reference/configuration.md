@@ -9,6 +9,13 @@ description: Build/runtime config points and where they live.
 - CSP runtime policy: `src/security/ContentSecurityPolicy.ts`
 - Build and chunk strategy: `vite.config.ts`
 - PWA manifest and caching: `vite.config.ts` (`VitePWA` section)
+- In-app setup SQL script surface: `src/components/Settings.tsx`
+- In-app operational SQL tab (setup + migration scripts): `src/components/dashboard/DashboardSettings.tsx`
+
+## SQL script sources
+
+- Full setup script: `supabase-setup.sql`
+- Existing DB upgrade script: `migration-add-document-misc-types.sql`
 
 ## Docs site configs
 

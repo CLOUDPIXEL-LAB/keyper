@@ -22,6 +22,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Fixed** horizontal overflow/cutoff in sensitive field rows
 - **Added** robust wrapping for long revealed values (keys/secrets/certificates) so they stay within the modal instead of clipping
 
+### 🆕 **New Credential Types & Data Capture**
+
+- **Added** `document` credential type
+  - Upload support in add/edit flows for common formats: `.pdf`, `.doc`, `.docx`, `.odt`, `.txt`, `.md`
+  - Uploaded files are stored in encrypted `secret_blob` payload as base64 + metadata (`document_name`, `document_mime_type`, `document_size_bytes`)
+- **Added** `misc` credential type
+  - Dedicated large multiline secure field for scripts/commands and other non-standard sensitive text
+- **Added** `certificate` upload parity in edit flow (file upload + paste experience now aligned with add flow)
+
+### 🔐 **Security & Type Isolation Fixes**
+
+- **Fixed** type-specific secret leakage issue where unrelated secret keys could appear in other credential types
+  - Add/edit encryption paths now strictly encrypt only fields relevant to the selected `credential_type`
+  - Detail view now renders sensitive blocks conditionally by `credential_type` to prevent incorrect fields (for example `API Key` showing on `document` records)
+- **Fixed** document-save encryption reliability for new uploads by using type-scoped payload construction in add/edit submit flows
+
+### 📄 **Document Detail UX**
+
+- **Added** secure download action in credential detail view for `document` credentials
+- **Added** inline preview toggle (eye button) for text-like documents (`text/*`, `.txt`, `.md`)
+  - Binary formats (for example PDF/DOCX/ODT) intentionally remain download-only in current release
+
+### 🗄️ **Database & Migration Updates**
+
+- **Updated** setup schema to allow new credential types in `credentials_credential_type_check`:
+  - `document`, `misc`
+- **Added** migration script for existing installations:
+  - `migration-add-document-misc-types.sql`
+  - Safely updates the `credential_type` CHECK constraint without recreating tables/data
+- **Updated** in-app SQL surfaces:
+  - Setup screen now includes both full setup script and update script (copy + preview)
+  - Dashboard settings now includes a dedicated **Database SQL** tab with both scripts and upgrade warnings
+
 ## [1.1.0] - 2026-03-01 - 🐳 **Docker Build & ⚡ Electron Desktop App**
 
 ### 🐳 **Docker Support**

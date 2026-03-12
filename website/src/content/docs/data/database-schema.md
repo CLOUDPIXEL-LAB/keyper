@@ -12,6 +12,13 @@ Stores metadata and encrypted credential payload:
 - identity and metadata fields (`title`, `credential_type`, `priority`, `tags`, etc.)
 - encrypted payload field: `secret_blob` (JSONB)
 - encryption timestamp: `encrypted_at`
+- supported `credential_type` values:
+  - `api_key`, `login`, `secret`, `token`, `certificate`, `document`, `misc`
+
+`secret_blob` is the canonical sensitive-data container and now includes document/misc payload keys for active UI flows:
+
+- document keys: `document_name`, `document_mime_type`, `document_content_base64`, `document_size_bytes`
+- misc key: `misc_value`
 
 ### `vault_config`
 
@@ -38,3 +45,5 @@ The setup script enables RLS on all three tables. Current self-hosted policies a
 ## Source of truth
 
 See `supabase-setup.sql` for canonical schema definitions shipped with current releases.
+
+For existing deployments, apply `migration-add-document-misc-types.sql` to upgrade the `credential_type` CHECK constraint without recreating tables or losing data.

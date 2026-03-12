@@ -17,13 +17,14 @@ description: Implementation and documentation gaps observed during repository au
 
 - Active dashboard path uses `AddCredentialModal`, `EditCredentialModal`, `CredentialDetailModal`.
 - `EncryptedCredentialForm`, `EncryptedCredentialDetailModal`, and `EncryptedCredentialsApi` exist but are not the main wired flow.
-- `CredentialDetailModal` now decrypts `secret_blob` for reveal/copy in unlocked state, but legacy plaintext-oriented fields/components still exist in parts of the codebase.
+- `CredentialDetailModal` decrypts `secret_blob` for reveal/copy and now handles `document`/`misc` flows in active runtime.
 
 ## Data model assumptions
 
 - Current secure path centers on `secret_blob` storage.
 - Some legacy plaintext-oriented fields/components still remain in code and can confuse readers.
 - `supabase-setup.sql` defines `credentials.secret_blob JSONB NOT NULL`; at the same time, parts of UI/service logic still model metadata-only entries as potentially null `secret_blob`.
+- Existing deployments require running `migration-add-document-misc-types.sql` to enable new `document`/`misc` type values in DB constraints.
 
 ## Documentation process recommendation
 

@@ -75,6 +75,7 @@ npm run build && npm start   # production preview
 1. Open the app URL (default `http://localhost:4173` for npm/npx, `http://localhost:8080` for Docker, or the Electron window).
 2. In settings, add your Supabase URL and anon/publishable key.
 3. Run the SQL setup script to create required tables/policies.
+   - Existing users should also run the update script (`migration-add-document-misc-types.sql`) so `document` and `misc` credential types are enabled on current databases.
 4. Return to the app, test connection, and save.
 5. Unlock or initialize your vault using your master passphrase.
 

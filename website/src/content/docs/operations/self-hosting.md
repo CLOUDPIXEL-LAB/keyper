@@ -85,5 +85,6 @@ See [Install and Run](/getting-started/install-and-run/) for download links and 
 - Run Keyper over HTTPS in production.
 - Keep Supabase project credentials and policies tightly controlled.
 - Validate that the SQL setup script matches the current app release before onboarding users.
+- For existing databases, apply release migrations (for example `migration-add-document-misc-types.sql`) before enabling new credential features in production.
 - Periodically audit docs against implementation to avoid security misunderstandings.
 - Row Level Security is enabled on all Supabase tables — do not disable it.
