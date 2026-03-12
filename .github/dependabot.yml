@@ -22,8 +22,6 @@ updates:
           - "minor"
       ignore:
         applies to:
-          - security-updates
-          - version-updates
         update-types: 
           - "major"
     assignees:
