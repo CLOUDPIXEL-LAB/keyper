@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { Credential, Category } from '../SelfHostedDashboard';
 import { EditCredentialModal } from './EditCredentialModal';
+import { useEncryption } from '@/hooks/useVault';
 
 interface CredentialDetailModalProps {
   credential: Credential | null;
@@ -42,11 +43,23 @@ export const CredentialDetailModal = ({
   onCredentialUpdated,
 }: CredentialDetailModalProps) => {
   const [showSensitive, setShowSensitive] = useState<Record<string, boolean>>({});
+  const [decryptedSecrets, setDecryptedSecrets] = useState<{
+    password?: string;
+    api_key?: string;
+    secret_value?: string;
+    token_value?: string;
+    certificate_data?: string;
+  }>({});
+  const [isDecryptingSecrets, setIsDecryptingSecrets] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { decryptCredential, isUnlocked } = useEncryption();
+  const decryptCredentialRef = useRef(decryptCredential);
   const { toast } = useToast();
 
-  if (!credential) return null;
+  useEffect(() => {
+    decryptCredentialRef.current = decryptCredential;
+  }, [decryptCredential]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -157,6 +170,40 @@ export const CredentialDetailModal = ({
     });
   };
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadSecrets = async () => {
+      if (!credential?.secret_blob || !isUnlocked) {
+        setDecryptedSecrets({});
+        setIsDecryptingSecrets(false);
+        return;
+      }
+
+      setIsDecryptingSecrets(true);
+      try {
+        const result = await decryptCredentialRef.current(credential.secret_blob);
+        if (isMounted) {
+          setDecryptedSecrets(result);
+        }
+      } catch (error) {
+        console.error('Failed to decrypt credential secrets for viewing', error);
+      } finally {
+        if (isMounted) {
+          setIsDecryptingSecrets(false);
+        }
+      }
+    };
+
+    loadSecrets();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [credential?.id, credential?.secret_blob, isUnlocked]);
+
+  if (!credential) return null;
+
   const SensitiveField = ({
     label,
     value,
@@ -169,17 +216,17 @@ export const CredentialDetailModal = ({
     if (!value) return null;
 
     return (
-      <div className="space-y-2">
+      <div className="space-y-2 min-w-0">
         <label className="text-sm font-medium text-gray-300">{label}</label>
-        <div className="flex items-center space-x-2">
-          <div className="flex-1 p-3 bg-gray-800 border border-gray-700 rounded-md font-mono text-sm">
+        <div className="flex min-w-0 items-start gap-2">
+          <div className="min-w-0 flex-1 p-3 bg-gray-800 border border-gray-700 rounded-md font-mono text-sm break-all whitespace-pre-wrap leading-relaxed">
             {showSensitive[field] ? value : '•'.repeat(Math.min(value.length, 20))}
           </div>
           <Button
             size="sm"
             variant="outline"
             onClick={() => toggleVisibility(field)}
-            className="border-gray-600 text-gray-300 hover:bg-gray-700"
+            className="shrink-0 border-gray-600 text-gray-300 hover:bg-gray-700"
           >
             {showSensitive[field] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </Button>
@@ -190,7 +237,7 @@ export const CredentialDetailModal = ({
               copyToClipboard(value, label);
               updateLastAccessed();
             }}
-            className="border-gray-600 text-gray-300 hover:bg-gray-700"
+            className="shrink-0 border-gray-600 text-gray-300 hover:bg-gray-700"
           >
             <Copy className="h-4 w-4" />
           </Button>
@@ -202,7 +249,7 @@ export const CredentialDetailModal = ({
   return (
     <>
       <Dialog open={!!credential} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700 text-white">
+        <DialogContent className="w-[95vw] sm:w-[92vw] sm:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden bg-gray-900 border-gray-700 text-white">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -224,7 +271,7 @@ export const CredentialDetailModal = ({
             </div>
           </DialogHeader>
 
-          <div className="space-y-6">
+          <div className="space-y-6 min-w-0">
             {credential.description && (
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300">Description</label>
@@ -243,19 +290,44 @@ export const CredentialDetailModal = ({
               />
               <SensitiveField
                 label="Password"
-                value={credential.password}
+                value={decryptedSecrets.password ?? credential.password ?? null}
                 field="password"
               />
               <SensitiveField
                 label="API Key"
-                value={credential.api_key}
+                value={decryptedSecrets.api_key ?? credential.api_key ?? null}
                 field="api_key"
               />
               <SensitiveField
                 label="Secret Value"
-                value={credential.secret_value}
+                value={decryptedSecrets.secret_value ?? credential.secret_value ?? null}
                 field="secret_value"
               />
+              <SensitiveField
+                label="Token"
+                value={decryptedSecrets.token_value ?? credential.token_value ?? null}
+                field="token_value"
+              />
+              <SensitiveField
+                label="Certificate"
+                value={decryptedSecrets.certificate_data ?? credential.certificate_data ?? null}
+                field="certificate_data"
+              />
+
+              {credential.secret_blob && !isUnlocked && (
+                <p className="text-xs text-amber-400 bg-amber-950/20 border border-amber-800/40 rounded-md px-3 py-2">
+                  Unlock vault to reveal encrypted secrets in this view.
+                </p>
+              )}
+
+              {isDecryptingSecrets && (
+                <p className="text-xs text-gray-400 flex items-center gap-2">
+                  <span className="animate-spin inline-block">
+                    <Clock className="h-3 w-3" />
+                  </span>
+                  Decrypting secure fields...
+                </p>
+              )}
             </div>
 
             {credential.url && (
