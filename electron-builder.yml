@@ -69,6 +69,7 @@ linux:
     security architecture.
   desktop:
     Name: Keyper
+    StartupWMClass: keyper
     Comment: Self-hosted credential manager with zero-knowledge encryption
     Categories: Development;Utility;
 
