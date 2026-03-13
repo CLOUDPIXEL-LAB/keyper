@@ -53,11 +53,7 @@ credentials-to-remove.txt
 .dev.vars
 
 # Other
-LOG.txt
-keyper-audit.md
-sqlite-implementation.md
+Docker-rebuild.md
 post.md
 sqlite.png
-exe.txt
-Summary-SQL.md
 Screenshot_TOFIX.png
