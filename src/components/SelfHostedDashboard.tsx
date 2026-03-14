@@ -253,7 +253,7 @@ export const SelfHostedDashboard: React.FC = () => {
             </Button>
           </div>
           <Suspense fallback={<div className="flex items-center justify-center p-8">Loading settings...</div>}>
-            <DashboardSettings onUserCreated={() => {}} />
+            <DashboardSettings onUserContextChanged={() => {}} />
           </Suspense>
         </div>
       </div>

@@ -10,6 +10,7 @@
 import { secureVault } from './SecureVault';
 import { getVaultConfig, saveVaultConfig, deleteVaultConfig, isVaultInitialized, isLegacyVaultConfig, isNewVaultConfig } from './VaultStorage';
 import { supabase } from '@/integrations/supabase/client';
+import { getCurrentUsername, saveCurrentUsername } from '@/integrations/supabase/client';
 import type { VaultEvent } from './SecureVault';
 import type { SecretBlobV1 } from '@/crypto/types';
 import { CryptoError, CryptoErrorType } from '@/crypto/types';
@@ -17,14 +18,23 @@ import { hashPassphrase, verifyPassphrase } from '@/crypto/bcrypt';
 
 export class VaultManager {
   private initialized = false;
+  private initializedUserId: string | null = null;
 
   /**
    * Initialize vault manager - loads existing vault config if available
    */
   async initialize(): Promise<void> {
-    if (this.initialized) return;
+    const currentUsername = getCurrentUsername();
+
+    if (this.initialized && this.initializedUserId === currentUsername) {
+      return;
+    }
 
     try {
+      if (this.initializedUserId && this.initializedUserId !== currentUsername) {
+        secureVault.resetConfiguration();
+      }
+
       // Check if vault is initialized in database
       const vaultInitialized = await isVaultInitialized();
       
@@ -42,9 +52,12 @@ export class VaultManager {
             await secureVault.initializeWithWrappedDEK(config.wrapped_dek);
           }
         }
+      } else {
+        secureVault.resetConfiguration();
       }
 
       this.initialized = true;
+      this.initializedUserId = currentUsername;
     } catch (error) {
       console.error('Error initializing vault manager:', error);
       throw error;
@@ -220,13 +233,14 @@ export class VaultManager {
   async resetVault(): Promise<void> {
     try {
       // Lock vault first
-      this.lockVault();
+      secureVault.resetConfiguration();
       
       // Delete vault config from database
       await deleteVaultConfig();
       
       // Reset initialization flag
       this.initialized = false;
+      this.initializedUserId = null;
       
     } catch (error) {
       console.error('Error resetting vault:', error);
@@ -260,6 +274,83 @@ export class VaultManager {
    */
   getTimeUntilAutoLock(): number {
     return secureVault.getTimeUntilAutoLock();
+  }
+
+  /**
+   * Register a new user with their own encrypted vault
+   * This is a self-service registration - no admin required
+   */
+  async registerNewUser(username: string, passphrase: string): Promise<void> {
+    try {
+      const normalizedUsername = username.trim();
+
+      // 1. Check if username already exists
+      const { data: existing, error: checkError } = await supabase
+        .from('vault_config')
+        .select('user_id')
+        .eq('user_id', normalizedUsername)
+        .limit(1);
+
+      if (checkError) {
+        throw checkError;
+      }
+
+      if (Array.isArray(existing) && existing.length > 0) {
+        throw new Error('Username already exists. Please choose a different username.');
+      }
+
+      // 2. Set the username in localStorage (this will be used by createVault)
+      this.switchUserContext(normalizedUsername);
+
+      // 3. Create new vault for this user (uses existing createVault method)
+      await this.createVault(passphrase);
+
+      // 4. Create default categories for new user
+      await this.createDefaultCategories(normalizedUsername);
+
+      console.log('✅ New user registered successfully:', normalizedUsername);
+    } catch (error) {
+      console.error('❌ User registration failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create default categories for a new user
+   */
+  private async createDefaultCategories(username: string): Promise<void> {
+    const defaultCategories = [
+      { name: 'Development', color: '#3b82f6', icon: 'code', description: 'Development tools and APIs' },
+      { name: 'Personal', color: '#10b981', icon: 'user', description: 'Personal accounts and services' },
+      { name: 'Work', color: '#f59e0b', icon: 'briefcase', description: 'Work-related credentials' },
+      { name: 'Social Media', color: '#ec4899', icon: 'users', description: 'Social media accounts' },
+      { name: 'Finance', color: '#06b6d4', icon: 'credit-card', description: 'Banking and financial services' },
+      { name: 'Cloud Services', color: '#8b5cf6', icon: 'cloud', description: 'Cloud platforms and services' },
+      { name: 'Security', color: '#ef4444', icon: 'shield', description: 'Security tools and certificates' }
+    ];
+
+    try {
+      for (const category of defaultCategories) {
+        await supabase.from('categories').insert({
+          user_id: username,
+          ...category
+        });
+      }
+      console.log('✅ Default categories created for user:', username);
+    } catch (error) {
+      console.error('⚠️ Error creating default categories:', error);
+      // Don't throw - categories are nice to have but not critical
+    }
+  }
+
+  /**
+   * Switch the active in-browser user context and clear any cached vault state.
+   */
+  switchUserContext(username: string): void {
+    saveCurrentUsername(username);
+    secureVault.resetConfiguration();
+    this.initialized = false;
+    this.initializedUserId = null;
   }
 
   /**

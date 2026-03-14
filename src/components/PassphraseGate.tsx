@@ -16,7 +16,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { saveCurrentUsername } from '@/integrations/supabase/client';
+import { getCurrentUsername } from '@/integrations/supabase/client';
+import UserRegistration from '@/components/UserRegistration';
 import {
   Lock,
   Unlock,
@@ -27,7 +28,8 @@ import {
   AlertTriangle,
   CheckCircle,
   Info,
-  Settings
+  Settings,
+  UserPlus
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { analyzePassphrase, getStrengthColor } from '@/security/PassphraseValidator';
@@ -44,7 +46,7 @@ interface PassphraseGateProps {
   className?: string;
 }
 
-
+const SHOW_REGISTRATION_KEY = 'keyper-show-registration';
 
 export default function PassphraseGate({
   children,
@@ -65,6 +67,7 @@ export default function PassphraseGate({
   const [passphraseAnalysis, setPassphraseAnalysis] = useState<PassphraseAnalysis | null>(null);
   const [isFirstTime, setIsFirstTime] = useState<boolean | null>(null);
   const [showSetup, setShowSetup] = useState(false);
+  const [showRegistration, setShowRegistration] = useState(false);
 
   const { toast } = useToast();
 
@@ -105,7 +108,12 @@ export default function PassphraseGate({
 
 // Initialize username to blank by default
 useEffect(() => {
-  setUsername('');
+  setUsername(getCurrentUsername());
+
+  if (localStorage.getItem(SHOW_REGISTRATION_KEY) === 'true') {
+    setShowRegistration(true);
+    localStorage.removeItem(SHOW_REGISTRATION_KEY);
+  }
 }, []);
 
   // Check if this is a first-time user or if database is not properly configured
@@ -175,12 +183,8 @@ useEffect(() => {
     setError(null);
 
     try {
-      // Set the current username in localStorage before any vault operations
-      saveCurrentUsername(username.trim());
-
-      // Lock the vault to clear any existing state when switching users
-      vaultManager.lockVault();
-      console.log('🔧 Locked vault due to user context switch');
+      vaultManager.switchUserContext(username.trim());
+      console.log('🔧 Switched vault context to:', username.trim());
 
       const isFirstTime = await vaultManager.isFirstTimeUser();
 
@@ -202,6 +206,37 @@ useEffect(() => {
 
   const handleLock = () => {
     vaultManager.lockVault();
+  };
+
+  const handleRegistrationSuccess = async (newUsername: string, newPassphrase: string) => {
+    try {
+      setIsUnlocking(true);
+      setError(null);
+
+      // Register the new user
+      await vaultManager.registerNewUser(newUsername, newPassphrase);
+
+      // Registration successful - the vault is now unlocked
+      setShowRegistration(false);
+      setUsername(newUsername);
+      setPassphrase('');
+      
+      toast({
+        title: "🎉 Account Created!",
+        description: `Welcome ${newUsername}! Your encrypted vault is ready.`,
+      });
+    } catch (error) {
+      console.error('💥 Registration failed:', error);
+      setError(error instanceof Error ? error.message : "Registration failed");
+    } finally {
+      setIsUnlocking(false);
+    }
+  };
+
+  const handleRegistrationCancel = () => {
+    setShowRegistration(false);
+    localStorage.removeItem(SHOW_REGISTRATION_KEY);
+    setError(null);
   };
 
   const formatTime = (ms: number): string => {
@@ -266,6 +301,12 @@ useEffect(() => {
   return (
     <>
       <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-40 p-4">
+        {showRegistration ? (
+          <UserRegistration
+            onSuccess={handleRegistrationSuccess}
+            onCancel={handleRegistrationCancel}
+          />
+        ) : (
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             {/* Keyper Logo and Title */}
@@ -401,6 +442,18 @@ useEffect(() => {
                 </>
               )}
             </Button>
+
+            {/* Create New User Button */}
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => setShowRegistration(true)}
+              disabled={isUnlocking}
+            >
+              <UserPlus className="h-4 w-4 mr-2" />
+              Create New User
+            </Button>
           </form>
 
           <Alert>
@@ -426,6 +479,7 @@ useEffect(() => {
           )}
         </CardContent>
       </Card>
+        )}
     </div>
   </>
   );

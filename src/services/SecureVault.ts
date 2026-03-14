@@ -179,6 +179,15 @@ class SecureVault {
   }
 
   /**
+   * Clear all stored vault material so another user can be loaded safely.
+   */
+  resetConfiguration(): void {
+    this.lock();
+    this.rawDEK = null;
+    this.wrappedDEK = null;
+  }
+
+  /**
    * Encrypt data using DEK
    */
   async encrypt(plaintext: string): Promise<SecretBlobV1> {
