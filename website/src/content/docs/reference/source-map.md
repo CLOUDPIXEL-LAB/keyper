@@ -15,6 +15,7 @@ This page is a practical index of where behavior lives in the repository today.
 
 - `src/integrations/supabase/client.ts`: local storage keys, credential persistence, client creation/refresh.
 - `src/components/Settings.tsx`: Supabase URL/key form, validation, connection test UX.
+- `src/components/dashboard/DashboardSettings.tsx`: user management UI, SQL scripts, and reset/system tools.
 - `supabase-setup.sql`: canonical schema, policies, triggers, helper functions.
 
 ## Vault and cryptography
@@ -32,7 +33,9 @@ This page is a practical index of where behavior lives in the repository today.
 - `src/components/dashboard/EditCredentialModal.tsx`: update form + decrypt/re-encrypt path.
 - `src/components/dashboard/CredentialDetailModal.tsx`: detail view with secret reveal/copy (via `secret_blob` decryption), edit, and delete actions.
 - `src/components/dashboard/CredentialsGrid.tsx`: list/grid rendering and item selection.
-- `src/components/PassphraseGate.tsx`: first-time vault creation and unlock UX.
+- `src/components/PassphraseGate.tsx`: unlock UX + create-new-user entrypoint.
+- `src/components/UserRegistration.tsx`: self-service registration UX with username uniqueness and passphrase checks.
+- `src/components/UserSwitcher.tsx`: registered-user listing and secure account switching.
 - `src/hooks/useVault.ts`: vault state hook and encryption helper methods.
 
 ## Security and policy helpers

@@ -80,7 +80,7 @@ Desktop installers are available on the **[Keyper website](https://keyper.pinkpi
 
 - 🔒 **Row Level Security (RLS)** - Database-level isolation
 - 🔐 **End-to-End Encryption** - Client-side encryption, zero-knowledge architecture
-- 👤 **Multi-User Support** - Support for multiple users on the same instance
+- 👤 **Multi-User Support** - Self-service registration, account switching, and per-user vault isolation
 - 🌐 **Secure Connections** - HTTPS/TLS encryption
 - 🏠 **Self-Hosted** - Complete control over your data
 
@@ -148,7 +148,8 @@ Just enter your own Supabase credentials and start managing your encrypted crede
 
 - ✅ **Completely Secure** - Zero-knowledge architecture means your data never leaves your browser
 - ✅ **Real Functionality** - Full Keyper experience with your own Supabase instance
-- ✅ **No Registration** - Just bring your Supabase URL and anon/publishable key
+- ✅ **No External Signup Required** - Just bring your Supabase URL and anon/publishable key
+- ✅ **In-App User Registration Available** - Create multiple isolated user vaults directly inside Keyper
 - ⚠️ **Demo Limitations** - Recommended for testing and light usage only
 - 🏠 **Self-Host for Production** - Install locally for best performance and full control
 
@@ -407,8 +408,9 @@ Keyper works as a Progressive Web App for a native app experience!
 **❌ Multi-user vault conflicts**
 
 - Each user has their own isolated encrypted vault
-- Switch users by changing the username in settings
-- Refresh the page after switching users for proper vault isolation
+- Use **Dashboard Settings → User Management** to switch users
+- Use **Create New User** from the lock screen or **Add New User** in user management
+- Refresh after user-switch actions if prompted for the cleanest vault context handoff
 - Each user's data is completely separate and encrypted individually
 
 ### 🔑 Master Passphrase Reset
@@ -455,7 +457,7 @@ Keyper works as a Progressive Web App for a native app experience!
 
 ---
 
-## 🛡️ Security  Privacy
+## 🛡️ Security & Privacy
 
 ### Your Data, Your Control
 
@@ -473,8 +475,11 @@ Keyper works as a Progressive Web App for a native app experience!
 
 ### Multi-User Notes
 
-- **User Switching**: When switching between different user accounts, refresh the page after logging out to ensure proper vault isolation
-- **Optimal Experience**: This ensures clean cryptographic state and prevents any potential vault conflicts between users
+- **Registration**: Users can self-register from the lock screen via **Create New User**; no admin account is required.
+- **User Management**: Dashboard includes a **User Management** area that lists registered users and supports secure switching.
+- **Isolation**: Every username has its own `vault_config`, passphrase verifier, encryption key material, credentials, and categories.
+- **No Backdoors**: Switching users never bypasses passphrase verification, and there is no admin recovery path.
+- **Reset Model**: Emergency passphrase reset remains self-service per user via that user’s `bcrypt_hash` record.
 
 ---
 

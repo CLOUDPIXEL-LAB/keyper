@@ -27,6 +27,9 @@ Stores vault unlock metadata by user:
 - new format: `raw_dek`, `bcrypt_hash`
 - legacy format: `wrapped_dek`
 - unique per `user_id`
+- doubles as the registered-user index used by in-app User Management
+
+Multi-user registration does not use an admin users table. A username is considered registered when a `vault_config` row exists for that `user_id`.
 
 ### `categories`
 

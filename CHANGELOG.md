@@ -39,6 +39,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Supabase users: existing Supabase Dashboard-based reset flow unchanged
 - **Updated** reset-local-config message to be provider-agnostic ("database connection settings")
 
+### 👥 **Multi-User Registration & User Management**
+
+- **Added** self-service multi-user registration flow with no admin involvement:
+  - `src/components/UserRegistration.tsx` provides username + passphrase registration with live username availability checks and passphrase confirmation
+  - Username validation now enforces 3-50 characters with letters, numbers, hyphens, and underscores
+  - Registration creates an isolated vault per user and seeds default categories for that user context
+- **Added** registration entrypoint in `PassphraseGate.tsx`:
+  - New **Create New User** action on the lock screen
+  - Successful registration immediately initializes/unlocks the new user vault
+- **Added** user management UI in dashboard settings:
+  - New **User Management** area with registered-user listing (`vault_config.user_id`)
+  - Current user indicator and one-click user switching workflow
+  - **Add New User** action from user management that routes directly into registration flow
+- **Added** `VaultManager.registerNewUser(username, passphrase)` for secure self-service onboarding:
+  - Duplicate username protection
+  - Per-user vault creation (`raw_dek` + `bcrypt_hash`) in existing zero-knowledge model
+  - Per-user default category initialization
+- **Updated** app security messaging to explicitly document:
+  - No admin backdoors
+  - Passphrase remains user-controlled
+  - Switching user context does not bypass passphrase verification
+
+### 🧪 **Multi-User Validation**
+
+- **Added** SQLite-focused multi-user tests in `src/services/multi-user-sqlite.test.ts` covering:
+  - Creating multiple users in the same instance
+  - Per-user vault isolation and access boundaries
+  - Switching between user contexts with independent passphrase checks
+
 ### 🐛 **SQLite Bug Fixes**
 
 - **Fixed** critical bug where `SqliteQueryBuilder.select()` was overwriting the in-flight mutation action (`insert`, `update`, `upsert`, `delete`) with `select`, causing vault creation to silently fail

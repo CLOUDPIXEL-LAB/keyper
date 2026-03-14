@@ -43,7 +43,7 @@ _Dream it, Pixel it_ - **Made with ❤️ by Pink Pixel**
 
 - 🔒 **Zero-Knowledge Security**: All encryption happens client-side
 - 🏠 **Self-Hosted Control**: Complete data ownership and privacy
-- 👤 **Multi-User Support**: Secure isolation for multiple users
+- 👤 **Multi-User Support**: Self-service registration, secure user switching, and isolated per-user vaults
 - 📱 **Modern Experience**: Progressive Web App with native-like features
 - 📄 **Secure Document Handling**: Encrypted document credential storage with metadata-aware detail UX
 - ⚡ **High Performance**: Optimized loading and runtime performance
@@ -115,6 +115,8 @@ graph TB
 - 🔑 **Master Passphrase Protection**: Single passphrase controls vault access
 - ⏰ **Auto-Lock**: 15-minute inactivity timeout with activity detection
 - 🛡️ **Row Level Security**: Database-level access control
+- 👤 **Per-User Vault Isolation**: Independent vault metadata and encrypted payloads per `user_id`
+- 🚫 **No Admin Backdoors**: Registration and user switching never bypass passphrase verification
 - 🔒 **Content Security Policy**: Browser-level protection against XSS
 - 🚫 **No Telemetry**: Zero tracking or data collection
 
@@ -339,13 +341,16 @@ CREATE TABLE categories (
 
 ### Key Components
 
-| Component            | Purpose                   | Features                            |
-| -------------------- | ------------------------- | ----------------------------------- |
-| **PassphraseGate**   | Vault security checkpoint | Auto-lock, biometric support        |
-| **DashboardHeader**  | Navigation and branding   | Search, user profile, actions       |
-| **CredentialsGrid**  | Main credential display   | Filtering, sorting, infinite scroll |
-| **CredentialModal**  | Detailed credential view  | Reveal, copy, edit, delete actions  |
-| **SearchAndFilters** | Advanced filtering system | Real-time search, tag filtering     |
+| Component             | Purpose                   | Features                                        |
+| --------------------- | ------------------------- | ----------------------------------------------- |
+| **PassphraseGate**    | Vault security checkpoint | Unlock flow + create-new-user entrypoint        |
+| **UserRegistration**  | New account onboarding    | Username validation + passphrase confirmation   |
+| **UserSwitcher**      | Multi-user controls       | Registered-user list + secure context switching |
+| **DashboardSettings** | Settings shell            | User Management tab + security messaging        |
+| **DashboardHeader**   | Navigation and branding   | Search, user profile, actions                   |
+| **CredentialsGrid**   | Main credential display   | Filtering, sorting, infinite scroll             |
+| **CredentialModal**   | Detailed credential view  | Reveal, copy, edit, delete actions              |
+| **SearchAndFilters**  | Advanced filtering system | Real-time search, tag filtering                 |
 
 ### Responsive Behavior
 
@@ -492,15 +497,6 @@ npm run electron:build:win     # NSIS / Windows build tooling required
 
 ### Test Coverage
 
-| Test Type             | Framework                | Coverage                    |
-| --------------------- | ------------------------ | --------------------------- |
-| **Unit Tests**        | Vitest                   | Core functions, utilities   |
-| **Integration Tests** | Vitest + Testing Library | Component interactions      |
-| **E2E Tests**         | Playwright (planned)     | Full user workflows         |
-| **Security Tests**    | Custom                   | Encryption/decryption flows |
-
-### Continuous Integration
-
 - **GitHub Actions**: Automated testing on PRs
 - **Build Verification**: Cross-platform compatibility
 - **Security Scanning**: Dependency vulnerability checks
@@ -517,22 +513,14 @@ npm run electron:build:win     # NSIS / Windows build tooling required
 - **Last Updated**: March 2026
 - **Status**: Stable Production Release 🟢
 - **License**: Apache 2.0
-- **Emergency System**: Advanced troubleshooting enabled ⚡
-- **Local Database Support**: SQLite (sql.js + IndexedDB) for zero-config offline-first local storage 🗄️
-
-### Feature Completeness
-
-| Feature Category   | Status      | Notes                                             |
-| ------------------ | ----------- | ------------------------------------------------- |
-| **Core Security**  | ✅ Complete | Zero-knowledge encryption                         |
-| **User Interface** | ✅ Complete | Full responsive design                            |
-| **Database Layer** | ✅ Complete | Supabase + SQLite dual-provider                   |
-| **SQLite Support** | ✅ Complete | Local-first, zero-config (browser/PWA + Electron) |
-| **PWA Features**   | ✅ Complete | Full offline support                              |
-| **CLI Tools**      | ✅ Complete | Multi-platform support                            |
-| **Docker Build**   | ✅ Complete | nginx-based container                             |
-| **Desktop App**    | ✅ Complete | Electron v33, all platforms                       |
-| **Documentation**  | ✅ Complete | Comprehensive guides                              |
+  | **User Interface** | ✅ Complete | Full responsive design |
+  | **Database Layer** | ✅ Complete | Supabase + SQLite dual-provider |
+  | **SQLite Support** | ✅ Complete | Local-first, zero-config (browser/PWA + Electron) |
+  | **PWA Features** | ✅ Complete | Full offline support |
+  | **CLI Tools** | ✅ Complete | Multi-platform support |
+  | **Docker Build** | ✅ Complete | nginx-based container |
+  | **Desktop App** | ✅ Complete | Electron v33, all platforms |
+  | **Documentation** | ✅ Complete | Comprehensive guides |
 
 ### Known Limitations
 

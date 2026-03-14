@@ -37,3 +37,10 @@ description: Practical security model implemented in Keyper today.
 ## Threat boundaries
 
 Keyper protects strongly against database disclosure and passive network interception of stored secrets. Like all browser apps, it still depends on endpoint/browser integrity during active sessions.
+
+## Multi-user boundaries
+
+- Each username maps to an independent vault context (`vault_config.user_id`) with separate key material.
+- Self-service registration creates new vault metadata without introducing privileged/admin access paths.
+- User switching changes context only; it does not grant access until that user&apos;s passphrase is verified.
+- Emergency passphrase reset remains self-service and scoped to the selected user&apos;s `bcrypt_hash` record.

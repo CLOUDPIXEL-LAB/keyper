@@ -26,6 +26,8 @@ description: High-level architecture and module boundaries.
 ## Stateful responsibilities
 
 - `SelfHostedDashboard`: app-level view and filtering state.
-- `PassphraseGate`: vault lock/unlock UX and first-time setup branching.
+- `PassphraseGate`: vault lock/unlock UX plus create-new-user entrypoint.
+- `UserRegistration`: validates and provisions new user vaults without admin involvement.
+- `DashboardSettings` + `UserSwitcher`: registered-user visibility and secure context switching.
 - `VaultManager`: orchestrates storage config + secure vault runtime.
 - `SecureVault`: cryptographic operations and auto-lock timer.

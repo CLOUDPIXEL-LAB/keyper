@@ -18,10 +18,17 @@ description: Step-by-step application behavior from load to credential operation
 
 ## Vault flow
 
-1. `PassphraseGate` checks whether user is first-time (`vault_config` exists or not).
-2. First-time: creates vault (`raw_dek` + `bcrypt_hash`).
-3. Existing user: verifies passphrase via bcrypt for new format or unwraps legacy DEK.
-4. On unlock, dashboard interactions can encrypt/decrypt secrets.
+1. `PassphraseGate` loads the active username context and checks whether that user has `vault_config`.
+2. Existing user path: verifies passphrase via bcrypt for new format or unwraps legacy DEK.
+3. New user path: **Create New User** opens `UserRegistration`, validates uniqueness, and calls `registerNewUser(...)`.
+4. Registration creates an isolated vault (`raw_dek` + `bcrypt_hash`) and default categories for that username.
+5. On unlock, dashboard interactions can encrypt/decrypt secrets.
+
+## User switching flow
+
+1. `DashboardSettings` -> `User Management` lists registered usernames from `vault_config`.
+2. `UserSwitcher` updates active username context and forces a clean reload/lock transition.
+3. Target user must still unlock with that user&apos;s passphrase before secrets are readable.
 
 ## Credential flow
 

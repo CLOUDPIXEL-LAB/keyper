@@ -98,6 +98,8 @@ npm run electron:build:win     # NSIS installer
    - **Supabase** — enter your Supabase URL and anon/publishable key, then run the SQL setup script to create required tables/policies. Existing users should also run `migration-add-document-misc-types.sql` to enable `document` and `misc` credential types.
 3. Return to the app, test connection, and save.
 4. Unlock or initialize your vault using your master passphrase.
+5. For additional users, choose **Create New User** on the lock screen or use **Dashboard Settings → User Management → Add New User**.
+6. To switch accounts later, use **Dashboard Settings → User Management** and then unlock with that user’s passphrase.
 
 ## Verify health
 

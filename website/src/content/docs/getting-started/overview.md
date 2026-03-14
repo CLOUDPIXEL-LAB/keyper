@@ -17,7 +17,7 @@ _Keyper v1.1.1 dashboard showing a populated vault with saved credentials, categ
 
 - Keep secrets under user control through self-hosted data storage.
 - Encrypt sensitive credential values before they reach the database.
-- Support multiple users on the same instance through `user_id` segmentation.
+- Support multiple users on the same instance through self-service registration and `user_id` segmentation.
 - Provide a modern PWA experience with installability and fast startup.
 - Support both structured and flexible secure payloads, including encrypted document credentials and multiline misc secrets.
 
@@ -26,13 +26,15 @@ _Keyper v1.1.1 dashboard showing a populated vault with saved credentials, categ
 - Frontend framework: React + TypeScript + Vite.
 - UI shell: single-route app (`/`) with lazy-loaded dashboard modules.
 - Data backend: **Supabase (Postgres)** or **SQLite (sql.js / IndexedDB)** — selectable at runtime via in-app settings.
-- Security gate: passphrase-based vault unlock before secret operations.
+- Security gate: passphrase-based vault unlock before secret operations, with a built-in **Create New User** registration path.
 
 ## Primary modules
 
 - App bootstrap: `src/main.tsx`, `src/App.tsx`
 - Main shell: `src/components/SelfHostedDashboard.tsx`
 - Vault gate: `src/components/PassphraseGate.tsx`
+- Registration: `src/components/UserRegistration.tsx`
+- User management: `src/components/UserSwitcher.tsx`, `src/components/dashboard/DashboardSettings.tsx`
 - Crypto and vault: `src/crypto/*`, `src/services/VaultManager.ts`, `src/services/SecureVault.ts`
 - Database integration: `src/integrations/supabase/client.ts` (provider router + Supabase client), `src/integrations/database/sqlite-client.ts` (SQLite / sql.js local engine)
 

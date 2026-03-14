@@ -24,8 +24,22 @@ description: Common issues and practical recovery paths.
 ## Vault unlock fails
 
 - Verify username context is correct.
+- If you recently switched users, use **User Management** again and retry unlock for the intended account.
 - Verify passphrase against current `vault_config` row for that `user_id`.
 - For new format vaults, ensure `bcrypt_hash` and `raw_dek` both exist.
+
+## New user registration fails
+
+- Confirm the username is unique in `vault_config.user_id`.
+- Confirm username format: 3-50 chars, letters/numbers/hyphen/underscore.
+- Confirm passphrase is at least 8 characters and matches confirmation.
+- If registration started from User Management, allow the lock-screen reload and complete creation there.
+
+## User switching appears stuck
+
+- User switching performs a context reset + reload to avoid cross-user cryptographic state.
+- After switch, unlock using the target user&apos;s passphrase.
+- Use **Refresh Users** in User Management if a newly created user does not appear immediately.
 
 ## Decryption or reveal issues
 
