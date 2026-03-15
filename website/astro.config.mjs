@@ -4,7 +4,7 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://keyper-docs.pages.dev',
+	site: 'https://keyper.icu',
 	integrations: [
 		starlight({
 			title: 'Keyper Docs',
@@ -17,7 +17,7 @@ export default defineConfig({
 			customCss: ['./src/styles/keyper-theme.css'],
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/pinkpixel-dev/keyper' },
-				{ icon: 'external', label: 'Web App', href: 'https://keyper.pinkpixel.dev' },
+				{ icon: 'external', label: 'Web App', href: 'https://app.keyper.icu' },
 			],
 			sidebar: [
 				{

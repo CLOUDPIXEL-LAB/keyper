@@ -5,6 +5,15 @@ All notable changes to Keyper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-03-15
+
+### 📚 **Documentation & URL Updates**
+
+- **Updated** documentation site references to the new primary docs domain: `https://keyper.icu`
+- **Updated** hosted web app references to the new app domain: `https://app.keyper.icu`
+- **Updated** website docs splash actions to include the hosted web app entry next to source repository navigation
+- **Updated** in-app dashboard Docs button target to `https://keyper.icu`
+
 ## [1.1.1] - 2026-03-12 - 🔍 **Credential Detail UX · 🗄️ SQLite Local Database Support**
 
 ### 🖥️ **Desktop Distribution**
@@ -171,7 +180,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🌐 **Website & Downloads**
 
-- **Added** direct download links for Linux desktop installers (AppImage, deb x86_64, deb ARM64) hosted on Cloudflare R2 via the [Keyper docs site](https://keyper.pinkpixel.dev/getting-started/install-and-run/)
+- **Added** direct download links for Linux desktop installers (AppImage, deb x86_64, deb ARM64) hosted on Cloudflare R2 via the [Keyper docs site](https://keyper.icu/getting-started/install-and-run/)
 
 ### 🔧 **Housekeeping**
 

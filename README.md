@@ -28,7 +28,7 @@ _A modern, secure, self-hosted credential management application for storing and
 
 ## 📥 Download
 
-Desktop installers are available on the **[Keyper website](https://keyper.pinkpixel.dev/getting-started/install-and-run/)**.
+Desktop installers are available on the **[Keyper website](https://keyper.icu/getting-started/install-and-run/)**.
 
 | Platform   | Package         | Download                                                                                             |
 | ---------- | --------------- | ---------------------------------------------------------------------------------------------------- |
@@ -140,7 +140,7 @@ keyper --port 3000
 
 **Want to try Keyper before installing?** Visit our hosted demo:
 
-**🔗** [**keyper.pinkpixel.dev**](https://keyper.pinkpixel.dev)
+**🔗** [**app.keyper.icu**](https://app.keyper.icu)
 
 Just enter your own Supabase credentials and start managing your encrypted credentials instantly! Your data stays completely private since all encryption happens in your browser.
 

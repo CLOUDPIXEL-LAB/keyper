@@ -5,7 +5,7 @@ description: Visual tour of the Keyper web app.
 
 Use this page for quick visuals when sharing the product with teammates, users, or stakeholders.
 
-Live app: [keyper.pinkpixel.dev](https://keyper.pinkpixel.dev)
+Live app: [app.keyper.icu](https://app.keyper.icu)
 
 ![Keyper Screenshot 1](/screenshots/screenshot1.png)
 

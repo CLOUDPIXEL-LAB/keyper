@@ -48,7 +48,7 @@ export const DashboardHeader = ({ user, onAddCredential, onRefresh }: DashboardH
 
             <Button asChild variant="outline" size="sm" className="flex items-center gap-2">
               <a
-                href="https://keyper-docs.pinkpixel.dev"
+                href="https://keyper.icu"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Open Keyper documentation website"
