@@ -7,13 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.4] - 2026-05-26 - 🔒 **Security Vulnerability Fix**
+
+### 🔒 **Security Updates**
+
+- **Resolved** High-severity security vulnerability in `electron <=39.8.4` by upgrading to `electron@39.8.10`.
+- **Fixed** Compatibility constraint where newer Electron versions (e.g., `41.x` and `42.x`) drop V8 headers required by `better-sqlite3`, ensuring that the native SQLite drivers still successfully compile while keeping the app secure.
+
+
+## [1.1.3] - 2026-05-26 - 🔧 **Build & Native Dependencies Fix**
+
+### 🔧 **Build System & Dependencies**
+
+- **Fixed** Native compilation failure during `node-gyp rebuild` for `better-sqlite3` by explicitly downgrading `electron` to `v33.4.11` as a dev dependency.
+- **Resolved** Build breakage caused by `npm audit fix --force` that upgraded `electron` to `v42.3.0`, introducing V8 header changes incompatible with the current SQLite drivers.
+
+
 ## [1.1.2] - 2026-05-26 - 🔒 **Security & UI Enhancements**
 
 ### 🔒 **Security & Dependency Updates**
 
 - **Updated** all NPM dependencies to their latest secure versions
 - **Resolved** 20 security vulnerabilities (11 high, 9 moderate) across various packages including `electron`, `vite`, and `undici`
-- **Updated** `electron` to `v42.2.0` to resolve critical IPC and renderer vulnerabilities
+- **Updated** `electron` to `v33.4.11` to resolve critical IPC and renderer vulnerabilities while maintaining `better-sqlite3` compatibility (V8 13.x in Electron 42 removed APIs required by the SQLite native driver)
 
 ### 🎨 **UI Enhancements**
 
