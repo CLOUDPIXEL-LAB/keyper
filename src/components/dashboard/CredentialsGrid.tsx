@@ -73,8 +73,8 @@ export const CredentialsGrid = ({
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(6)].map((_, i) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+        {[...Array(10)].map((_, i) => (
           <Card key={i} className="bg-gray-800/50 border-gray-700">
             <CardHeader>
               <Skeleton className="h-4 w-3/4 bg-gray-700" />
@@ -101,7 +101,7 @@ export const CredentialsGrid = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
       {credentials.map((credential) => (
         <Card 
           key={credential.id}

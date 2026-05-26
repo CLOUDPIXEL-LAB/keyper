@@ -19,7 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Updated** global app background colors to a sleek pure black and charcoal gray gradient
 - **Fixed** dashboard header to seamlessly match the new dark aesthetics
-
+- **Expanded** dashboard container max-width to allow better usage of wide screens
+- **Updated** credentials grid layout to fit up to 5 cards across on extra-large screens
 ### 📚 **Documentation & URL Updates**
 
 - **Updated** documentation site references to the new primary docs domain: `https://keyper.icu`

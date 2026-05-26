@@ -400,7 +400,7 @@ export const SelfHostedDashboard: React.FC = () => {
             />
           </Suspense>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="w-full max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
             <Suspense fallback={<div className="h-16 bg-gray-800/50 rounded-lg animate-pulse mb-6" />}>
               <SearchAndFilters
                 searchTerm={searchTerm}
