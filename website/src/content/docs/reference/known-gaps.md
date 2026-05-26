@@ -5,7 +5,7 @@ description: Implementation and documentation gaps observed during repository au
 
 ## Version display drift
 
-- Package version is `1.1.1`.
+- Package version is `1.1.2`.
 - Some distribution docs may lag behind package version when new desktop binaries have not been published yet.
 
 ## Security/capability drift

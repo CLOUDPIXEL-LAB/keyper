@@ -32,10 +32,10 @@ Desktop installers are available on the **[Keyper website](https://keyper.icu/ge
 
 | Platform   | Package         | Download                                                                                             |
 | ---------- | --------------- | ---------------------------------------------------------------------------------------------------- |
-| 🪟 Windows | NSIS installer  | [KeyperSetup.v1.1.1.exe](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/KeyperSetup.v1.1.1.exe) |
-| 🐧 Linux   | AppImage        | [Keyper-1.1.1.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.1.AppImage)   |
-| 🐧 Linux   | `.deb` (x86_64) | [keyper_1.1.1_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_amd64.deb) |
-| 🐧 Linux   | `.deb` (ARM64)  | [keyper_1.1.1_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_arm64.deb) |
+| 🪟 Windows | NSIS installer  | [KeyperSetup.v1.1.2.exe](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/KeyperSetup.v1.1.2.exe) |
+| 🐧 Linux   | AppImage        | [Keyper-1.1.2.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.2.AppImage)   |
+| 🐧 Linux   | `.deb` (x86_64) | [keyper_1.1.2_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.2_amd64.deb) |
+| 🐧 Linux   | `.deb` (ARM64)  | [keyper_1.1.2_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.2_arm64.deb) |
 
 ---
 
@@ -229,10 +229,10 @@ Run Keyper as a native desktop app on **Windows or Linux**!
 
 #### Published desktop downloads
 
-- **Windows installer**: [KeyperSetup.v1.1.1.exe](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/KeyperSetup.v1.1.1.exe)
-- **Linux AppImage**: [Keyper-1.1.1.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.1.AppImage)
-- **Linux `.deb` (x86_64)**: [keyper_1.1.1_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_amd64.deb)
-- **Linux `.deb` (ARM64)**: [keyper_1.1.1_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_arm64.deb)
+- **Windows installer**: [KeyperSetup.v1.1.2.exe](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/KeyperSetup.v1.1.2.exe)
+- **Linux AppImage**: [Keyper-1.1.2.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.2.AppImage)
+- **Linux `.deb` (x86_64)**: [keyper_1.1.2_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.2_amd64.deb)
+- **Linux `.deb` (ARM64)**: [keyper_1.1.2_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.2_arm64.deb)
 
 #### Preview (no packaging)
 

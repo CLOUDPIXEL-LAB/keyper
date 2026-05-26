@@ -11,28 +11,28 @@ Current published installer links are available for Windows and Linux.
 
 | Platform              | Package         | Download                                                                                             |
 | --------------------- | --------------- | ---------------------------------------------------------------------------------------------------- |
-| Windows               | NSIS installer  | [KeyperSetup.v1.1.1.exe](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/KeyperSetup.v1.1.1.exe) |
-| Linux                 | AppImage        | [Keyper-1.1.1.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.1.AppImage)   |
-| Linux (Debian/Ubuntu) | `.deb` (x86_64) | [keyper_1.1.1_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_amd64.deb) |
-| Linux (Debian/Ubuntu) | `.deb` (ARM64)  | [keyper_1.1.1_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.1_arm64.deb) |
+| Windows               | NSIS installer  | [KeyperSetup.v1.1.2.exe](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/KeyperSetup.v1.1.2.exe) |
+| Linux                 | AppImage        | [Keyper-1.1.2.AppImage](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper-1.1.2.AppImage)   |
+| Linux (Debian/Ubuntu) | `.deb` (x86_64) | [keyper_1.1.2_amd64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.2_amd64.deb) |
+| Linux (Debian/Ubuntu) | `.deb` (ARM64)  | [keyper_1.1.2_arm64.deb](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/keyper_1.1.2_arm64.deb) |
 
 **Windows quick start:**
 
-1. Download [KeyperSetup.v1.1.1.exe](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/KeyperSetup.v1.1.1.exe).
+1. Download [KeyperSetup.v1.1.2.exe](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/KeyperSetup.v1.1.2.exe).
 2. Run the installer and follow the setup wizard.
 3. Launch Keyper from the Start menu or desktop shortcut.
 
 **Linux AppImage quick start:**
 
 ```bash
-chmod +x Keyper-1.1.1.AppImage
-./Keyper-1.1.1.AppImage
+chmod +x Keyper-1.1.2.AppImage
+./Keyper-1.1.2.AppImage
 ```
 
 **Linux .deb quick start:**
 
 ```bash
-sudo dpkg -i keyper_1.1.1_amd64.deb
+sudo dpkg -i keyper_1.1.2_amd64.deb
 keyper   # or launch from your applications menu
 ```
 
