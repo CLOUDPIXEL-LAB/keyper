@@ -13,7 +13,7 @@ interface DashboardHeaderProps {
 export const DashboardHeader = ({ user, onAddCredential, onRefresh }: DashboardHeaderProps) => {
 
   return (
-    <header className="bg-gray-900/80 backdrop-blur-sm border-b border-gray-800">
+    <header className="bg-background/80 backdrop-blur-sm border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-3">

@@ -5,7 +5,20 @@ All notable changes to Keyper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2026-03-15
+## [Unreleased]
+
+## [1.1.2] - 2026-05-26 - 🔒 **Security & UI Enhancements**
+
+### 🔒 **Security & Dependency Updates**
+
+- **Updated** all NPM dependencies to their latest secure versions
+- **Resolved** 20 security vulnerabilities (11 high, 9 moderate) across various packages including `electron`, `vite`, and `undici`
+- **Updated** `electron` to `v42.2.0` to resolve critical IPC and renderer vulnerabilities
+
+### 🎨 **UI Enhancements**
+
+- **Updated** global app background colors to a sleek pure black and charcoal gray gradient
+- **Fixed** dashboard header to seamlessly match the new dark aesthetics
 
 ### 📚 **Documentation & URL Updates**
 

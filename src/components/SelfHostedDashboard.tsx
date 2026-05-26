@@ -92,7 +92,7 @@ export const SelfHostedDashboard: React.FC = () => {
 
   // Credential management state
   const [credentials, setCredentials] = useState<Credential[]>([]);
-  const [categories, setCategories] = useState<Array<{ id: string; name: string; description?: string; color?: string }>>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -115,6 +115,7 @@ export const SelfHostedDashboard: React.FC = () => {
       // If not configured, just stop loading so dashboard shows
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Credential management functions
@@ -168,7 +169,7 @@ export const SelfHostedDashboard: React.FC = () => {
       // Filter to include:
       // 1. Default categories (user_id = null, empty, or 'self-hosted-user')
       // 2. User-specific categories (user_id = currentUsername)
-      const filteredCategories = (data || []).filter(category => {
+      const filteredCategories = ((data as (Category & { user_id?: string })[]) || []).filter(category => {
         const categoryUserId = category.user_id;
         const isDefaultCategory = !categoryUserId || categoryUserId === null || categoryUserId === '' || categoryUserId === 'self-hosted-user';
         const isUserCategory = categoryUserId === currentUsername;
@@ -191,7 +192,7 @@ export const SelfHostedDashboard: React.FC = () => {
         }, new Map<string, typeof filteredCategories[number]>()),
       ).map(([, category]) => category);
 
-      setCategories(dedupedCategories);
+      setCategories(dedupedCategories as Category[]);
     } catch (error: unknown) {
       console.error('Error fetching categories:', error);
     }
@@ -240,7 +241,7 @@ export const SelfHostedDashboard: React.FC = () => {
   // Step 1: Show dashboard settings if user requests it from dashboard
   if (showDashboardSettings) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-cyan-950">
+      <div className="min-h-screen bg-linear-to-br from-black via-neutral-950 to-neutral-900">
         <div className="container mx-auto py-8">
           <div className="mb-6">
             <Button
@@ -263,7 +264,7 @@ export const SelfHostedDashboard: React.FC = () => {
   // Step 1b: Show database settings if configuring for first time
   if (showSettings) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-cyan-950">
+      <div className="min-h-screen bg-linear-to-br from-black via-neutral-950 to-neutral-900">
         <div className="container mx-auto py-8">
           <div className="mb-6">
             <Button
@@ -286,7 +287,7 @@ export const SelfHostedDashboard: React.FC = () => {
   // Step 2: Show database configuration screen if not configured
   if (!isConfigured) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-cyan-950 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-black via-neutral-950 to-neutral-900 flex items-center justify-center p-4">
         <Card className="w-full max-w-2xl">
           <CardHeader className="text-center">
             {/* Keyper Logo and Title */}
@@ -314,7 +315,7 @@ export const SelfHostedDashboard: React.FC = () => {
           <CardContent className="space-y-4">
             <div className="space-y-3">
               <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
-                <div className="flex-shrink-0 w-6 h-6 bg-cyan-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                <div className="shrink-0 w-6 h-6 bg-cyan-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
                 <div>
                   <h4 className="font-medium">Choose your database provider</h4>
                   <p className="text-sm text-muted-foreground">Use SQLite for local-first storage on this device, or Supabase for hosted and remote storage.</p>
@@ -375,7 +376,7 @@ export const SelfHostedDashboard: React.FC = () => {
       }}
       onDatabaseError={handleDatabaseError}
     >
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-cyan-950">
+      <div className="min-h-screen bg-linear-to-br from-black via-neutral-950 to-neutral-900">
         {/* Settings Button in Header */}
         <div className="absolute top-4 right-4 z-10">
           <Button
@@ -390,7 +391,7 @@ export const SelfHostedDashboard: React.FC = () => {
         </div>
 
         {/* Main Dashboard */}
-        <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-cyan-950">
+        <div className="min-h-screen bg-linear-to-br from-black via-neutral-950 to-neutral-900">
           <Suspense fallback={<div className="h-20 bg-gray-900/50 animate-pulse" />}>
             <DashboardHeader
               user={createMockUser()}
