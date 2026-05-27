@@ -188,6 +188,12 @@ npm start
 
 Run Keyper as a containerised web app — no Node.js required on the host!
 
+**Quick Start (Docker Hub)**
+```bash
+docker run -d -p 8080:80 --name keyper --restart unless-stopped pinkpixeldev/keyper:latest
+```
+
+**Build Locally (Docker Compose)**
 ```bash
 # Clone the repo
 git clone https://github.com/pinkpixel-dev/keyper.git
@@ -207,13 +213,6 @@ docker compose down
 
 # Follow logs
 docker compose logs -f
-```
-
-To build and run the image directly (without Compose):
-
-```bash
-docker build -t keyper .
-docker run -d -p 8080:80 --name keyper --restart unless-stopped keyper
 ```
 
 > **Note:** Keyper stores all configuration (Supabase credentials or SQLite provider selection) in browser `localStorage` — no environment variables or volumes are required.

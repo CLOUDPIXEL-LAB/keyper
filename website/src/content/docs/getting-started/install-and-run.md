@@ -19,7 +19,7 @@ Current published installer links are available for Windows and Linux.
 
 **Windows quick start:**
 
-1. Download [KeyperSetup.v1.1.4.exe](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/KeyperSetup.v1.1.4.exe).
+1. Download [Keyper.Setup.v1.1.4-win-x64.exe](https://pub-da847cd0fc1045b3a5a7fcc39a3be134.r2.dev/Keyper.Setup.v1.1.4-win-x64.exe).
 2. Run the installer and follow the setup wizard.
 3. Launch Keyper from the Start menu or desktop shortcut.
 
@@ -39,7 +39,17 @@ keyper   # or launch from your applications menu
 
 ### Option 2: Docker (no Node required)
 
-Prerequisites: Docker + Docker Compose.
+Prerequisites: Docker.
+
+**Quick Start with Docker Hub (Pre-built Image):**
+
+```bash
+# Run the latest version on port 8080
+docker run -d -p 8080:80 --name keyper --restart unless-stopped pinkpixeldev/keyper:latest
+```
+Access at `http://localhost:8080`. The container exposes the compiled SPA on port 80 internally. No volumes or environment variables are needed — all configuration (Supabase credentials or SQLite provider selection) is entered in-app and stored in browser `localStorage`.
+
+**With Docker Compose (Local Build):**
 
 ```bash
 git clone https://github.com/pinkpixel-dev/keyper.git
@@ -51,8 +61,6 @@ docker compose up -d
 # Custom port
 HOST_PORT=3030 docker compose up -d
 ```
-
-The container exposes the compiled SPA on port 80 internally. No volumes or environment variables are needed — all configuration (Supabase credentials or SQLite provider selection) is entered in-app and stored in browser `localStorage`.
 
 ### Option 3: Global npm install
 
