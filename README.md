@@ -92,14 +92,6 @@ Scroll down to see other installation options.
 - **Database-Only Storage** - No localStorage usage except for database config
 - **Professional Security Audit** - EXCELLENT security rating
 
-### 📱 **Modern Experience**
-
-- 🌙 **Dark Theme** - Easy on the eyes
-- 📱 **Responsive Design** - Works on all devices
-- ⚡ **Progressive Web App** - Install like a native app
-- 🚀 **Fast Performance** - Built with Vite and React 19
-- 🎨 **Beautiful UI** - Modern glassmorphism design
-
 ---
 
 ## 🚀 Quick Start
