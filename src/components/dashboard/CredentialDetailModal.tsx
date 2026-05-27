@@ -1,625 +1,625 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState} from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
+ Dialog,
+ DialogContent,
+ DialogDescription,
+ DialogHeader,
+ DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { Button} from '@/components/ui/button';
+import { Badge} from '@/components/ui/badge';
+import { useToast} from '@/hooks/use-toast';
+import { supabase} from '@/integrations/supabase/client';
 import {
-  Eye,
-  EyeOff,
-  Copy,
-  Edit,
-  Trash2,
-  Key,
-  User,
-  Shield,
-  Code,
-  Award,
-  FileText,
-  Braces,
-  Download,
-  ExternalLink,
-  Calendar,
-  Clock
+ Eye,
+ EyeOff,
+ Copy,
+ Edit,
+ Trash2,
+ Key,
+ User,
+ Shield,
+ Code,
+ Award,
+ FileText,
+ Braces,
+ Download,
+ ExternalLink,
+ Calendar,
+ Clock
 } from 'lucide-react';
-import { Credential, Category } from '../SelfHostedDashboard';
-import { EditCredentialModal } from './EditCredentialModal';
-import { useEncryption } from '@/hooks/useVault';
+import { Credential, Category} from '../SelfHostedDashboard';
+import { EditCredentialModal} from './EditCredentialModal';
+import { useEncryption} from '@/hooks/useVault';
 
 interface CredentialDetailModalProps {
-  credential: Credential | null;
-  onClose: () => void;
-  categories: Category[];
-  onCredentialUpdated: () => void;
+ credential: Credential | null;
+ onClose: () => void;
+ categories: Category[];
+ onCredentialUpdated: () => void;
 }
 
 export const CredentialDetailModal = ({
-  credential,
-  onClose,
-  categories,
-  onCredentialUpdated,
+ credential,
+ onClose,
+ categories,
+ onCredentialUpdated,
 }: CredentialDetailModalProps) => {
-  const [showSensitive, setShowSensitive] = useState<Record<string, boolean>>({});
-  const [decryptedSecrets, setDecryptedSecrets] = useState<{
-    password?: string;
-    api_key?: string;
-    secret_value?: string;
-    token_value?: string;
-    certificate_data?: string;
-    misc_value?: string;
-    document_name?: string;
-    document_mime_type?: string;
-    document_content_base64?: string;
-    document_size_bytes?: number;
-  }>({});
-  const [isDecryptingSecrets, setIsDecryptingSecrets] = useState(false);
-  const [showDocumentPreview, setShowDocumentPreview] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const { decryptCredential, isUnlocked } = useEncryption();
-  const decryptCredentialRef = useRef(decryptCredential);
-  const { toast } = useToast();
+ const [showSensitive, setShowSensitive] = useState<Record<string, boolean>>({});
+ const [decryptedSecrets, setDecryptedSecrets] = useState<{
+ password?: string;
+ api_key?: string;
+ secret_value?: string;
+ token_value?: string;
+ certificate_data?: string;
+ misc_value?: string;
+ document_name?: string;
+ document_mime_type?: string;
+ document_content_base64?: string;
+ document_size_bytes?: number;
+}>({});
+ const [isDecryptingSecrets, setIsDecryptingSecrets] = useState(false);
+ const [showDocumentPreview, setShowDocumentPreview] = useState(false);
+ const [loading, setLoading] = useState(false);
+ const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+ const { decryptCredential, isUnlocked} = useEncryption();
+ const decryptCredentialRef = useRef(decryptCredential);
+ const { toast} = useToast();
 
-  useEffect(() => {
-    decryptCredentialRef.current = decryptCredential;
-  }, [decryptCredential]);
+ useEffect(() => {
+ decryptCredentialRef.current = decryptCredential;
+}, [decryptCredential]);
 
-  useEffect(() => {
-    setShowDocumentPreview(false);
-  }, [credential?.id]);
+ useEffect(() => {
+ setShowDocumentPreview(false);
+}, [credential?.id]);
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'api_key':
-        return <Key className="h-5 w-5" />;
-      case 'login':
-        return <User className="h-5 w-5" />;
-      case 'secret':
-        return <Shield className="h-5 w-5" />;
-      case 'token':
-        return <Code className="h-5 w-5" />;
-      case 'certificate':
-        return <Award className="h-5 w-5" />;
-      case 'document':
-        return <FileText className="h-5 w-5" />;
-      case 'misc':
-        return <Braces className="h-5 w-5" />;
-      default:
-        return <Key className="h-5 w-5" />;
-    }
-  };
+ const getTypeIcon = (type: string) => {
+ switch (type) {
+ case 'api_key':
+ return <Key className="h-5 w-5" />;
+ case 'login':
+ return <User className="h-5 w-5" />;
+ case 'secret':
+ return <Shield className="h-5 w-5" />;
+ case 'token':
+ return <Code className="h-5 w-5" />;
+ case 'certificate':
+ return <Award className="h-5 w-5" />;
+ case 'document':
+ return <FileText className="h-5 w-5" />;
+ case 'misc':
+ return <Braces className="h-5 w-5" />;
+ default:
+ return <Key className="h-5 w-5" />;
+}
+};
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'critical':
-        return 'bg-red-600 text-white';
-      case 'high':
-        return 'bg-orange-600 text-white';
-      case 'medium':
-        return 'bg-yellow-600 text-white';
-      case 'low':
-        return 'bg-green-600 text-white';
-      default:
-        return 'bg-neutral-600 text-white';
-    }
-  };
+ const getPriorityColor = (priority: string) => {
+ switch (priority) {
+ case 'critical':
+ return 'bg-red-600 text-white';
+ case 'high':
+ return 'bg-orange-600 text-white';
+ case 'medium':
+ return 'bg-yellow-600 text-white';
+ case 'low':
+ return 'bg-green-600 text-foreground';
+ default:
+ return 'bg-neutral-600 text-white';
+}
+};
 
-  const toggleVisibility = (field: string) => {
-    setShowSensitive(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }));
-  };
+ const toggleVisibility = (field: string) => {
+ setShowSensitive(prev => ({
+ ...prev,
+ [field]: !prev[field]
+}));
+};
 
-  const copyToClipboard = async (text: string, label: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast({
-        title: "Copied",
-        description: `${label} copied to clipboard`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to copy to clipboard",
-        variant: "destructive",
-      });
-    }
-  };
+ const copyToClipboard = async (text: string, label: string) => {
+ try {
+ await navigator.clipboard.writeText(text);
+ toast({
+ title:"Copied",
+ description: `${label} copied to clipboard`,
+});
+} catch (error) {
+ toast({
+ title:"Error",
+ description:"Failed to copy to clipboard",
+ variant:"destructive",
+});
+}
+};
 
-  const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this credential? This action cannot be undone.')) {
-      return;
-    }
+ const handleDelete = async () => {
+ if (!confirm('Are you sure you want to delete this credential? This action cannot be undone.')) {
+ return;
+}
 
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from('credentials')
-        .delete()
-        .eq('id', credential.id);
+ setLoading(true);
+ try {
+ const { error} = await supabase
+ .from('credentials')
+ .delete()
+ .eq('id', credential.id);
 
-      if (error) throw error;
+ if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Credential deleted successfully",
-      });
+ toast({
+ title:"Success",
+ description:"Credential deleted successfully",
+});
 
-      onCredentialUpdated();
-      onClose();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to delete credential";
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+ onCredentialUpdated();
+ onClose();
+} catch (error: unknown) {
+ const message = error instanceof Error ? error.message :"Failed to delete credential";
+ toast({
+ title:"Error",
+ description: message,
+ variant:"destructive",
+});
+} finally {
+ setLoading(false);
+}
+};
 
-  const updateLastAccessed = async () => {
-    try {
-      await supabase
-        .from('credentials')
-        .update({ last_accessed: new Date().toISOString() })
-        .eq('id', credential.id);
-    } catch (error) {
-      console.error('Error updating last accessed:', error);
-    }
-  };
+ const updateLastAccessed = async () => {
+ try {
+ await supabase
+ .from('credentials')
+ .update({ last_accessed: new Date().toISOString()})
+ .eq('id', credential.id);
+} catch (error) {
+ console.error('Error updating last accessed:', error);
+}
+};
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+ const formatDate = (dateString: string) => {
+ return new Date(dateString).toLocaleString('en-US', {
+ year: 'numeric',
+ month: 'short',
+ day: 'numeric',
+ hour: '2-digit',
+ minute: '2-digit'
+});
+};
 
-  const downloadDocument = () => {
-    const base64 = decryptedSecrets.document_content_base64 ?? credential.document_content_base64;
-    const fileName = decryptedSecrets.document_name ?? credential.document_name ?? 'document.bin';
-    const mimeType = decryptedSecrets.document_mime_type ?? credential.document_mime_type ?? 'application/octet-stream';
-    if (!base64) return;
+ const downloadDocument = () => {
+ const base64 = decryptedSecrets.document_content_base64 ?? credential.document_content_base64;
+ const fileName = decryptedSecrets.document_name ?? credential.document_name ?? 'document.bin';
+ const mimeType = decryptedSecrets.document_mime_type ?? credential.document_mime_type ?? 'application/octet-stream';
+ if (!base64) return;
 
-    try {
-      const binary = atob(base64);
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i += 1) {
-        bytes[i] = binary.charCodeAt(i);
-      }
-      const blob = new Blob([bytes], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = fileName;
-      anchor.click();
-      URL.revokeObjectURL(url);
-      updateLastAccessed();
-    } catch (error) {
-      console.error('Failed to download document:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to download stored document',
-        variant: 'destructive',
-      });
-    }
-  };
+ try {
+ const binary = atob(base64);
+ const bytes = new Uint8Array(binary.length);
+ for (let i = 0; i < binary.length; i += 1) {
+ bytes[i] = binary.charCodeAt(i);
+}
+ const blob = new Blob([bytes], { type: mimeType});
+ const url = URL.createObjectURL(blob);
+ const anchor = document.createElement('a');
+ anchor.href = url;
+ anchor.download = fileName;
+ anchor.click();
+ URL.revokeObjectURL(url);
+ updateLastAccessed();
+} catch (error) {
+ console.error('Failed to download document:', error);
+ toast({
+ title: 'Error',
+ description: 'Failed to download stored document',
+ variant: 'destructive',
+});
+}
+};
 
-  const documentBase64 = decryptedSecrets.document_content_base64 ?? credential.document_content_base64 ?? '';
-  const documentName = decryptedSecrets.document_name ?? credential.document_name ?? 'document.bin';
-  const documentMimeType =
-    decryptedSecrets.document_mime_type ?? credential.document_mime_type ?? 'application/octet-stream';
+ const documentBase64 = decryptedSecrets.document_content_base64 ?? credential.document_content_base64 ?? '';
+ const documentName = decryptedSecrets.document_name ?? credential.document_name ?? 'document.bin';
+ const documentMimeType =
+ decryptedSecrets.document_mime_type ?? credential.document_mime_type ?? 'application/octet-stream';
 
-  const documentPreviewText = useMemo(() => {
-    if (!documentBase64) return null;
-    const lowered = documentName.toLowerCase();
-    const isTextLike =
-      documentMimeType.startsWith('text/') ||
-      documentMimeType.includes('json') ||
-      documentMimeType.includes('xml') ||
-      lowered.endsWith('.txt') ||
-      lowered.endsWith('.md');
+ const documentPreviewText = useMemo(() => {
+ if (!documentBase64) return null;
+ const lowered = documentName.toLowerCase();
+ const isTextLike =
+ documentMimeType.startsWith('text/') ||
+ documentMimeType.includes('json') ||
+ documentMimeType.includes('xml') ||
+ lowered.endsWith('.txt') ||
+ lowered.endsWith('.md');
 
-    if (!isTextLike) {
-      return null;
-    }
+ if (!isTextLike) {
+ return null;
+}
 
-    try {
-      const binary = atob(documentBase64);
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i += 1) {
-        bytes[i] = binary.charCodeAt(i);
-      }
-      const decoded = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
-      const maxChars = 4000;
-      return decoded.length > maxChars ? `${decoded.slice(0, maxChars)}\n\n...[truncated]` : decoded;
-    } catch (error) {
-      return null;
-    }
-  }, [documentBase64, documentName, documentMimeType]);
+ try {
+ const binary = atob(documentBase64);
+ const bytes = new Uint8Array(binary.length);
+ for (let i = 0; i < binary.length; i += 1) {
+ bytes[i] = binary.charCodeAt(i);
+}
+ const decoded = new TextDecoder('utf-8', { fatal: false}).decode(bytes);
+ const maxChars = 4000;
+ return decoded.length > maxChars ? `${decoded.slice(0, maxChars)}\n\n...[truncated]` : decoded;
+} catch (error) {
+ return null;
+}
+}, [documentBase64, documentName, documentMimeType]);
 
-  useEffect(() => {
-    let isMounted = true;
+ useEffect(() => {
+ let isMounted = true;
 
-    const loadSecrets = async () => {
-      if (!credential?.secret_blob || !isUnlocked) {
-        setDecryptedSecrets({});
-        setIsDecryptingSecrets(false);
-        return;
-      }
+ const loadSecrets = async () => {
+ if (!credential?.secret_blob || !isUnlocked) {
+ setDecryptedSecrets({});
+ setIsDecryptingSecrets(false);
+ return;
+}
 
-      setIsDecryptingSecrets(true);
-      try {
-        const result = await decryptCredentialRef.current(credential.secret_blob);
-        if (isMounted) {
-          setDecryptedSecrets(result);
-        }
-      } catch (error) {
-        console.error('Failed to decrypt credential secrets for viewing', error);
-      } finally {
-        if (isMounted) {
-          setIsDecryptingSecrets(false);
-        }
-      }
-    };
+ setIsDecryptingSecrets(true);
+ try {
+ const result = await decryptCredentialRef.current(credential.secret_blob);
+ if (isMounted) {
+ setDecryptedSecrets(result);
+}
+} catch (error) {
+ console.error('Failed to decrypt credential secrets for viewing', error);
+} finally {
+ if (isMounted) {
+ setIsDecryptingSecrets(false);
+}
+}
+};
 
-    loadSecrets();
+ loadSecrets();
 
-    return () => {
-      isMounted = false;
-    };
-  }, [credential?.id, credential?.secret_blob, isUnlocked]);
+ return () => {
+ isMounted = false;
+};
+}, [credential?.id, credential?.secret_blob, isUnlocked]);
 
-  if (!credential) return null;
+ if (!credential) return null;
 
-  const SensitiveField = ({
-    label,
-    value,
-    field
-  }: {
-    label: string;
-    value: string | null;
-    field: string;
-  }) => {
-    if (!value) return null;
+ const SensitiveField = ({
+ label,
+ value,
+ field
+}: {
+ label: string;
+ value: string | null;
+ field: string;
+}) => {
+ if (!value) return null;
 
-    return (
-      <div className="space-y-2 min-w-0">
-        <label className="text-sm font-medium text-neutral-300">{label}</label>
-        <div className="flex min-w-0 items-start gap-2">
-          <div className="min-w-0 flex-1 p-3 bg-neutral-800 border border-neutral-700 rounded-md font-mono text-sm break-all whitespace-pre-wrap leading-relaxed">
-            {showSensitive[field] ? value : '•'.repeat(Math.min(value.length, 20))}
-          </div>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => toggleVisibility(field)}
-            className="shrink-0 border-neutral-600 text-neutral-300 hover:bg-neutral-700"
-          >
-            {showSensitive[field] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => {
-              copyToClipboard(value, label);
-              updateLastAccessed();
-            }}
-            className="shrink-0 border-neutral-600 text-neutral-300 hover:bg-neutral-700"
-          >
-            <Copy className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    );
-  };
+ return (
+ <div className="space-y-2 min-w-0">
+ <label className="text-sm font-medium text-foreground">{label}</label>
+ <div className="flex min-w-0 items-start gap-2">
+ <div className="min-w-0 flex-1 p-3 bg-muted border border-border rounded-md font-mono text-sm break-all whitespace-pre-wrap leading-relaxed">
+ {showSensitive[field] ? value : '•'.repeat(Math.min(value.length, 20))}
+ </div>
+ <Button
+ size="sm"
+ variant="outline"
+ onClick={() => toggleVisibility(field)}
+ className="shrink-0 border-input text-foreground hover:bg-accent hover:text-accent-foreground"
+ >
+ {showSensitive[field] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+ </Button>
+ <Button
+ size="sm"
+ variant="outline"
+ onClick={() => {
+ copyToClipboard(value, label);
+ updateLastAccessed();
+}}
+ className="shrink-0 border-input text-foreground hover:bg-accent hover:text-accent-foreground"
+ >
+ <Copy className="h-4 w-4" />
+ </Button>
+ </div>
+ </div>
+ );
+};
 
-  return (
-    <>
-      <Dialog open={!!credential} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="w-[95vw] sm:w-[92vw] sm:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden bg-black border-neutral-700 text-white">
-          <DialogHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-neutral-800 rounded-lg border border-neutral-700">
-                  {getTypeIcon(credential.credential_type)}
-                </div>
-                <div>
-                  <DialogTitle className="text-xl font-semibold text-white">
-                    {credential.title}
-                  </DialogTitle>
-                  <DialogDescription className="text-sm text-neutral-400 capitalize">
-                    {credential.credential_type.replace('_', ' ')}
-                  </DialogDescription>
-                </div>
-              </div>
-              <Badge className={getPriorityColor(credential.priority)}>
-                {credential.priority}
-              </Badge>
-            </div>
-          </DialogHeader>
+ return (
+ <>
+ <Dialog open={!!credential} onOpenChange={(open) => !open && onClose()}>
+ <DialogContent className="w-[95vw] sm:w-[92vw] sm:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background border-border text-foreground">
+ <DialogHeader>
+ <div className="flex items-center justify-between">
+ <div className="flex items-center space-x-3">
+ <div className="p-2 bg-muted rounded-lg border border-border">
+ {getTypeIcon(credential.credential_type)}
+ </div>
+ <div>
+ <DialogTitle className="text-xl font-semibold text-foreground">
+ {credential.title}
+ </DialogTitle>
+ <DialogDescription className="text-sm text-muted-foreground capitalize">
+ {credential.credential_type.replace('_', ' ')}
+ </DialogDescription>
+ </div>
+ </div>
+ <Badge className={getPriorityColor(credential.priority)}>
+ {credential.priority}
+ </Badge>
+ </div>
+ </DialogHeader>
 
-          <div className="space-y-6 min-w-0">
-            {credential.description && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-neutral-300">Description</label>
-                <p className="text-neutral-200 p-3 bg-neutral-800/50 rounded-md border border-neutral-700">
-                  {credential.description}
-                </p>
-              </div>
-            )}
+ <div className="space-y-6 min-w-0">
+ {credential.description && (
+ <div className="space-y-2">
+ <label className="text-sm font-medium text-foreground">Description</label>
+ <p className="text-foreground p-3 bg-muted/50 rounded-md border border-border">
+ {credential.description}
+ </p>
+ </div>
+ )}
 
-            {/* Credential Fields */}
-            <div className="space-y-4">
-              {(credential.credential_type === 'login' || credential.credential_type === 'api_key') && (
-                <SensitiveField
-                  label="Username"
-                  value={credential.username}
-                  field="username"
-                />
-              )}
+ {/* Credential Fields */}
+ <div className="space-y-4">
+ {(credential.credential_type === 'login' || credential.credential_type === 'api_key') && (
+ <SensitiveField
+ label="Username"
+ value={credential.username}
+ field="username"
+ />
+ )}
 
-              {credential.credential_type === 'login' && (
-                <SensitiveField
-                  label="Password"
-                  value={decryptedSecrets.password ?? credential.password ?? null}
-                  field="password"
-                />
-              )}
+ {credential.credential_type === 'login' && (
+ <SensitiveField
+ label="Password"
+ value={decryptedSecrets.password ?? credential.password ?? null}
+ field="password"
+ />
+ )}
 
-              {credential.credential_type === 'api_key' && (
-                <SensitiveField
-                  label="API Key"
-                  value={decryptedSecrets.api_key ?? credential.api_key ?? null}
-                  field="api_key"
-                />
-              )}
+ {credential.credential_type === 'api_key' && (
+ <SensitiveField
+ label="API Key"
+ value={decryptedSecrets.api_key ?? credential.api_key ?? null}
+ field="api_key"
+ />
+ )}
 
-              {credential.credential_type === 'secret' && (
-                <SensitiveField
-                  label="Secret Value"
-                  value={decryptedSecrets.secret_value ?? credential.secret_value ?? null}
-                  field="secret_value"
-                />
-              )}
+ {credential.credential_type === 'secret' && (
+ <SensitiveField
+ label="Secret Value"
+ value={decryptedSecrets.secret_value ?? credential.secret_value ?? null}
+ field="secret_value"
+ />
+ )}
 
-              {credential.credential_type === 'token' && (
-                <SensitiveField
-                  label="Token"
-                  value={decryptedSecrets.token_value ?? credential.token_value ?? null}
-                  field="token_value"
-                />
-              )}
+ {credential.credential_type === 'token' && (
+ <SensitiveField
+ label="Token"
+ value={decryptedSecrets.token_value ?? credential.token_value ?? null}
+ field="token_value"
+ />
+ )}
 
-              {credential.credential_type === 'certificate' && (
-                <SensitiveField
-                  label="Certificate"
-                  value={decryptedSecrets.certificate_data ?? credential.certificate_data ?? null}
-                  field="certificate_data"
-                />
-              )}
+ {credential.credential_type === 'certificate' && (
+ <SensitiveField
+ label="Certificate"
+ value={decryptedSecrets.certificate_data ?? credential.certificate_data ?? null}
+ field="certificate_data"
+ />
+ )}
 
-              {credential.credential_type === 'misc' && (
-                <SensitiveField
-                  label="Misc Sensitive Value"
-                  value={decryptedSecrets.misc_value ?? credential.misc_value ?? null}
-                  field="misc_value"
-                />
-              )}
+ {credential.credential_type === 'misc' && (
+ <SensitiveField
+ label="Misc Sensitive Value"
+ value={decryptedSecrets.misc_value ?? credential.misc_value ?? null}
+ field="misc_value"
+ />
+ )}
 
-              {credential.credential_type === 'document' && documentBase64 && (
-                <div className="space-y-2 min-w-0">
-                  <label className="text-sm font-medium text-neutral-300">Document</label>
-                  <div className="flex items-center justify-between rounded-md border border-neutral-700 bg-neutral-800/70 px-3 py-2 gap-3">
-                    <div className="min-w-0">
-                      <p className="text-sm text-neutral-100 truncate">
-                        {documentName}
-                      </p>
-                      <p className="text-xs text-neutral-400">
-                        {documentMimeType}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {documentPreviewText && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setShowDocumentPreview((prev) => !prev)}
-                          className="border-neutral-600 text-neutral-300 hover:bg-neutral-700"
-                        >
-                          {showDocumentPreview ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
-                          {showDocumentPreview ? 'Hide' : 'Preview'}
-                        </Button>
-                      )}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={downloadDocument}
-                        className="border-neutral-600 text-neutral-300 hover:bg-neutral-700"
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        Download
-                      </Button>
-                    </div>
-                  </div>
-                  {showDocumentPreview && documentPreviewText && (
-                    <div className="rounded-md border border-neutral-700 bg-black p-3 max-h-72 overflow-y-auto">
-                      <pre className="text-xs text-neutral-200 whitespace-pre-wrap break-words">
-                        {documentPreviewText}
-                      </pre>
-                    </div>
-                  )}
-                </div>
-              )}
+ {credential.credential_type === 'document' && documentBase64 && (
+ <div className="space-y-2 min-w-0">
+ <label className="text-sm font-medium text-foreground">Document</label>
+ <div className="flex items-center justify-between rounded-md border border-border bg-muted/70 px-3 py-2 gap-3">
+ <div className="min-w-0">
+ <p className="text-sm text-neutral-100 truncate">
+ {documentName}
+ </p>
+ <p className="text-xs text-muted-foreground">
+ {documentMimeType}
+ </p>
+ </div>
+ <div className="flex items-center gap-2">
+ {documentPreviewText && (
+ <Button
+ size="sm"
+ variant="outline"
+ onClick={() => setShowDocumentPreview((prev) => !prev)}
+ className="border-input text-foreground hover:bg-accent hover:text-accent-foreground"
+ >
+ {showDocumentPreview ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+ {showDocumentPreview ? 'Hide' : 'Preview'}
+ </Button>
+ )}
+ <Button
+ size="sm"
+ variant="outline"
+ onClick={downloadDocument}
+ className="border-input text-foreground hover:bg-accent hover:text-accent-foreground"
+ >
+ <Download className="h-4 w-4 mr-2" />
+ Download
+ </Button>
+ </div>
+ </div>
+ {showDocumentPreview && documentPreviewText && (
+ <div className="rounded-md border border-border bg-background p-3 max-h-72 overflow-y-auto">
+ <pre className="text-xs text-foreground whitespace-pre-wrap break-words">
+ {documentPreviewText}
+ </pre>
+ </div>
+ )}
+ </div>
+ )}
 
-              {credential.secret_blob && !isUnlocked && (
-                <p className="text-xs text-amber-400 bg-amber-950/20 border border-amber-800/40 rounded-md px-3 py-2">
-                  Unlock vault to reveal encrypted secrets in this view.
-                </p>
-              )}
+ {credential.secret_blob && !isUnlocked && (
+ <p className="text-xs text-amber-400 bg-amber-950/20 border border-amber-800/40 rounded-md px-3 py-2">
+ Unlock vault to reveal encrypted secrets in this view.
+ </p>
+ )}
 
-              {isDecryptingSecrets && (
-                <p className="text-xs text-neutral-400 flex items-center gap-2">
-                  <span className="animate-spin inline-block">
-                    <Clock className="h-3 w-3" />
-                  </span>
-                  Decrypting secure fields...
-                </p>
-              )}
-            </div>
+ {isDecryptingSecrets && (
+ <p className="text-xs text-muted-foreground flex items-center gap-2">
+ <span className="animate-spin inline-block">
+ <Clock className="h-3 w-3" />
+ </span>
+ Decrypting secure fields...
+ </p>
+ )}
+ </div>
 
-            {credential.url && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-neutral-300">URL</label>
-                <div className="flex items-center space-x-2">
-                  <div className="flex-1 p-3 bg-neutral-800 border border-neutral-700 rounded-md text-sm">
-                    {credential.url}
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => window.open(credential.url!, '_blank')}
-                    className="border-neutral-600 text-neutral-300 hover:bg-neutral-700"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => copyToClipboard(credential.url!, 'URL')}
-                    className="border-neutral-600 text-neutral-300 hover:bg-neutral-700"
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
+ {credential.url && (
+ <div className="space-y-2">
+ <label className="text-sm font-medium text-foreground">URL</label>
+ <div className="flex items-center space-x-2">
+ <div className="flex-1 p-3 bg-muted border border-border rounded-md text-sm">
+ {credential.url}
+ </div>
+ <Button
+ size="sm"
+ variant="outline"
+ onClick={() => window.open(credential.url!, '_blank')}
+ className="border-input text-foreground hover:bg-accent hover:text-accent-foreground"
+ >
+ <ExternalLink className="h-4 w-4" />
+ </Button>
+ <Button
+ size="sm"
+ variant="outline"
+ onClick={() => copyToClipboard(credential.url!, 'URL')}
+ className="border-input text-foreground hover:bg-accent hover:text-accent-foreground"
+ >
+ <Copy className="h-4 w-4" />
+ </Button>
+ </div>
+ </div>
+ )}
 
-            {/* Metadata */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {credential.category && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-neutral-300">Category</label>
-                  <p className="text-neutral-200 p-2 bg-neutral-800/50 rounded border border-neutral-700">
-                    {credential.category}
-                  </p>
-                </div>
-              )}
+ {/* Metadata */}
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+ {credential.category && (
+ <div className="space-y-2">
+ <label className="text-sm font-medium text-foreground">Category</label>
+ <p className="text-foreground p-2 bg-muted/50 rounded border border-border">
+ {credential.category}
+ </p>
+ </div>
+ )}
 
-              {credential.expires_at && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-neutral-300 flex items-center">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    Expires At
-                  </label>
-                  <p className="text-neutral-200 p-2 bg-neutral-800/50 rounded border border-neutral-700">
-                    {formatDate(credential.expires_at)}
-                  </p>
-                </div>
-              )}
-            </div>
+ {credential.expires_at && (
+ <div className="space-y-2">
+ <label className="text-sm font-medium text-foreground flex items-center">
+ <Calendar className="h-4 w-4 mr-1" />
+ Expires At
+ </label>
+ <p className="text-foreground p-2 bg-muted/50 rounded border border-border">
+ {formatDate(credential.expires_at)}
+ </p>
+ </div>
+ )}
+ </div>
 
-            {credential.tags.length > 0 && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-neutral-300">Tags</label>
-                <div className="flex flex-wrap gap-2">
-                  {credential.tags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant="secondary"
-                      className="bg-cyan-900/50 text-cyan-300 border-cyan-700"
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
+ {credential.tags.length > 0 && (
+ <div className="space-y-2">
+ <label className="text-sm font-medium text-foreground">Tags</label>
+ <div className="flex flex-wrap gap-2">
+ {credential.tags.map((tag) => (
+ <Badge
+ key={tag}
+ variant="secondary"
+ className="bg-cyan-100 text-cyan-900 border-cyan-300 dark:bg-cyan-900/50 dark:text-cyan-300 dark:border-cyan-700"
+ >
+ {tag}
+ </Badge>
+ ))}
+ </div>
+ </div>
+ )}
 
-            {credential.notes && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-neutral-300">Notes</label>
-                <p className="text-neutral-200 p-3 bg-neutral-800/50 rounded-md border border-neutral-700 whitespace-pre-wrap">
-                  {credential.notes}
-                </p>
-              </div>
-            )}
+ {credential.notes && (
+ <div className="space-y-2">
+ <label className="text-sm font-medium text-foreground">Notes</label>
+ <p className="text-foreground p-3 bg-muted/50 rounded-md border border-border whitespace-pre-wrap">
+ {credential.notes}
+ </p>
+ </div>
+ )}
 
-            {/* Timestamps */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="space-y-1">
-                <label className="text-neutral-400">Created</label>
-                <p className="text-neutral-300">{formatDate(credential.created_at)}</p>
-              </div>
-              <div className="space-y-1">
-                <label className="text-neutral-400">Updated</label>
-                <p className="text-neutral-300">{formatDate(credential.updated_at)}</p>
-              </div>
-              {credential.last_accessed && (
-                <div className="space-y-1">
-                  <label className="text-neutral-400 flex items-center">
-                    <Clock className="h-3 w-3 mr-1" />
-                    Last Accessed
-                  </label>
-                  <p className="text-neutral-300">{formatDate(credential.last_accessed)}</p>
-                </div>
-              )}
-            </div>
+ {/* Timestamps */}
+ <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+ <div className="space-y-1">
+ <label className="text-muted-foreground">Created</label>
+ <p className="text-foreground">{formatDate(credential.created_at)}</p>
+ </div>
+ <div className="space-y-1">
+ <label className="text-muted-foreground">Updated</label>
+ <p className="text-foreground">{formatDate(credential.updated_at)}</p>
+ </div>
+ {credential.last_accessed && (
+ <div className="space-y-1">
+ <label className="text-muted-foreground flex items-center">
+ <Clock className="h-3 w-3 mr-1" />
+ Last Accessed
+ </label>
+ <p className="text-foreground">{formatDate(credential.last_accessed)}</p>
+ </div>
+ )}
+ </div>
 
-            {/* Actions */}
-            <div className="flex justify-between pt-4 border-t border-neutral-700">
-              <Button
-                onClick={handleDelete}
-                disabled={loading}
-                variant="outline"
-                className="border-red-600 text-red-400 hover:bg-red-900/20"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                {loading ? 'Deleting...' : 'Delete'}
-              </Button>
+ {/* Actions */}
+ <div className="flex justify-between pt-4 border-t border-border">
+ <Button
+ onClick={handleDelete}
+ disabled={loading}
+ variant="outline"
+ className="border-red-600 text-red-400 hover:bg-red-900/20"
+ >
+ <Trash2 className="h-4 w-4 mr-2" />
+ {loading ? 'Deleting...' : 'Delete'}
+ </Button>
 
-              <div className="space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={onClose}
-                  className="border-neutral-600 text-neutral-300 hover:bg-neutral-800"
-                >
-                  Close
-                </Button>
-                <Button
-                  className="bg-white hover:bg-neutral-200 text-black"
-                  onClick={() => setIsEditModalOpen(true)}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+ <div className="space-x-2">
+ <Button
+ variant="outline"
+ onClick={onClose}
+ className="border-input text-foreground hover:bg-accent hover:text-accent-foreground"
+ >
+ Close
+ </Button>
+ <Button
+ className="bg-primary text-primary-foreground hover:bg-primary/90"
+ onClick={() => setIsEditModalOpen(true)}
+ >
+ <Edit className="h-4 w-4 mr-2" />
+ Edit
+ </Button>
+ </div>
+ </div>
+ </div>
+ </DialogContent>
+ </Dialog>
 
-      <EditCredentialModal
-        credential={isEditModalOpen ? credential : null}
-        onClose={() => setIsEditModalOpen(false)}
-        categories={categories}
-        onCredentialUpdated={() => {
-          onCredentialUpdated();
-          setIsEditModalOpen(false);
-        }}
-      />
-    </>
-  );
+ <EditCredentialModal
+ credential={isEditModalOpen ? credential : null}
+ onClose={() => setIsEditModalOpen(false)}
+ categories={categories}
+ onCredentialUpdated={() => {
+ onCredentialUpdated();
+ setIsEditModalOpen(false);
+}}
+ />
+ </>
+ );
 };

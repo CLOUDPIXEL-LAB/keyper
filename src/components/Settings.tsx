@@ -1,210 +1,210 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import React, { useState} from 'react';
+import { Button} from '@/components/ui/button';
+import { Input} from '@/components/ui/input';
+import { Label} from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
+import { Alert, AlertDescription} from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
+import { Badge} from '@/components/ui/badge';
+import { Separator} from '@/components/ui/separator';
 import {
-  Settings as SettingsIcon,
-  Database,
-  TestTube,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  ExternalLink,
-  Copy,
-  RefreshCw,
-  Trash2,
-  RotateCcw,
-  ArrowLeft,
-  Shield
+ Settings as SettingsIcon,
+ Database,
+ TestTube,
+ CheckCircle,
+ XCircle,
+ AlertCircle,
+ ExternalLink,
+ Copy,
+ RefreshCw,
+ Trash2,
+ RotateCcw,
+ ArrowLeft,
+ Shield
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useToast} from '@/hooks/use-toast';
 import {
-  DB_PROVIDER_KEY,
-  SQLITE_DB_PATH_KEY,
-  type DatabaseProvider,
-  isElectronApp,
-  saveDatabaseProvider,
-  saveSupabaseCredentials,
-  clearSupabaseCredentials,
-  clearSqliteDatabasePath,
-  createTestSupabaseClient,
-  testSqliteProviderConnection,
-  initializeSqliteProvider,
-  refreshSupabaseClient,
-  SUPABASE_URL_KEY,
-  SUPABASE_KEY_KEY,
-  SUPABASE_USERNAME_KEY
+ DB_PROVIDER_KEY,
+ SQLITE_DB_PATH_KEY,
+ type DatabaseProvider,
+ isElectronApp,
+ saveDatabaseProvider,
+ saveSupabaseCredentials,
+ clearSupabaseCredentials,
+ clearSqliteDatabasePath,
+ createTestSupabaseClient,
+ testSqliteProviderConnection,
+ initializeSqliteProvider,
+ refreshSupabaseClient,
+ SUPABASE_URL_KEY,
+ SUPABASE_KEY_KEY,
+ SUPABASE_USERNAME_KEY
 } from '@/integrations/supabase/client';
 
 interface SettingsProps {
-  onConfigurationComplete?: () => void;
+ onConfigurationComplete?: () => void;
 }
 
-export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete }) => {
-  const runningInElectron = isElectronApp();
-  const [databaseProvider, setDatabaseProvider] = useState<DatabaseProvider>(() => {
-    const provider = localStorage.getItem(DB_PROVIDER_KEY);
-    return provider === 'sqlite' ? 'sqlite' : 'supabase';
-  });
-  const [sqliteDbPath, setSqliteDbPath] = useState<string>(() => {
-    return localStorage.getItem(SQLITE_DB_PATH_KEY) || '';
-  });
-  // Initialize state directly from localStorage like the reference app
-  const [supabaseUrl, setSupabaseUrl] = useState<string>(() => {
-    return localStorage.getItem(SUPABASE_URL_KEY) || '';
-  });
-  const [supabaseKey, setSupabaseKey] = useState<string>(() => {
-    return localStorage.getItem(SUPABASE_KEY_KEY) || '';
-  });
-  const [username, setUsername] = useState<string>(() => {
-    return localStorage.getItem(SUPABASE_USERNAME_KEY) || '';
-  });
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [showSqlScript, setShowSqlScript] = useState(false);
-  const [showUpdateSqlScript, setShowUpdateSqlScript] = useState(false);
-  const { toast } = useToast();
+export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete}) => {
+ const runningInElectron = isElectronApp();
+ const [databaseProvider, setDatabaseProvider] = useState<DatabaseProvider>(() => {
+ const provider = localStorage.getItem(DB_PROVIDER_KEY);
+ return provider === 'sqlite' ? 'sqlite' : 'supabase';
+});
+ const [sqliteDbPath, setSqliteDbPath] = useState<string>(() => {
+ return localStorage.getItem(SQLITE_DB_PATH_KEY) || '';
+});
+ // Initialize state directly from localStorage like the reference app
+ const [supabaseUrl, setSupabaseUrl] = useState<string>(() => {
+ return localStorage.getItem(SUPABASE_URL_KEY) || '';
+});
+ const [supabaseKey, setSupabaseKey] = useState<string>(() => {
+ return localStorage.getItem(SUPABASE_KEY_KEY) || '';
+});
+ const [username, setUsername] = useState<string>(() => {
+ return localStorage.getItem(SUPABASE_USERNAME_KEY) || '';
+});
+ const [isConnecting, setIsConnecting] = useState(false);
+ const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle');
+ const [errorMessage, setErrorMessage] = useState('');
+ const [showSqlScript, setShowSqlScript] = useState(false);
+ const [showUpdateSqlScript, setShowUpdateSqlScript] = useState(false);
+ const { toast} = useToast();
 
-  // No need for useEffect - credentials are loaded directly in state initializers
+ // No need for useEffect - credentials are loaded directly in state initializers
 
-  const testConnection = async () => {
-    setIsConnecting(true);
-    setConnectionStatus('idle');
-    setErrorMessage('');
+ const testConnection = async () => {
+ setIsConnecting(true);
+ setConnectionStatus('idle');
+ setErrorMessage('');
 
-    try {
-      if (databaseProvider === 'sqlite') {
-        const sqliteResult = await testSqliteProviderConnection(sqliteDbPath.trim() || undefined);
-        if (sqliteResult.error) {
-          throw new Error(sqliteResult.error.message);
-        }
+ try {
+ if (databaseProvider === 'sqlite') {
+ const sqliteResult = await testSqliteProviderConnection(sqliteDbPath.trim() || undefined);
+ if (sqliteResult.error) {
+ throw new Error(sqliteResult.error.message);
+}
 
-        const finalUsername = username.trim() || 'self-hosted-user';
-        saveDatabaseProvider('sqlite');
-        if (sqliteResult.data?.path) {
-          localStorage.setItem(SQLITE_DB_PATH_KEY, sqliteResult.data.path);
-        } else if (sqliteDbPath.trim()) {
-          localStorage.setItem(SQLITE_DB_PATH_KEY, sqliteDbPath.trim());
-        } else {
-          localStorage.removeItem(SQLITE_DB_PATH_KEY);
-        }
-        localStorage.setItem(SUPABASE_USERNAME_KEY, finalUsername);
-      } else {
-        if (!supabaseUrl || !supabaseKey) {
-          throw new Error('Please enter both Supabase URL and API key');
-        }
+ const finalUsername = username.trim() || 'self-hosted-user';
+ saveDatabaseProvider('sqlite');
+ if (sqliteResult.data?.path) {
+ localStorage.setItem(SQLITE_DB_PATH_KEY, sqliteResult.data.path);
+} else if (sqliteDbPath.trim()) {
+ localStorage.setItem(SQLITE_DB_PATH_KEY, sqliteDbPath.trim());
+} else {
+ localStorage.removeItem(SQLITE_DB_PATH_KEY);
+}
+ localStorage.setItem(SUPABASE_USERNAME_KEY, finalUsername);
+} else {
+ if (!supabaseUrl || !supabaseKey) {
+ throw new Error('Please enter both Supabase URL and API key');
+}
 
-        console.log('Testing connection with:', {
-          url: supabaseUrl,
-          keyLength: supabaseKey.length,
-          username: username || 'self-hosted-user'
-        });
+ console.log('Testing connection with:', {
+ url: supabaseUrl,
+ keyLength: supabaseKey.length,
+ username: username || 'self-hosted-user'
+});
 
-        const testClient = createTestSupabaseClient(supabaseUrl, supabaseKey);
-        const { error } = await testClient
-          .from('credentials')
-          .select('count', { count: 'exact', head: true });
+ const testClient = createTestSupabaseClient(supabaseUrl, supabaseKey);
+ const { error} = await testClient
+ .from('credentials')
+ .select('count', { count: 'exact', head: true});
 
-        if (error) {
-          throw new Error(`Database connection failed: ${error.message}`);
-        }
+ if (error) {
+ throw new Error(`Database connection failed: ${error.message}`);
+}
 
-        const finalUsername = username.trim() || 'self-hosted-user';
-        saveSupabaseCredentials(supabaseUrl, supabaseKey, finalUsername);
-      }
+ const finalUsername = username.trim() || 'self-hosted-user';
+ saveSupabaseCredentials(supabaseUrl, supabaseKey, finalUsername);
+}
 
-      setConnectionStatus('success');
-      toast({
-        title: "Connection Successful! 🎉",
-        description: databaseProvider === 'sqlite'
-          ? 'Successfully connected to your SQLite database.'
-          : 'Successfully connected to your Supabase instance.',
-      });
-    } catch (error) {
-      console.error('Connection test failed:', error);
-      setConnectionStatus('error');
-      setErrorMessage(error instanceof Error ? error.message : 'Connection failed');
-      toast({
-        title: "Connection Failed ❌",
-        description: "Please check your credentials and database setup.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsConnecting(false);
-    }
-  };
+ setConnectionStatus('success');
+ toast({
+ title:"Connection Successful! 🎉",
+ description: databaseProvider === 'sqlite'
+ ? 'Successfully connected to your SQLite database.'
+ : 'Successfully connected to your Supabase instance.',
+});
+} catch (error) {
+ console.error('Connection test failed:', error);
+ setConnectionStatus('error');
+ setErrorMessage(error instanceof Error ? error.message : 'Connection failed');
+ toast({
+ title:"Connection Failed ❌",
+ description:"Please check your credentials and database setup.",
+ variant:"destructive",
+});
+} finally {
+ setIsConnecting(false);
+}
+};
 
-  const clearConfiguration = () => {
-    clearSupabaseCredentials();
-    clearSqliteDatabasePath();
-    localStorage.removeItem(DB_PROVIDER_KEY);
-    setSupabaseUrl('');
-    setSupabaseKey('');
-    setSqliteDbPath('');
-    setDatabaseProvider('supabase');
-    setUsername('');
-    setConnectionStatus('idle');
-    setErrorMessage('');
-    refreshSupabaseClient();
-    toast({
-      title: "Configuration Cleared",
-      description: "Database configuration has been cleared. You can now enter new credentials.",
-    });
-  };
+ const clearConfiguration = () => {
+ clearSupabaseCredentials();
+ clearSqliteDatabasePath();
+ localStorage.removeItem(DB_PROVIDER_KEY);
+ setSupabaseUrl('');
+ setSupabaseKey('');
+ setSqliteDbPath('');
+ setDatabaseProvider('supabase');
+ setUsername('');
+ setConnectionStatus('idle');
+ setErrorMessage('');
+ refreshSupabaseClient();
+ toast({
+ title:"Configuration Cleared",
+ description:"Database configuration has been cleared. You can now enter new credentials.",
+});
+};
 
-  const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      title: "Copied!",
-      description: `${label} copied to clipboard.`,
-    });
-  };
+ const copyToClipboard = (text: string, label: string) => {
+ navigator.clipboard.writeText(text);
+ toast({
+ title:"Copied!",
+ description: `${label} copied to clipboard.`,
+});
+};
 
-  const refreshPage = () => {
-    window.location.reload();
-  };
+ const refreshPage = () => {
+ window.location.reload();
+};
 
-  // Manual save and close function
-  const handleSaveAndClose = () => {
-    const finalUsername = username.trim() || 'self-hosted-user';
-    if (databaseProvider === 'sqlite') {
-      saveDatabaseProvider('sqlite');
-      localStorage.setItem(SUPABASE_USERNAME_KEY, finalUsername);
-      if (sqliteDbPath.trim()) {
-        localStorage.setItem(SQLITE_DB_PATH_KEY, sqliteDbPath.trim());
-      } else {
-        localStorage.removeItem(SQLITE_DB_PATH_KEY);
-      }
-      void initializeSqliteProvider(sqliteDbPath.trim() || undefined);
-      toast({
-        title: "Settings Saved! 💾",
-        description: "SQLite has been configured for this device.",
-      });
-    } else if (supabaseUrl && supabaseKey) {
-      saveSupabaseCredentials(supabaseUrl, supabaseKey, finalUsername);
-      toast({
-        title: "Settings Saved! 💾",
-        description: "Your configuration has been saved.",
-      });
-    }
-    refreshSupabaseClient();
-    onConfigurationComplete?.();
-  };
+ // Manual save and close function
+ const handleSaveAndClose = () => {
+ const finalUsername = username.trim() || 'self-hosted-user';
+ if (databaseProvider === 'sqlite') {
+ saveDatabaseProvider('sqlite');
+ localStorage.setItem(SUPABASE_USERNAME_KEY, finalUsername);
+ if (sqliteDbPath.trim()) {
+ localStorage.setItem(SQLITE_DB_PATH_KEY, sqliteDbPath.trim());
+} else {
+ localStorage.removeItem(SQLITE_DB_PATH_KEY);
+}
+ void initializeSqliteProvider(sqliteDbPath.trim() || undefined);
+ toast({
+ title:"Settings Saved! 💾",
+ description:"SQLite has been configured for this device.",
+});
+} else if (supabaseUrl && supabaseKey) {
+ saveSupabaseCredentials(supabaseUrl, supabaseKey, finalUsername);
+ toast({
+ title:"Settings Saved! 💾",
+ description:"Your configuration has been saved.",
+});
+}
+ refreshSupabaseClient();
+ onConfigurationComplete?.();
+};
 
-  // Manual close without saving
-  const handleCloseWithoutSaving = () => {
-    if (onConfigurationComplete) {
-      onConfigurationComplete();
-    }
-  };
+ // Manual close without saving
+ const handleCloseWithoutSaving = () => {
+ if (onConfigurationComplete) {
+ onConfigurationComplete();
+}
+};
 
-  const sqlScript = `-- =====================================================
+ const sqlScript = `-- =====================================================
 -- 🔐 KEYPER DATABASE SETUP (Single Script)
 -- =====================================================
 --
@@ -223,54 +223,54 @@ export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete }) =
 
 -- Main credentials table - encrypted storage only
 CREATE TABLE IF NOT EXISTS credentials (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id TEXT NOT NULL DEFAULT 'self-hosted-user',
-  title TEXT NOT NULL,
-  description TEXT,
-  credential_type TEXT NOT NULL DEFAULT 'secret' CHECK (credential_type IN ('api_key', 'login', 'secret', 'token', 'certificate', 'document', 'misc')),
-  priority TEXT NOT NULL DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'critical')),
-  username TEXT,
-  url TEXT,
-  tags TEXT[] DEFAULT '{}',
-  category TEXT,
-  notes TEXT,
-  expires_at TIMESTAMP WITH TIME ZONE,
-  last_accessed TIMESTAMP WITH TIME ZONE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+ id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+ user_id TEXT NOT NULL DEFAULT 'self-hosted-user',
+ title TEXT NOT NULL,
+ description TEXT,
+ credential_type TEXT NOT NULL DEFAULT 'secret' CHECK (credential_type IN ('api_key', 'login', 'secret', 'token', 'certificate', 'document', 'misc')),
+ priority TEXT NOT NULL DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'critical')),
+ username TEXT,
+ url TEXT,
+ tags TEXT[] DEFAULT '{}',
+ category TEXT,
+ notes TEXT,
+ expires_at TIMESTAMP WITH TIME ZONE,
+ last_accessed TIMESTAMP WITH TIME ZONE,
+ created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+ updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 
-  -- Encrypted storage (all sensitive data stored here)
-  secret_blob JSONB NOT NULL,
-  encrypted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+ -- Encrypted storage (all sensitive data stored here)
+ secret_blob JSONB NOT NULL,
+ encrypted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Vault configuration table for secure key management (simplified bcrypt-only architecture)
 CREATE TABLE IF NOT EXISTS vault_config (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id TEXT NOT NULL DEFAULT 'self-hosted-user',
-  wrapped_dek JSONB, -- Legacy field for backwards compatibility
-  raw_dek TEXT, -- Raw DEK (base64) for simplified architecture (nullable for legacy users)
-  bcrypt_hash TEXT, -- Bcrypt hash of master passphrase for secure reset (nullable for legacy users)
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+ id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+ user_id TEXT NOT NULL DEFAULT 'self-hosted-user',
+ wrapped_dek JSONB, -- Legacy field for backwards compatibility
+ raw_dek TEXT, -- Raw DEK (base64) for simplified architecture (nullable for legacy users)
+ bcrypt_hash TEXT, -- Bcrypt hash of master passphrase for secure reset (nullable for legacy users)
+ created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+ updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 
-  -- Ensure one config per user
-  UNIQUE(user_id)
+ -- Ensure one config per user
+ UNIQUE(user_id)
 );
 
 -- Categories table for organization
 CREATE TABLE IF NOT EXISTS categories (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id TEXT NOT NULL DEFAULT 'self-hosted-user',
-  name TEXT NOT NULL,
-  color TEXT DEFAULT '#6366f1',
-  icon TEXT DEFAULT 'folder',
-  description TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+ id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+ user_id TEXT NOT NULL DEFAULT 'self-hosted-user',
+ name TEXT NOT NULL,
+ color TEXT DEFAULT '#6366f1',
+ icon TEXT DEFAULT 'folder',
+ description TEXT,
+ created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+ updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 
-  -- Ensure unique category names per user
-  UNIQUE(user_id, name)
+ -- Ensure unique category names per user
+ UNIQUE(user_id, name)
 );
 
 -- ============================================================================
@@ -305,32 +305,32 @@ CREATE OR REPLACE FUNCTION public.update_updated_at_column()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = ''  -- CRITICAL: Set empty search path for security
+SET search_path = '' -- CRITICAL: Set empty search path for security
 AS $$
 BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
+ NEW.updated_at = NOW();
+ RETURN NEW;
 END;
 $$;
 
 -- Create triggers for updated_at
 DROP TRIGGER IF EXISTS update_credentials_updated_at ON credentials;
 CREATE TRIGGER update_credentials_updated_at
-  BEFORE UPDATE ON credentials
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+ BEFORE UPDATE ON credentials
+ FOR EACH ROW
+ EXECUTE FUNCTION update_updated_at_column();
 
 DROP TRIGGER IF EXISTS update_vault_config_updated_at ON vault_config;
 CREATE TRIGGER update_vault_config_updated_at
-  BEFORE UPDATE ON vault_config
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+ BEFORE UPDATE ON vault_config
+ FOR EACH ROW
+ EXECUTE FUNCTION update_updated_at_column();
 
 DROP TRIGGER IF EXISTS update_categories_updated_at ON categories;
 CREATE TRIGGER update_categories_updated_at
-  BEFORE UPDATE ON categories
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+ BEFORE UPDATE ON categories
+ FOR EACH ROW
+ EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================
 -- 4. ENABLE ROW LEVEL SECURITY
@@ -347,25 +347,25 @@ ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
 -- Drop all existing policies for clean setup
 DO $$
 DECLARE
-    r RECORD;
+ r RECORD;
 BEGIN
-    -- Drop all policies for credentials table
-    FOR r IN (SELECT policyname FROM pg_policies WHERE tablename = 'credentials' AND schemaname = 'public')
-    LOOP
-        EXECUTE 'DROP POLICY IF EXISTS ' || quote_ident(r.policyname) || ' ON credentials';
-    END LOOP;
+ -- Drop all policies for credentials table
+ FOR r IN (SELECT policyname FROM pg_policies WHERE tablename = 'credentials' AND schemaname = 'public')
+ LOOP
+ EXECUTE 'DROP POLICY IF EXISTS ' || quote_ident(r.policyname) || ' ON credentials';
+ END LOOP;
 
-    -- Drop all policies for vault_config table
-    FOR r IN (SELECT policyname FROM pg_policies WHERE tablename = 'vault_config' AND schemaname = 'public')
-    LOOP
-        EXECUTE 'DROP POLICY IF EXISTS ' || quote_ident(r.policyname) || ' ON vault_config';
-    END LOOP;
+ -- Drop all policies for vault_config table
+ FOR r IN (SELECT policyname FROM pg_policies WHERE tablename = 'vault_config' AND schemaname = 'public')
+ LOOP
+ EXECUTE 'DROP POLICY IF EXISTS ' || quote_ident(r.policyname) || ' ON vault_config';
+ END LOOP;
 
-    -- Drop all policies for categories table
-    FOR r IN (SELECT policyname FROM pg_policies WHERE tablename = 'categories' AND schemaname = 'public')
-    LOOP
-        EXECUTE 'DROP POLICY IF EXISTS ' || quote_ident(r.policyname) || ' ON categories';
-    END LOOP;
+ -- Drop all policies for categories table
+ FOR r IN (SELECT policyname FROM pg_policies WHERE tablename = 'categories' AND schemaname = 'public')
+ LOOP
+ EXECUTE 'DROP POLICY IF EXISTS ' || quote_ident(r.policyname) || ' ON categories';
+ END LOOP;
 END $$;
 
 -- ============================================================================
@@ -375,47 +375,47 @@ END $$;
 -- CREDENTIALS TABLE POLICIES
 -- Self-hosted mode: Allow access to data for any user (no authentication required)
 -- This enables multi-user support on the same instance
-CREATE POLICY "credentials_select_policy" ON credentials
-  FOR SELECT USING (true);
+CREATE POLICY"credentials_select_policy" ON credentials
+ FOR SELECT USING (true);
 
-CREATE POLICY "credentials_insert_policy" ON credentials
-  FOR INSERT WITH CHECK (true);
+CREATE POLICY"credentials_insert_policy" ON credentials
+ FOR INSERT WITH CHECK (true);
 
-CREATE POLICY "credentials_update_policy" ON credentials
-  FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY"credentials_update_policy" ON credentials
+ FOR UPDATE USING (true) WITH CHECK (true);
 
-CREATE POLICY "credentials_delete_policy" ON credentials
-  FOR DELETE USING (true);
+CREATE POLICY"credentials_delete_policy" ON credentials
+ FOR DELETE USING (true);
 
 -- VAULT_CONFIG TABLE POLICIES
 -- Self-hosted mode: Allow access to vault configs for any user
 -- This enables multi-user support on the same instance
-CREATE POLICY "vault_config_select_policy" ON vault_config
-  FOR SELECT USING (true);
+CREATE POLICY"vault_config_select_policy" ON vault_config
+ FOR SELECT USING (true);
 
-CREATE POLICY "vault_config_insert_policy" ON vault_config
-  FOR INSERT WITH CHECK (true);
+CREATE POLICY"vault_config_insert_policy" ON vault_config
+ FOR INSERT WITH CHECK (true);
 
-CREATE POLICY "vault_config_update_policy" ON vault_config
-  FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY"vault_config_update_policy" ON vault_config
+ FOR UPDATE USING (true) WITH CHECK (true);
 
-CREATE POLICY "vault_config_delete_policy" ON vault_config
-  FOR DELETE USING (true);
+CREATE POLICY"vault_config_delete_policy" ON vault_config
+ FOR DELETE USING (true);
 
 -- CATEGORIES TABLE POLICIES
 -- Self-hosted mode: Allow access to categories for any user
 -- This enables multi-user support on the same instance
-CREATE POLICY "categories_select_policy" ON categories
-  FOR SELECT USING (true);
+CREATE POLICY"categories_select_policy" ON categories
+ FOR SELECT USING (true);
 
-CREATE POLICY "categories_insert_policy" ON categories
-  FOR INSERT WITH CHECK (true);
+CREATE POLICY"categories_insert_policy" ON categories
+ FOR INSERT WITH CHECK (true);
 
-CREATE POLICY "categories_update_policy" ON categories
-  FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY"categories_update_policy" ON categories
+ FOR UPDATE USING (true) WITH CHECK (true);
 
-CREATE POLICY "categories_delete_policy" ON categories
-  FOR DELETE USING (true);
+CREATE POLICY"categories_delete_policy" ON categories
+ FOR DELETE USING (true);
 
 -- ============================================================================
 -- 7. CREATE HELPER FUNCTIONS
@@ -424,71 +424,71 @@ CREATE POLICY "categories_delete_policy" ON categories
 -- Function to get credential statistics (SECURE)
 CREATE OR REPLACE FUNCTION public.get_credential_stats()
 RETURNS TABLE(
-  total_credentials BIGINT,
-  by_type JSONB,
-  by_category JSONB,
-  recent_count BIGINT
+ total_credentials BIGINT,
+ by_type JSONB,
+ by_category JSONB,
+ recent_count BIGINT
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = ''  -- CRITICAL: Set empty search path for security
+SET search_path = '' -- CRITICAL: Set empty search path for security
 AS $$
 BEGIN
-  RETURN QUERY
-  SELECT
-    COUNT(*) as total_credentials,
-    COALESCE(jsonb_object_agg(credential_type, type_count), '{}'::jsonb) as by_type,
-    COALESCE(jsonb_object_agg(COALESCE(category, 'Uncategorized'), cat_count), '{}'::jsonb) as by_category,
-    COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days') as recent_count
-  FROM (
-    SELECT
-      credential_type,
-      category,
-      created_at,
-      COUNT(*) OVER (PARTITION BY credential_type) as type_count,
-      COUNT(*) OVER (PARTITION BY COALESCE(category, 'Uncategorized')) as cat_count
-    FROM public.credentials  -- Fully qualified schema reference
-    WHERE user_id = 'self-hosted-user'
-  ) stats;
+ RETURN QUERY
+ SELECT
+ COUNT(*) as total_credentials,
+ COALESCE(jsonb_object_agg(credential_type, type_count), '{}'::jsonb) as by_type,
+ COALESCE(jsonb_object_agg(COALESCE(category, 'Uncategorized'), cat_count), '{}'::jsonb) as by_category,
+ COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days') as recent_count
+ FROM (
+ SELECT
+ credential_type,
+ category,
+ created_at,
+ COUNT(*) OVER (PARTITION BY credential_type) as type_count,
+ COUNT(*) OVER (PARTITION BY COALESCE(category, 'Uncategorized')) as cat_count
+ FROM public.credentials -- Fully qualified schema reference
+ WHERE user_id = 'self-hosted-user'
+ ) stats;
 END;
 $$;
 
 -- Function to check RLS configuration (SECURE)
 CREATE OR REPLACE FUNCTION public.check_rls_status()
 RETURNS TABLE(
-  table_name TEXT,
-  rls_enabled BOOLEAN,
-  policy_count BIGINT,
-  status TEXT
+ table_name TEXT,
+ rls_enabled BOOLEAN,
+ policy_count BIGINT,
+ status TEXT
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = ''  -- CRITICAL: Set empty search path for security
+SET search_path = '' -- CRITICAL: Set empty search path for security
 AS $$
 BEGIN
-  RETURN QUERY
-  SELECT
-    t.table_name::TEXT,
-    COALESCE(c.relrowsecurity, false) as rls_enabled,
-    COALESCE(p.policy_count, 0) as policy_count,
-    CASE
-      WHEN COALESCE(c.relrowsecurity, false) AND COALESCE(p.policy_count, 0) >= 4 THEN '✅ OK'
-      WHEN COALESCE(c.relrowsecurity, false) AND COALESCE(p.policy_count, 0) < 4 THEN '⚠️ MISSING_POLICIES'
-      WHEN NOT COALESCE(c.relrowsecurity, false) THEN '❌ RLS_DISABLED'
-      ELSE '❓ UNKNOWN'
-    END as status
-  FROM information_schema.tables t
-  LEFT JOIN pg_catalog.pg_class c ON c.relname = t.table_name
-    AND c.relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = 'public')
-  LEFT JOIN (
-    SELECT tablename, COUNT(*) as policy_count
-    FROM pg_catalog.pg_policies
-    WHERE schemaname = 'public'
-    GROUP BY tablename
-  ) p ON p.tablename = t.table_name
-  WHERE t.table_schema = 'public'
-    AND t.table_name IN ('credentials', 'vault_config', 'categories')
-    AND t.table_type = 'BASE TABLE';
+ RETURN QUERY
+ SELECT
+ t.table_name::TEXT,
+ COALESCE(c.relrowsecurity, false) as rls_enabled,
+ COALESCE(p.policy_count, 0) as policy_count,
+ CASE
+ WHEN COALESCE(c.relrowsecurity, false) AND COALESCE(p.policy_count, 0) >= 4 THEN '✅ OK'
+ WHEN COALESCE(c.relrowsecurity, false) AND COALESCE(p.policy_count, 0) < 4 THEN '⚠️ MISSING_POLICIES'
+ WHEN NOT COALESCE(c.relrowsecurity, false) THEN '❌ RLS_DISABLED'
+ ELSE '❓ UNKNOWN'
+ END as status
+ FROM information_schema.tables t
+ LEFT JOIN pg_catalog.pg_class c ON c.relname = t.table_name
+ AND c.relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = 'public')
+ LEFT JOIN (
+ SELECT tablename, COUNT(*) as policy_count
+ FROM pg_catalog.pg_policies
+ WHERE schemaname = 'public'
+ GROUP BY tablename
+ ) p ON p.tablename = t.table_name
+ WHERE t.table_schema = 'public'
+ AND t.table_name IN ('credentials', 'vault_config', 'categories')
+ AND t.table_type = 'BASE TABLE';
 END;
 $$;
 
@@ -498,13 +498,13 @@ $$;
 
 -- Insert default categories for organization
 INSERT INTO categories (user_id, name, color, icon, description) VALUES
-  ('self-hosted-user', 'Development', '#3b82f6', 'code', 'Development tools and APIs'),
-  ('self-hosted-user', 'Personal', '#10b981', 'user', 'Personal accounts and services'),
-  ('self-hosted-user', 'Work', '#f59e0b', 'briefcase', 'Work-related credentials'),
-  ('self-hosted-user', 'Social Media', '#ec4899', 'users', 'Social media accounts'),
-  ('self-hosted-user', 'Finance', '#06b6d4', 'credit-card', 'Banking and financial services'),
-  ('self-hosted-user', 'Cloud Services', '#8b5cf6', 'cloud', 'Cloud platforms and services'),
-  ('self-hosted-user', 'Security', '#ef4444', 'shield', 'Security tools and certificates')
+ ('self-hosted-user', 'Development', '#3b82f6', 'code', 'Development tools and APIs'),
+ ('self-hosted-user', 'Personal', '#10b981', 'user', 'Personal accounts and services'),
+ ('self-hosted-user', 'Work', '#f59e0b', 'briefcase', 'Work-related credentials'),
+ ('self-hosted-user', 'Social Media', '#ec4899', 'users', 'Social media accounts'),
+ ('self-hosted-user', 'Finance', '#06b6d4', 'credit-card', 'Banking and financial services'),
+ ('self-hosted-user', 'Cloud Services', '#8b5cf6', 'cloud', 'Cloud platforms and services'),
+ ('self-hosted-user', 'Security', '#ef4444', 'shield', 'Security tools and certificates')
 ON CONFLICT (user_id, name) DO NOTHING;
 
 -- ============================================================================
@@ -530,14 +530,14 @@ COMMENT ON FUNCTION check_rls_status IS 'Check Row Level Security configuration 
 
 -- Verify table creation
 SELECT
-  table_name,
-  CASE
-    WHEN table_name = ANY(ARRAY['credentials', 'vault_config', 'categories']) THEN '✅ Created'
-    ELSE '❌ Missing'
-  END as status
+ table_name,
+ CASE
+ WHEN table_name = ANY(ARRAY['credentials', 'vault_config', 'categories']) THEN '✅ Created'
+ ELSE '❌ Missing'
+ END as status
 FROM information_schema.tables
 WHERE table_schema = 'public'
-  AND table_name IN ('credentials', 'vault_config', 'categories')
+ AND table_name IN ('credentials', 'vault_config', 'categories')
 ORDER BY table_name;
 
 -- Verify RLS configuration
@@ -588,505 +588,505 @@ SELECT COUNT(*) as total_categories FROM categories WHERE user_id = 'self-hosted
 -- Made with ❤️ by Pink Pixel - Dream it, Pixel it ✨
 `;
 
-  const updateSqlScript = `-- Add new credential types for document uploads and miscellaneous sensitive values
+ const updateSqlScript = `-- Add new credential types for document uploads and miscellaneous sensitive values
 -- Run this in Supabase SQL Editor for existing deployments.
 
 ALTER TABLE credentials
-  DROP CONSTRAINT IF EXISTS credentials_credential_type_check;
+ DROP CONSTRAINT IF EXISTS credentials_credential_type_check;
 
 ALTER TABLE credentials
-  ADD CONSTRAINT credentials_credential_type_check
-  CHECK (
-    credential_type IN (
-      'api_key',
-      'login',
-      'secret',
-      'token',
-      'certificate',
-      'document',
-      'misc'
-    )
-  );`;
+ ADD CONSTRAINT credentials_credential_type_check
+ CHECK (
+ credential_type IN (
+ 'api_key',
+ 'login',
+ 'secret',
+ 'token',
+ 'certificate',
+ 'document',
+ 'misc'
+ )
+ );`;
 
-  return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <div className="flex items-center gap-3 mb-6">
-        <SettingsIcon className="h-8 w-8 text-cyan-400" />
-        <div>
-          <h1 className="text-3xl font-bold text-white">Keyper Settings</h1>
-          <p className="text-gray-400">Choose and configure your Keyper database provider</p>
-        </div>
-      </div>
+ return (
+ <div className="max-w-4xl mx-auto p-6 space-y-6">
+ <div className="flex items-center gap-3 mb-6">
+ <SettingsIcon className="h-8 w-8 text-cyan-400" />
+ <div>
+ <h1 className="text-3xl font-bold text-foreground">Keyper Settings</h1>
+ <p className="text-muted-foreground">Choose and configure your Keyper database provider</p>
+ </div>
+ </div>
 
-      <Tabs defaultValue="database" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="database" className="flex items-center gap-2">
-            <Database className="h-4 w-4" />
-            Database Setup
-          </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
-            Security
-          </TabsTrigger>
-          <TabsTrigger value="about" className="flex items-center gap-2">
-            <SettingsIcon className="h-4 w-4" />
-            About
-          </TabsTrigger>
-        </TabsList>
+ <Tabs defaultValue="database" className="space-y-6">
+ <TabsList className="grid w-full grid-cols-3">
+ <TabsTrigger value="database" className="flex items-center gap-2">
+ <Database className="h-4 w-4" />
+ Database Setup
+ </TabsTrigger>
+ <TabsTrigger value="security" className="flex items-center gap-2">
+ <Shield className="h-4 w-4" />
+ Security
+ </TabsTrigger>
+ <TabsTrigger value="about" className="flex items-center gap-2">
+ <SettingsIcon className="h-4 w-4" />
+ About
+ </TabsTrigger>
+ </TabsList>
 
-        <TabsContent value="database" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Database className="h-5 w-5 text-cyan-400" />
-                Database Provider Configuration
-              </CardTitle>
-              <CardDescription>
-                Configure Supabase for hosted or remote usage, or SQLite for local-first storage on this device.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="database-provider">Database Provider</Label>
-                <select
-                  id="database-provider"
-                  value={databaseProvider}
-                  onChange={(e) => {
-                    const provider = e.target.value === 'sqlite' ? 'sqlite' : 'supabase';
-                    setDatabaseProvider(provider);
-                    setConnectionStatus('idle');
-                    setErrorMessage('');
-                  }}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                  <option value="supabase">Supabase (Web/PWA + Desktop)</option>
-                  <option value="sqlite">SQLite (Local-First: Browser + Desktop)</option>
-                </select>
-              </div>
+ <TabsContent value="database" className="space-y-6">
+ <Card>
+ <CardHeader>
+ <CardTitle className="flex items-center gap-2">
+ <Database className="h-5 w-5 text-cyan-400" />
+ Database Provider Configuration
+ </CardTitle>
+ <CardDescription>
+ Configure Supabase for hosted or remote usage, or SQLite for local-first storage on this device.
+ </CardDescription>
+ </CardHeader>
+ <CardContent className="space-y-4">
+ <div className="space-y-2">
+ <Label htmlFor="database-provider">Database Provider</Label>
+ <select
+ id="database-provider"
+ value={databaseProvider}
+ onChange={(e) => {
+ const provider = e.target.value === 'sqlite' ? 'sqlite' : 'supabase';
+ setDatabaseProvider(provider);
+ setConnectionStatus('idle');
+ setErrorMessage('');
+}}
+ className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+ >
+ <option value="supabase">Supabase (Web/PWA + Desktop)</option>
+ <option value="sqlite">SQLite (Local-First: Browser + Desktop)</option>
+ </select>
+ </div>
 
-              {databaseProvider === 'sqlite' && (
-                <Alert className="border-amber-500 bg-amber-950/20">
-                  <AlertCircle className="h-4 w-4 text-amber-400" />
-                  <AlertDescription className="text-amber-200">
-                    SQLite keeps data local to this device. In the browser or PWA it is stored locally in browser storage.
-                    In the desktop app it can also use a file on disk.
-                  </AlertDescription>
-                </Alert>
-              )}
+ {databaseProvider === 'sqlite' && (
+ <Alert className="border-amber-500 bg-amber-950/20">
+ <AlertCircle className="h-4 w-4 text-amber-400" />
+ <AlertDescription className="text-amber-200">
+ SQLite keeps data local to this device. In the browser or PWA it is stored locally in browser storage.
+ In the desktop app it can also use a file on disk.
+ </AlertDescription>
+ </Alert>
+ )}
 
-              {databaseProvider === 'sqlite' ? (
-                <div className="space-y-2">
-                  <Label htmlFor="sqlite-db-path">
-                    {runningInElectron ? 'SQLite Database File (Optional)' : 'SQLite Database Name (Optional)'}
-                  </Label>
-                  <Input
-                    id="sqlite-db-path"
-                    type="text"
-                    placeholder={runningInElectron ? 'Default app data path will be used if empty' : 'Default browser-local database will be used if empty'}
-                    value={sqliteDbPath}
-                    onChange={(e) => setSqliteDbPath(e.target.value)}
-                    className="font-mono"
-                  />
-                  <p className="text-sm text-gray-400">
-                    {runningInElectron
-                      ? 'Leave empty to use Keyper\'s default local data directory.'
-                      : 'Leave empty to use Keyper\'s default browser-local SQLite database. A custom name creates a separate local database in this browser.'}
-                  </p>
-                </div>
-              ) : (
-                <>
-              <div className="space-y-2">
-                <Label htmlFor="supabase-url">Supabase Project URL</Label>
-                <Input
-                  id="supabase-url"
-                  type="url"
-                  placeholder="https://your-project.supabase.co"
-                  value={supabaseUrl}
-                  onChange={(e) => setSupabaseUrl(e.target.value)}
-                  className="font-mono"
-                />
-              </div>
+ {databaseProvider === 'sqlite' ? (
+ <div className="space-y-2">
+ <Label htmlFor="sqlite-db-path">
+ {runningInElectron ? 'SQLite Database File (Optional)' : 'SQLite Database Name (Optional)'}
+ </Label>
+ <Input
+ id="sqlite-db-path"
+ type="text"
+ placeholder={runningInElectron ? 'Default app data path will be used if empty' : 'Default browser-local database will be used if empty'}
+ value={sqliteDbPath}
+ onChange={(e) => setSqliteDbPath(e.target.value)}
+ className="font-mono"
+ />
+ <p className="text-sm text-muted-foreground">
+ {runningInElectron
+ ? 'Leave empty to use Keyper\'s default local data directory.'
+ : 'Leave empty to use Keyper\'s default browser-local SQLite database. A custom name creates a separate local database in this browser.'}
+ </p>
+ </div>
+ ) : (
+ <>
+ <div className="space-y-2">
+ <Label htmlFor="supabase-url">Supabase Project URL</Label>
+ <Input
+ id="supabase-url"
+ type="url"
+ placeholder="https://your-project.supabase.co"
+ value={supabaseUrl}
+ onChange={(e) => setSupabaseUrl(e.target.value)}
+ className="font-mono"
+ />
+ </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="supabase-key">Supabase Anon or Publishable Key</Label>
-                <Input
-                  id="supabase-key"
-                  type="password"
-                  placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                  value={supabaseKey}
-                  onChange={(e) => setSupabaseKey(e.target.value)}
-                  className="font-mono"
-                />
-              </div>
+ <div className="space-y-2">
+ <Label htmlFor="supabase-key">Supabase Anon or Publishable Key</Label>
+ <Input
+ id="supabase-key"
+ type="password"
+ placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ value={supabaseKey}
+ onChange={(e) => setSupabaseKey(e.target.value)}
+ className="font-mono"
+ />
+ </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="e.g., john, admin, team1 (leave empty for default)"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="font-mono"
-                />
-                <p className="text-sm text-gray-400">
-                  💡 Use different usernames to separate credentials for multiple users on the same instance
-                </p>
-              </div>
-                </>
-              )}
+ <div className="space-y-2">
+ <Label htmlFor="username">Username</Label>
+ <Input
+ id="username"
+ type="text"
+ placeholder="e.g., john, admin, team1 (leave empty for default)"
+ value={username}
+ onChange={(e) => setUsername(e.target.value)}
+ className="font-mono"
+ />
+ <p className="text-sm text-muted-foreground">
+ 💡 Use different usernames to separate credentials for multiple users on the same instance
+ </p>
+ </div>
+ </>
+ )}
 
-              {databaseProvider === 'sqlite' && (
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder="e.g., john, admin, team1 (leave empty for default)"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="font-mono"
-                  />
-                  <p className="text-sm text-gray-400">
-                    Usernames still separate credentials and vault configuration inside your local SQLite file.
-                  </p>
-                </div>
-              )}
+ {databaseProvider === 'sqlite' && (
+ <div className="space-y-2">
+ <Label htmlFor="username">Username</Label>
+ <Input
+ id="username"
+ type="text"
+ placeholder="e.g., john, admin, team1 (leave empty for default)"
+ value={username}
+ onChange={(e) => setUsername(e.target.value)}
+ className="font-mono"
+ />
+ <p className="text-sm text-muted-foreground">
+ Usernames still separate credentials and vault configuration inside your local SQLite file.
+ </p>
+ </div>
+ )}
 
-              <div className="flex gap-3 pt-4">
-                <Button
-                  onClick={testConnection}
-                  disabled={
-                    isConnecting ||
-                    (databaseProvider === 'supabase' && (!supabaseUrl || !supabaseKey))
-                  }
-                  className="flex items-center gap-2"
-                >
-                  {isConnecting ? (
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <TestTube className="h-4 w-4" />
-                  )}
-                  {isConnecting ? 'Testing...' : 'Test Connection'}
-                </Button>
+ <div className="flex gap-3 pt-4">
+ <Button
+ onClick={testConnection}
+ disabled={
+ isConnecting ||
+ (databaseProvider === 'supabase' && (!supabaseUrl || !supabaseKey))
+}
+ className="flex items-center gap-2"
+ >
+ {isConnecting ? (
+ <RefreshCw className="h-4 w-4 animate-spin" />
+ ) : (
+ <TestTube className="h-4 w-4" />
+ )}
+ {isConnecting ? 'Testing...' : 'Test Connection'}
+ </Button>
 
-                <Button
-                  variant="outline"
-                  onClick={clearConfiguration}
-                  className="flex items-center gap-2"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Clear
-                </Button>
-              </div>
+ <Button
+ variant="outline"
+ onClick={clearConfiguration}
+ className="flex items-center gap-2"
+ >
+ <Trash2 className="h-4 w-4" />
+ Clear
+ </Button>
+ </div>
 
-              {/* Save and Close Actions */}
-              <div className="flex gap-3 pt-6 border-t border-gray-700">
-                <Button
-                  onClick={handleSaveAndClose}
-                  className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700"
-                  disabled={
-                    (databaseProvider === 'supabase' && (!supabaseUrl || !supabaseKey))
-                  }
-                >
-                  <CheckCircle className="h-4 w-4" />
-                  Save & Close
-                </Button>
+ {/* Save and Close Actions */}
+ <div className="flex gap-3 pt-6 border-t border-border">
+ <Button
+ onClick={handleSaveAndClose}
+ className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700"
+ disabled={
+ (databaseProvider === 'supabase' && (!supabaseUrl || !supabaseKey))
+}
+ >
+ <CheckCircle className="h-4 w-4" />
+ Save & Close
+ </Button>
 
-                <Button
-                  variant="outline"
-                  onClick={handleCloseWithoutSaving}
-                  className="flex items-center gap-2"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Close
-                </Button>
+ <Button
+ variant="outline"
+ onClick={handleCloseWithoutSaving}
+ className="flex items-center gap-2"
+ >
+ <ArrowLeft className="h-4 w-4" />
+ Close
+ </Button>
 
-                <Button
-                  variant="outline"
-                  onClick={refreshPage}
-                  className="flex items-center gap-2"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  Refresh App
-                </Button>
-              </div>
+ <Button
+ variant="outline"
+ onClick={refreshPage}
+ className="flex items-center gap-2"
+ >
+ <RotateCcw className="h-4 w-4" />
+ Refresh App
+ </Button>
+ </div>
 
-              {connectionStatus !== 'idle' && (
-                <Alert className={connectionStatus === 'success' ? 'border-green-500' : 'border-red-500'}>
-                  <div className="flex items-center gap-2">
-                    {connectionStatus === 'success' ? (
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <XCircle className="h-4 w-4 text-red-500" />
-                    )}
-                    <AlertDescription>
-                      {connectionStatus === 'success'
-                        ? databaseProvider === 'sqlite'
-                          ? 'Successfully connected to SQLite! Your local database is ready.'
-                          : 'Successfully connected to Supabase! Your credentials are saved.'
-                        : `Connection failed: ${errorMessage}`
-                      }
-                    </AlertDescription>
-                  </div>
-                </Alert>
-              )}
-            </CardContent>
-          </Card>
+ {connectionStatus !== 'idle' && (
+ <Alert className={connectionStatus === 'success' ? 'border-green-500' : 'border-red-500'}>
+ <div className="flex items-center gap-2">
+ {connectionStatus === 'success' ? (
+ <CheckCircle className="h-4 w-4 text-green-500" />
+ ) : (
+ <XCircle className="h-4 w-4 text-red-500" />
+ )}
+ <AlertDescription>
+ {connectionStatus === 'success'
+ ? databaseProvider === 'sqlite'
+ ? 'Successfully connected to SQLite! Your local database is ready.'
+ : 'Successfully connected to Supabase! Your credentials are saved.'
+ : `Connection failed: ${errorMessage}`
+}
+ </AlertDescription>
+ </div>
+ </Alert>
+ )}
+ </CardContent>
+ </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-yellow-400" />
-                Database Setup Required
-              </CardTitle>
-              <CardDescription>
-                Follow setup instructions for your selected provider.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {databaseProvider === 'sqlite' ? (
-                <>
-                  <div className="space-y-3">
-                    <p className="text-sm text-gray-300">
-                      <strong>Step 1:</strong> Choose SQLite as your provider for local-first storage.
-                    </p>
-                    <p className="text-sm text-gray-300">
-                      <strong>Step 2:</strong> {runningInElectron ? 'Optionally set a database file path, or leave it empty to use the default local path.' : 'Optionally enter a database name, or leave it empty to use the default browser-local database.'}
-                    </p>
-                    <p className="text-sm text-gray-300">
-                      <strong>Step 3:</strong> Click <strong>Test Connection</strong>. Keyper will auto-create the SQLite schema locally for you.
-                    </p>
-                    <p className="text-sm text-gray-300">
-                      <strong>Step 4:</strong> Save your configuration and continue into the vault.
-                    </p>
-                  </div>
-                  <Alert className="border-amber-500 bg-amber-950/20">
-                    <AlertCircle className="h-4 w-4 text-amber-400" />
-                    <AlertDescription className="text-amber-200">
-                      SQLite stays local to the current device. Browser/PWA usage stores the database locally in that browser, while the desktop app can also target a file on disk.
-                    </AlertDescription>
-                  </Alert>
-                </>
-              ) : (
-                <>
-              <div className="space-y-3">
-                <p className="text-sm text-gray-300">
-                  <strong>Step 1:</strong> Go to your Supabase dashboard → SQL Editor
-                </p>
-                <p className="text-sm text-gray-300">
-                  <strong>Step 2:</strong> Copy the complete SQL setup script below
-                </p>
-                <p className="text-sm text-gray-300">
-                  <strong>Step 3:</strong> Paste and run the script in your SQL Editor
-                </p>
-                <p className="text-sm text-gray-300">
-                  <strong>Step 4:</strong> Return here, test your connection, then <strong>refresh the app</strong>
-                </p>
-              </div>
+ <Card>
+ <CardHeader>
+ <CardTitle className="flex items-center gap-2">
+ <AlertCircle className="h-5 w-5 text-yellow-400" />
+ Database Setup Required
+ </CardTitle>
+ <CardDescription>
+ Follow setup instructions for your selected provider.
+ </CardDescription>
+ </CardHeader>
+ <CardContent className="space-y-4">
+ {databaseProvider === 'sqlite' ? (
+ <>
+ <div className="space-y-3">
+ <p className="text-sm text-foreground">
+ <strong>Step 1:</strong> Choose SQLite as your provider for local-first storage.
+ </p>
+ <p className="text-sm text-foreground">
+ <strong>Step 2:</strong> {runningInElectron ? 'Optionally set a database file path, or leave it empty to use the default local path.' : 'Optionally enter a database name, or leave it empty to use the default browser-local database.'}
+ </p>
+ <p className="text-sm text-foreground">
+ <strong>Step 3:</strong> Click <strong>Test Connection</strong>. Keyper will auto-create the SQLite schema locally for you.
+ </p>
+ <p className="text-sm text-foreground">
+ <strong>Step 4:</strong> Save your configuration and continue into the vault.
+ </p>
+ </div>
+ <Alert className="border-amber-500 bg-amber-950/20">
+ <AlertCircle className="h-4 w-4 text-amber-400" />
+ <AlertDescription className="text-amber-200">
+ SQLite stays local to the current device. Browser/PWA usage stores the database locally in that browser, while the desktop app can also target a file on disk.
+ </AlertDescription>
+ </Alert>
+ </>
+ ) : (
+ <>
+ <div className="space-y-3">
+ <p className="text-sm text-foreground">
+ <strong>Step 1:</strong> Go to your Supabase dashboard → SQL Editor
+ </p>
+ <p className="text-sm text-foreground">
+ <strong>Step 2:</strong> Copy the complete SQL setup script below
+ </p>
+ <p className="text-sm text-foreground">
+ <strong>Step 3:</strong> Paste and run the script in your SQL Editor
+ </p>
+ <p className="text-sm text-foreground">
+ <strong>Step 4:</strong> Return here, test your connection, then <strong>refresh the app</strong>
+ </p>
+ </div>
 
-              <Alert className="border-cyan-500 bg-cyan-950/20">
-                <AlertCircle className="h-4 w-4 text-cyan-400" />
-                <AlertDescription className="text-cyan-200">
-                  <strong>Important:</strong> After successful connection, click "Refresh App" to load your dashboard properly, especially when using the PWA version.
-                </AlertDescription>
-              </Alert>
+ <Alert className="border-cyan-500 bg-cyan-950/20">
+ <AlertCircle className="h-4 w-4 text-cyan-400" />
+ <AlertDescription className="text-cyan-200">
+ <strong>Important:</strong> After successful connection, click"Refresh App" to load your dashboard properly, especially when using the PWA version.
+ </AlertDescription>
+ </Alert>
 
-              <Alert className="border-amber-500 bg-amber-950/20">
-                <AlertCircle className="h-4 w-4 text-amber-400" />
-                <AlertDescription className="text-amber-200">
-                  Existing databases must run the update script below before `document` and `misc` credentials will work.
-                </AlertDescription>
-              </Alert>
+ <Alert className="border-amber-500 bg-amber-950/20">
+ <AlertCircle className="h-4 w-4 text-amber-400" />
+ <AlertDescription className="text-amber-200">
+ Existing databases must run the update script below before `document` and `misc` credentials will work.
+ </AlertDescription>
+ </Alert>
 
-              <div className="flex gap-3 flex-wrap">
-                <Button
-                  variant="outline"
-                  onClick={() => window.open('https://supabase.com/dashboard', '_blank')}
-                  className="flex items-center gap-2"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  Open Supabase Dashboard
-                </Button>
+ <div className="flex gap-3 flex-wrap">
+ <Button
+ variant="outline"
+ onClick={() => window.open('https://supabase.com/dashboard', '_blank')}
+ className="flex items-center gap-2"
+ >
+ <ExternalLink className="h-4 w-4" />
+ Open Supabase Dashboard
+ </Button>
 
-                <Button
-                  onClick={() => copyToClipboard(sqlScript, 'Complete SQL setup script')}
-                  className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700"
-                >
-                  <Copy className="h-4 w-4" />
-                  Copy Complete SQL Script
-                </Button>
+ <Button
+ onClick={() => copyToClipboard(sqlScript, 'Complete SQL setup script')}
+ className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700"
+ >
+ <Copy className="h-4 w-4" />
+ Copy Complete SQL Script
+ </Button>
 
-                <Button
-                  onClick={() => copyToClipboard(updateSqlScript, 'Existing database update SQL script')}
-                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
-                >
-                  <Copy className="h-4 w-4" />
-                  Copy Update Script
-                </Button>
-              </div>
+ <Button
+ onClick={() => copyToClipboard(updateSqlScript, 'Existing database update SQL script')}
+ className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+ >
+ <Copy className="h-4 w-4" />
+ Copy Update Script
+ </Button>
+ </div>
 
-              {showSqlScript && (
-                <div className="mt-4">
-                  <Label className="text-sm font-medium mb-2 block">SQL Script Preview:</Label>
-                  <div className="bg-gray-900 p-4 rounded-lg max-h-40 overflow-y-auto">
-                    <pre className="text-xs text-gray-300 whitespace-pre-wrap">
-                      {sqlScript.substring(0, 500)}...
-                    </pre>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowSqlScript(false)}
-                    className="mt-2"
-                  >
-                    Hide Preview
-                  </Button>
-                </div>
-              )}
+ {showSqlScript && (
+ <div className="mt-4">
+ <Label className="text-sm font-medium mb-2 block">SQL Script Preview:</Label>
+ <div className="bg-card p-4 rounded-lg max-h-40 overflow-y-auto">
+ <pre className="text-xs text-foreground whitespace-pre-wrap">
+ {sqlScript.substring(0, 500)}...
+ </pre>
+ </div>
+ <Button
+ variant="ghost"
+ size="sm"
+ onClick={() => setShowSqlScript(false)}
+ className="mt-2"
+ >
+ Hide Preview
+ </Button>
+ </div>
+ )}
 
-              {!showSqlScript && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowSqlScript(true)}
-                  className="text-cyan-400 hover:text-cyan-300"
-                >
-                  Show SQL Script Preview
-                </Button>
-              )}
+ {!showSqlScript && (
+ <Button
+ variant="ghost"
+ size="sm"
+ onClick={() => setShowSqlScript(true)}
+ className="text-cyan-400 hover:text-cyan-300"
+ >
+ Show SQL Script Preview
+ </Button>
+ )}
 
-              {showUpdateSqlScript && (
-                <div className="mt-4">
-                  <Label className="text-sm font-medium mb-2 block">Update Script Preview:</Label>
-                  <div className="bg-gray-900 p-4 rounded-lg max-h-40 overflow-y-auto">
-                    <pre className="text-xs text-gray-300 whitespace-pre-wrap">
-                      {updateSqlScript}
-                    </pre>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowUpdateSqlScript(false)}
-                    className="mt-2"
-                  >
-                    Hide Update Preview
-                  </Button>
-                </div>
-              )}
+ {showUpdateSqlScript && (
+ <div className="mt-4">
+ <Label className="text-sm font-medium mb-2 block">Update Script Preview:</Label>
+ <div className="bg-card p-4 rounded-lg max-h-40 overflow-y-auto">
+ <pre className="text-xs text-foreground whitespace-pre-wrap">
+ {updateSqlScript}
+ </pre>
+ </div>
+ <Button
+ variant="ghost"
+ size="sm"
+ onClick={() => setShowUpdateSqlScript(false)}
+ className="mt-2"
+ >
+ Hide Update Preview
+ </Button>
+ </div>
+ )}
 
-              {!showUpdateSqlScript && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowUpdateSqlScript(true)}
-                  className="text-green-400 hover:text-green-300"
-                >
-                  Show Update Script Preview
-                </Button>
-              )}
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+ {!showUpdateSqlScript && (
+ <Button
+ variant="ghost"
+ size="sm"
+ onClick={() => setShowUpdateSqlScript(true)}
+ className="text-green-400 hover:text-green-300"
+ >
+ Show Update Script Preview
+ </Button>
+ )}
+ </>
+ )}
+ </CardContent>
+ </Card>
+ </TabsContent>
 
-        <TabsContent value="about" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                🔐 Keyper - Self-Hosted
-              </CardTitle>
-              <CardDescription>
-                Secure credential management for your own infrastructure
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm font-medium">Version</Label>
-                  <p className="text-sm text-gray-300">0.1.0</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Mode</Label>
-                  <Badge variant="secondary">Self-Hosted</Badge>
-                </div>
-              </div>
+ <TabsContent value="about" className="space-y-6">
+ <Card>
+ <CardHeader>
+ <CardTitle className="flex items-center gap-2">
+ 🔐 Keyper - Self-Hosted
+ </CardTitle>
+ <CardDescription>
+ Secure credential management for your own infrastructure
+ </CardDescription>
+ </CardHeader>
+ <CardContent className="space-y-4">
+ <div className="grid grid-cols-2 gap-4">
+ <div>
+ <Label className="text-sm font-medium">Version</Label>
+ <p className="text-sm text-foreground">0.1.0</p>
+ </div>
+ <div>
+ <Label className="text-sm font-medium">Mode</Label>
+ <Badge variant="secondary">Self-Hosted</Badge>
+ </div>
+ </div>
 
-              <Separator />
+ <Separator />
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Made with ❤️ by Pink Pixel</Label>
-                <p className="text-sm text-gray-400">Dream it, Pixel it ✨</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+ <div className="space-y-2">
+ <Label className="text-sm font-medium">Made with ❤️ by Pink Pixel</Label>
+ <p className="text-sm text-muted-foreground">Dream it, Pixel it ✨</p>
+ </div>
+ </CardContent>
+ </Card>
+ </TabsContent>
 
-        <TabsContent value="security" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-green-500" />
-                Security Information
-              </CardTitle>
-              <CardDescription>
-                Keyper's security architecture and encryption details
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium">Encryption Method</Label>
-                      <p className="text-sm text-muted-foreground">AES-GCM with Argon2id key derivation</p>
-                    </div>
-                  </div>
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium">Storage</Label>
-                      <p className="text-sm text-muted-foreground">Database-only encrypted storage</p>
-                    </div>
-                  </div>
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium">Zero Knowledge</Label>
-                      <p className="text-sm text-muted-foreground">Passphrase never leaves your device</p>
-                    </div>
-                  </div>
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium">Auto-Lock</Label>
-                      <p className="text-sm text-muted-foreground">15-minute inactivity timeout</p>
-                    </div>
-                  </div>
-                </div>
+ <TabsContent value="security" className="space-y-6">
+ <Card>
+ <CardHeader>
+ <CardTitle className="flex items-center gap-2">
+ <Shield className="h-5 w-5 text-green-500" />
+ Security Information
+ </CardTitle>
+ <CardDescription>
+ Keyper's security architecture and encryption details
+ </CardDescription>
+ </CardHeader>
+ <CardContent className="space-y-6">
+ <div className="space-y-4">
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+ <div className="p-4 bg-muted/50 rounded-lg">
+ <div className="space-y-1">
+ <Label className="text-sm font-medium">Encryption Method</Label>
+ <p className="text-sm text-muted-foreground">AES-GCM with Argon2id key derivation</p>
+ </div>
+ </div>
+ <div className="p-4 bg-muted/50 rounded-lg">
+ <div className="space-y-1">
+ <Label className="text-sm font-medium">Storage</Label>
+ <p className="text-sm text-muted-foreground">Database-only encrypted storage</p>
+ </div>
+ </div>
+ <div className="p-4 bg-muted/50 rounded-lg">
+ <div className="space-y-1">
+ <Label className="text-sm font-medium">Zero Knowledge</Label>
+ <p className="text-sm text-muted-foreground">Passphrase never leaves your device</p>
+ </div>
+ </div>
+ <div className="p-4 bg-muted/50 rounded-lg">
+ <div className="space-y-1">
+ <Label className="text-sm font-medium">Auto-Lock</Label>
+ <p className="text-sm text-muted-foreground">15-minute inactivity timeout</p>
+ </div>
+ </div>
+ </div>
 
-                <Alert>
-                  <Shield className="h-4 w-4" />
-                  <AlertDescription>
-                    <strong>Security Note:</strong> Keyper uses client-side encryption with database-only storage.
-                    Your master passphrase is never transmitted or stored - it only exists in memory while you're using the app.
-                  </AlertDescription>
-                </Alert>
+ <Alert>
+ <Shield className="h-4 w-4" />
+ <AlertDescription>
+ <strong>Security Note:</strong> Keyper uses client-side encryption with database-only storage.
+ Your master passphrase is never transmitted or stored - it only exists in memory while you're using the app.
+ </AlertDescription>
+ </Alert>
 
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Security Features</Label>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• End-to-end encryption with AES-GCM</li>
-                    <li>• Argon2id key derivation (memory-hard)</li>
-                    <li>• Auto-lock on inactivity</li>
-                    <li>• Database breach protection</li>
-                    <li>• Zero-knowledge architecture</li>
-                    <li>• No localStorage storage of sensitive data</li>
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
+ <div className="space-y-2">
+ <Label className="text-sm font-medium">Security Features</Label>
+ <ul className="text-sm text-muted-foreground space-y-1">
+ <li>• End-to-end encryption with AES-GCM</li>
+ <li>• Argon2id key derivation (memory-hard)</li>
+ <li>• Auto-lock on inactivity</li>
+ <li>• Database breach protection</li>
+ <li>• Zero-knowledge architecture</li>
+ <li>• No localStorage storage of sensitive data</li>
+ </ul>
+ </div>
+ </div>
+ </CardContent>
+ </Card>
+ </TabsContent>
+ </Tabs>
+ </div>
+ );
 };

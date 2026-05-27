@@ -19,6 +19,13 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Inter', 'sans-serif'],
+				roboto: ['Roboto', 'sans-serif'],
+				outfit: ['Outfit', 'sans-serif'],
+				serif: ['Playfair Display', 'serif'],
+				mono: ['Fira Code', 'monospace'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',

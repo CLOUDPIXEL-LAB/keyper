@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🎨 **Light Mode & Custom Fonts**
+
+- **Added** Comprehensive Light Mode theme across the entire application with cohesive styling
+- **Added** Custom Font selection (Inter, Roboto, Outfit, Playfair Display, Fira Code)
+- **Added** New "Appearance" settings tab to manage Theme and Font preferences
+- **Updated** Dotted background pattern to adapt automatically to both light and dark themes
+- **Protected** Keyper branding logo from being affected by global custom font selections
+
 ## [1.1.4] - 2026-05-26 - 🔒 **Security Vulnerability Fix**
 
 ### 🔒 **Security Updates**

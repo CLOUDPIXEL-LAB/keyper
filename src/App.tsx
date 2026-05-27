@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,9 +11,29 @@ const SelfHostedDashboard = React.lazy(() => import("@/components/SelfHostedDash
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider
+const App = () => {
+  useEffect(() => {
+    // Apply saved font preference on load
+    const applyFont = (fontClass: string) => {
+      document.body.classList.remove('font-sans', 'font-roboto', 'font-outfit', 'font-serif', 'font-mono');
+      document.body.classList.add(fontClass);
+    };
+
+    const savedFont = localStorage.getItem('keyper-font-preference') || 'font-sans';
+    applyFont(savedFont);
+
+    // Listen for font changes from settings
+    const handleFontChange = (e: CustomEvent) => {
+      applyFont(e.detail);
+    };
+
+    window.addEventListener('font-change', handleFontChange as EventListener);
+    return () => window.removeEventListener('font-change', handleFontChange as EventListener);
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider
       attribute="class"
       defaultTheme="system"
       enableSystem
@@ -42,5 +62,6 @@ const App = () => (
     </ThemeProvider>
   </QueryClientProvider>
 );
+};
 
 export default App;

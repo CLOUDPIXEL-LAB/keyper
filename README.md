@@ -19,6 +19,7 @@
 _A modern, secure, self-hosted credential management application for storing and organizing your digital credentials with complete privacy and control._
 
 ![Keyper Screenshot](./screenshots/screenshot-dashboard.png)
+![Keyper Screenshot Light Mode](./screenshots/screenshot-dashboard-light.png)
 
 [🚀 Quick Start](#-quick-start) • [🖼️ Screenshots](#️-screenshots) • [📦 Installation](#-installation) • [🗄️ Setup](#️-database-setup) • [📱 PWA](#-progressive-web-app) • [🔧 Troubleshooting](#-troubleshooting)
 
