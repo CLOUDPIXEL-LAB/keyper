@@ -359,12 +359,12 @@ export const EditCredentialModal = ({
 
   return (
     <Dialog open={!!credential} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700 text-white">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-black border-neutral-700 text-white">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-white">
             Edit Credential
           </DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-neutral-400">
             Update your credential information
           </DialogDescription>
         </DialogHeader>
@@ -373,17 +373,17 @@ export const EditCredentialModal = ({
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Title *</label>
+              <label className="text-sm font-medium text-neutral-300">Title *</label>
               <Input
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 required
-                className="bg-gray-800 border-gray-700 text-white"
+                className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Type *</label>
+              <label className="text-sm font-medium text-neutral-300">Type *</label>
               <select
                 value={formData.credential_type}
                 onChange={(e) =>
@@ -392,7 +392,7 @@ export const EditCredentialModal = ({
                     credential_type: e.target.value as Credential['credential_type'],
                   })
                 }
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white"
+                className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md text-white"
                 required
               >
                 <option value="api_key">API Key</option>
@@ -407,11 +407,11 @@ export const EditCredentialModal = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">Description</label>
+            <label className="text-sm font-medium text-neutral-300">Description</label>
             <Textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
               rows={3}
             />
           </div>
@@ -420,59 +420,59 @@ export const EditCredentialModal = ({
           <div className="space-y-4">
             {(formData.credential_type === 'login' || formData.credential_type === 'api_key') && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Username</label>
+                <label className="text-sm font-medium text-neutral-300">Username</label>
                 <Input
                   value={formData.username}
                   onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                  className="bg-gray-800 border-gray-700 text-white"
+                  className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
                 />
               </div>
             )}
 
             {formData.credential_type === 'login' && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Password</label>
+                <label className="text-sm font-medium text-neutral-300">Password</label>
                 <Input
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="bg-gray-800 border-gray-700 text-white"
+                  className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
                 />
               </div>
             )}
 
             {formData.credential_type === 'api_key' && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">API Key</label>
+                <label className="text-sm font-medium text-neutral-300">API Key</label>
                 <Input
                   type="password"
                   value={formData.api_key}
                   onChange={(e) => setFormData({ ...formData, api_key: e.target.value })}
-                  className="bg-gray-800 border-gray-700 text-white"
+                  className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
                 />
               </div>
             )}
 
             {formData.credential_type === 'secret' && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Secret Value</label>
+                <label className="text-sm font-medium text-neutral-300">Secret Value</label>
                 <Input
                   type="password"
                   value={formData.secret_value}
                   onChange={(e) => setFormData({ ...formData, secret_value: e.target.value })}
-                  className="bg-gray-800 border-gray-700 text-white"
+                  className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
                 />
               </div>
             )}
 
             {formData.credential_type === 'token' && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Token Value</label>
+                <label className="text-sm font-medium text-neutral-300">Token Value</label>
                 <Input
                   type="password"
                   value={formData.token_value}
                   onChange={(e) => setFormData({ ...formData, token_value: e.target.value })}
-                  className="bg-gray-800 border-gray-700 text-white"
+                  className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
                 />
               </div>
             )}
@@ -480,7 +480,7 @@ export const EditCredentialModal = ({
             {formData.credential_type === 'certificate' && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3">
-                  <label className="text-sm font-medium text-gray-300">Certificate Data</label>
+                  <label className="text-sm font-medium text-neutral-300">Certificate Data</label>
                   <input
                     ref={certificateFileInputRef}
                     type="file"
@@ -493,7 +493,7 @@ export const EditCredentialModal = ({
                     variant="outline"
                     size="sm"
                     onClick={() => certificateFileInputRef.current?.click()}
-                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    className="border-neutral-600 text-neutral-300 hover:bg-neutral-700"
                   >
                     <Upload className="h-4 w-4 mr-2" />
                     Upload File
@@ -502,7 +502,7 @@ export const EditCredentialModal = ({
                 <Textarea
                   value={formData.certificate_data}
                   onChange={(e) => setFormData({ ...formData, certificate_data: e.target.value })}
-                  className="bg-gray-800 border-gray-700 text-white font-mono text-xs"
+                  className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white font-mono text-xs"
                   rows={5}
                   placeholder="Paste certificate content here"
                 />
@@ -512,7 +512,7 @@ export const EditCredentialModal = ({
             {formData.credential_type === 'document' && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3">
-                  <label className="text-sm font-medium text-gray-300">Document</label>
+                  <label className="text-sm font-medium text-neutral-300">Document</label>
                   <input
                     ref={documentFileInputRef}
                     type="file"
@@ -525,7 +525,7 @@ export const EditCredentialModal = ({
                     variant="outline"
                     size="sm"
                     onClick={() => documentFileInputRef.current?.click()}
-                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    className="border-neutral-600 text-neutral-300 hover:bg-neutral-700"
                   >
                     <Upload className="h-4 w-4 mr-2" />
                     Upload Document
@@ -533,13 +533,13 @@ export const EditCredentialModal = ({
                 </div>
 
                 {formData.document_name ? (
-                  <div className="flex items-center justify-between rounded-md border border-gray-700 bg-gray-800/70 px-3 py-2">
+                  <div className="flex items-center justify-between rounded-md border border-neutral-700 bg-neutral-800/70 px-3 py-2">
                     <div className="min-w-0">
-                      <p className="text-sm text-gray-100 truncate flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-cyan-400" />
+                      <p className="text-sm text-neutral-100 truncate flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-white" />
                         {formData.document_name}
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-neutral-400">
                         {formatBytes(formData.document_size_bytes)}
                       </p>
                     </div>
@@ -548,13 +548,13 @@ export const EditCredentialModal = ({
                       variant="ghost"
                       size="icon"
                       onClick={clearDocument}
-                      className="text-gray-400 hover:text-white hover:bg-gray-700"
+                      className="text-neutral-400 hover:text-white hover:bg-neutral-700"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 ) : (
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-neutral-400">
                     Supported: PDF, DOC, DOCX, ODT, TXT, MD (up to {formatBytes(MAX_DOCUMENT_BYTES)}).
                   </p>
                 )}
@@ -563,11 +563,11 @@ export const EditCredentialModal = ({
 
             {formData.credential_type === 'misc' && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Sensitive Value</label>
+                <label className="text-sm font-medium text-neutral-300">Sensitive Value</label>
                 <Textarea
                   value={formData.misc_value}
                   onChange={(e) => setFormData({ ...formData, misc_value: e.target.value })}
-                  className="bg-gray-800 border-gray-700 text-white font-mono text-xs"
+                  className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white font-mono text-xs"
                   rows={8}
                   placeholder="Paste any sensitive multiline text, scripts, or commands here"
                 />
@@ -577,19 +577,19 @@ export const EditCredentialModal = ({
 
           {/* URL */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">URL</label>
+            <label className="text-sm font-medium text-neutral-300">URL</label>
             <Input
               type="url"
               value={formData.url}
               onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
             />
           </div>
 
           {/* Priority and Category */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Priority</label>
+              <label className="text-sm font-medium text-neutral-300">Priority</label>
               <select
                 value={formData.priority}
                 onChange={(e) =>
@@ -598,7 +598,7 @@ export const EditCredentialModal = ({
                     priority: e.target.value as Credential['priority'],
                   })
                 }
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white"
+                className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md text-white"
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -608,11 +608,11 @@ export const EditCredentialModal = ({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Category</label>
+              <label className="text-sm font-medium text-neutral-300">Category</label>
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white"
+                className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md text-white"
               >
                 <option value="">Select a category</option>
                 {categories.map((category) => (
@@ -626,7 +626,7 @@ export const EditCredentialModal = ({
 
           {/* Tags */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">Tags</label>
+            <label className="text-sm font-medium text-neutral-300">Tags</label>
             <div className="flex flex-wrap gap-2 mb-2">
               {tags.map((tag) => (
                 <Badge
@@ -651,13 +651,13 @@ export const EditCredentialModal = ({
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Add a tag"
-                className="bg-gray-800 border-gray-700 text-white"
+                className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
               />
               <Button
                 type="button"
                 onClick={addTag}
                 variant="outline"
-                className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                className="border-neutral-600 text-neutral-300 hover:bg-neutral-700"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -666,40 +666,40 @@ export const EditCredentialModal = ({
 
           {/* Expiration Date */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">Expiration Date</label>
+            <label className="text-sm font-medium text-neutral-300">Expiration Date</label>
             <Input
               type="date"
               value={formData.expires_at}
               onChange={(e) => setFormData({ ...formData, expires_at: e.target.value })}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
             />
           </div>
 
           {/* Notes */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">Notes</label>
+            <label className="text-sm font-medium text-neutral-300">Notes</label>
             <Textarea
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
               rows={4}
             />
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end space-x-2 pt-4 border-t border-gray-700">
+          <div className="flex justify-end space-x-2 pt-4 border-t border-neutral-700">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+              className="border-neutral-600 text-neutral-300 hover:bg-neutral-800"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="bg-cyan-600 hover:bg-cyan-700 text-white"
+              className="bg-white hover:bg-neutral-200 text-black"
             >
               {loading ? (
                 <>

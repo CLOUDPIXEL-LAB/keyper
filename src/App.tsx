@@ -24,7 +24,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Suspense fallback={
-            <div className="min-h-screen bg-linear-to-br from-black via-neutral-950 to-neutral-900 flex items-center justify-center">
+            <div className="min-h-screen bg-dot-pattern text-foreground flex items-center justify-center">
               <div className="flex flex-col items-center gap-4">
                 <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
                 <p className="text-cyan-400 animate-pulse">Loading Keyper...</p>

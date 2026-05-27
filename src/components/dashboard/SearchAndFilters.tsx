@@ -69,27 +69,27 @@ export const SearchAndFilters = ({
     <div className="space-y-4 mb-8">
       {/* Search Bar */}
       <div className="relative">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
         <Input
           placeholder="Search credentials, categories, tags..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500"
+          className="pl-10 bg-neutral-900/60 border-neutral-800 text-white placeholder:text-neutral-500 focus:ring-1 focus:ring-neutral-500"
         />
       </div>
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center space-x-2">
-          <Filter className="h-4 w-4 text-gray-400" />
-          <span className="text-sm text-gray-400">Filters:</span>
+          <Filter className="h-4 w-4 text-neutral-400" />
+          <span className="text-sm text-neutral-400">Filters:</span>
         </div>
 
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-40 bg-gray-800/50 border-gray-700 text-white">
+          <SelectTrigger className="w-40 bg-neutral-900/60 border-neutral-800 text-white focus:ring-1 focus:ring-neutral-500">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-gray-700">
+          <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
             <SelectItem value="all" className="text-white">All Categories</SelectItem>
             {categories.map((category) => (
               <SelectItem key={category.id} value={category.name} className="text-white">
@@ -100,10 +100,10 @@ export const SearchAndFilters = ({
         </Select>
 
         <Select value={selectedType} onValueChange={setSelectedType}>
-          <SelectTrigger className="w-40 bg-gray-800/50 border-gray-700 text-white">
+          <SelectTrigger className="w-40 bg-neutral-900/60 border-neutral-800 text-white focus:ring-1 focus:ring-neutral-500">
             <SelectValue placeholder="Type" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-gray-700">
+          <SelectContent className="bg-neutral-900 border-neutral-800 text-white">
             <SelectItem value="all" className="text-white">All Types</SelectItem>
             {credentialTypes.map((type) => (
               <SelectItem key={type.value} value={type.value} className="text-white">
@@ -118,7 +118,7 @@ export const SearchAndFilters = ({
             onClick={clearFilters}
             variant="ghost"
             size="sm"
-            className="text-gray-400 hover:text-white"
+            className="text-neutral-400 hover:text-white hover:bg-neutral-800"
           >
             <X className="h-4 w-4 mr-1" />
             Clear
@@ -129,16 +129,16 @@ export const SearchAndFilters = ({
       {/* Tags */}
       {allTags.length > 0 && (
         <div className="space-y-2">
-          <span className="text-sm text-gray-400">Tags:</span>
+          <span className="text-sm text-neutral-400">Tags:</span>
           <div className="flex flex-wrap gap-2">
             {allTags.map((tag) => (
               <Badge
                 key={tag}
                 variant={selectedTags.includes(tag) ? "default" : "secondary"}
-                className={`cursor-pointer transition-colors ${
+                className={`cursor-pointer transition-colors border ${
                   selectedTags.includes(tag)
-                    ? 'bg-cyan-600 hover:bg-cyan-700 text-white'
-                    : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                    ? 'bg-cyan-600 hover:bg-cyan-700 text-white border-cyan-500'
+                    : 'bg-cyan-900/50 hover:bg-cyan-800/50 text-cyan-300 border-cyan-700'
                 }`}
                 onClick={() => toggleTag(tag)}
               >

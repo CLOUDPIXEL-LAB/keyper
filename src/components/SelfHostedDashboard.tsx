@@ -241,7 +241,7 @@ export const SelfHostedDashboard: React.FC = () => {
   // Step 1: Show dashboard settings if user requests it from dashboard
   if (showDashboardSettings) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-black via-neutral-950 to-neutral-900">
+      <div className="min-h-screen bg-dot-pattern text-foreground">
         <div className="container mx-auto py-8">
           <div className="mb-6">
             <Button
@@ -264,7 +264,7 @@ export const SelfHostedDashboard: React.FC = () => {
   // Step 1b: Show database settings if configuring for first time
   if (showSettings) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-black via-neutral-950 to-neutral-900">
+      <div className="min-h-screen bg-dot-pattern text-foreground">
         <div className="container mx-auto py-8">
           <div className="mb-6">
             <Button
@@ -287,7 +287,7 @@ export const SelfHostedDashboard: React.FC = () => {
   // Step 2: Show database configuration screen if not configured
   if (!isConfigured) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-black via-neutral-950 to-neutral-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-dot-pattern text-foreground flex items-center justify-center p-4">
         <Card className="w-full max-w-2xl">
           <CardHeader className="text-center">
             {/* Keyper Logo and Title */}
@@ -376,7 +376,7 @@ export const SelfHostedDashboard: React.FC = () => {
       }}
       onDatabaseError={handleDatabaseError}
     >
-      <div className="min-h-screen bg-linear-to-br from-black via-neutral-950 to-neutral-900">
+      <div className="min-h-screen bg-dot-pattern text-foreground">
         {/* Settings Button in Header */}
         <div className="absolute top-4 right-4 z-10">
           <Button
@@ -391,7 +391,7 @@ export const SelfHostedDashboard: React.FC = () => {
         </div>
 
         {/* Main Dashboard */}
-        <div className="min-h-screen bg-linear-to-br from-black via-neutral-950 to-neutral-900">
+        <div className="min-h-screen bg-dot-pattern text-foreground">
           <Suspense fallback={<div className="h-20 bg-gray-900/50 animate-pulse" />}>
             <DashboardHeader
               user={createMockUser()}

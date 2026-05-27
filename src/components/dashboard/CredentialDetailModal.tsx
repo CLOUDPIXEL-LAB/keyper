@@ -106,7 +106,7 @@ export const CredentialDetailModal = ({
       case 'low':
         return 'bg-green-600 text-white';
       default:
-        return 'bg-gray-600 text-white';
+        return 'bg-neutral-600 text-white';
     }
   };
 
@@ -297,16 +297,16 @@ export const CredentialDetailModal = ({
 
     return (
       <div className="space-y-2 min-w-0">
-        <label className="text-sm font-medium text-gray-300">{label}</label>
+        <label className="text-sm font-medium text-neutral-300">{label}</label>
         <div className="flex min-w-0 items-start gap-2">
-          <div className="min-w-0 flex-1 p-3 bg-gray-800 border border-gray-700 rounded-md font-mono text-sm break-all whitespace-pre-wrap leading-relaxed">
+          <div className="min-w-0 flex-1 p-3 bg-neutral-800 border border-neutral-700 rounded-md font-mono text-sm break-all whitespace-pre-wrap leading-relaxed">
             {showSensitive[field] ? value : '•'.repeat(Math.min(value.length, 20))}
           </div>
           <Button
             size="sm"
             variant="outline"
             onClick={() => toggleVisibility(field)}
-            className="shrink-0 border-gray-600 text-gray-300 hover:bg-gray-700"
+            className="shrink-0 border-neutral-600 text-neutral-300 hover:bg-neutral-700"
           >
             {showSensitive[field] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </Button>
@@ -317,7 +317,7 @@ export const CredentialDetailModal = ({
               copyToClipboard(value, label);
               updateLastAccessed();
             }}
-            className="shrink-0 border-gray-600 text-gray-300 hover:bg-gray-700"
+            className="shrink-0 border-neutral-600 text-neutral-300 hover:bg-neutral-700"
           >
             <Copy className="h-4 w-4" />
           </Button>
@@ -329,18 +329,18 @@ export const CredentialDetailModal = ({
   return (
     <>
       <Dialog open={!!credential} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="w-[95vw] sm:w-[92vw] sm:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden bg-gray-900 border-gray-700 text-white">
+        <DialogContent className="w-[95vw] sm:w-[92vw] sm:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden bg-black border-neutral-700 text-white">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-cyan-500/20 rounded-lg border border-cyan-500/30">
+                <div className="p-2 bg-neutral-800 rounded-lg border border-neutral-700">
                   {getTypeIcon(credential.credential_type)}
                 </div>
                 <div>
                   <DialogTitle className="text-xl font-semibold text-white">
                     {credential.title}
                   </DialogTitle>
-                  <DialogDescription className="text-sm text-gray-400 capitalize">
+                  <DialogDescription className="text-sm text-neutral-400 capitalize">
                     {credential.credential_type.replace('_', ' ')}
                   </DialogDescription>
                 </div>
@@ -354,8 +354,8 @@ export const CredentialDetailModal = ({
           <div className="space-y-6 min-w-0">
             {credential.description && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Description</label>
-                <p className="text-gray-200 p-3 bg-gray-800/50 rounded-md border border-gray-700">
+                <label className="text-sm font-medium text-neutral-300">Description</label>
+                <p className="text-neutral-200 p-3 bg-neutral-800/50 rounded-md border border-neutral-700">
                   {credential.description}
                 </p>
               </div>
@@ -421,13 +421,13 @@ export const CredentialDetailModal = ({
 
               {credential.credential_type === 'document' && documentBase64 && (
                 <div className="space-y-2 min-w-0">
-                  <label className="text-sm font-medium text-gray-300">Document</label>
-                  <div className="flex items-center justify-between rounded-md border border-gray-700 bg-gray-800/70 px-3 py-2 gap-3">
+                  <label className="text-sm font-medium text-neutral-300">Document</label>
+                  <div className="flex items-center justify-between rounded-md border border-neutral-700 bg-neutral-800/70 px-3 py-2 gap-3">
                     <div className="min-w-0">
-                      <p className="text-sm text-gray-100 truncate">
+                      <p className="text-sm text-neutral-100 truncate">
                         {documentName}
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-neutral-400">
                         {documentMimeType}
                       </p>
                     </div>
@@ -437,7 +437,7 @@ export const CredentialDetailModal = ({
                           size="sm"
                           variant="outline"
                           onClick={() => setShowDocumentPreview((prev) => !prev)}
-                          className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                          className="border-neutral-600 text-neutral-300 hover:bg-neutral-700"
                         >
                           {showDocumentPreview ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
                           {showDocumentPreview ? 'Hide' : 'Preview'}
@@ -447,7 +447,7 @@ export const CredentialDetailModal = ({
                         size="sm"
                         variant="outline"
                         onClick={downloadDocument}
-                        className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                        className="border-neutral-600 text-neutral-300 hover:bg-neutral-700"
                       >
                         <Download className="h-4 w-4 mr-2" />
                         Download
@@ -455,8 +455,8 @@ export const CredentialDetailModal = ({
                     </div>
                   </div>
                   {showDocumentPreview && documentPreviewText && (
-                    <div className="rounded-md border border-gray-700 bg-gray-900 p-3 max-h-72 overflow-y-auto">
-                      <pre className="text-xs text-gray-200 whitespace-pre-wrap break-words">
+                    <div className="rounded-md border border-neutral-700 bg-black p-3 max-h-72 overflow-y-auto">
+                      <pre className="text-xs text-neutral-200 whitespace-pre-wrap break-words">
                         {documentPreviewText}
                       </pre>
                     </div>
@@ -471,7 +471,7 @@ export const CredentialDetailModal = ({
               )}
 
               {isDecryptingSecrets && (
-                <p className="text-xs text-gray-400 flex items-center gap-2">
+                <p className="text-xs text-neutral-400 flex items-center gap-2">
                   <span className="animate-spin inline-block">
                     <Clock className="h-3 w-3" />
                   </span>
@@ -482,16 +482,16 @@ export const CredentialDetailModal = ({
 
             {credential.url && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">URL</label>
+                <label className="text-sm font-medium text-neutral-300">URL</label>
                 <div className="flex items-center space-x-2">
-                  <div className="flex-1 p-3 bg-gray-800 border border-gray-700 rounded-md text-sm">
+                  <div className="flex-1 p-3 bg-neutral-800 border border-neutral-700 rounded-md text-sm">
                     {credential.url}
                   </div>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => window.open(credential.url!, '_blank')}
-                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    className="border-neutral-600 text-neutral-300 hover:bg-neutral-700"
                   >
                     <ExternalLink className="h-4 w-4" />
                   </Button>
@@ -499,7 +499,7 @@ export const CredentialDetailModal = ({
                     size="sm"
                     variant="outline"
                     onClick={() => copyToClipboard(credential.url!, 'URL')}
-                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    className="border-neutral-600 text-neutral-300 hover:bg-neutral-700"
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
@@ -511,8 +511,8 @@ export const CredentialDetailModal = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {credential.category && (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300">Category</label>
-                  <p className="text-gray-200 p-2 bg-gray-800/50 rounded border border-gray-700">
+                  <label className="text-sm font-medium text-neutral-300">Category</label>
+                  <p className="text-neutral-200 p-2 bg-neutral-800/50 rounded border border-neutral-700">
                     {credential.category}
                   </p>
                 </div>
@@ -520,11 +520,11 @@ export const CredentialDetailModal = ({
 
               {credential.expires_at && (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300 flex items-center">
+                  <label className="text-sm font-medium text-neutral-300 flex items-center">
                     <Calendar className="h-4 w-4 mr-1" />
                     Expires At
                   </label>
-                  <p className="text-gray-200 p-2 bg-gray-800/50 rounded border border-gray-700">
+                  <p className="text-neutral-200 p-2 bg-neutral-800/50 rounded border border-neutral-700">
                     {formatDate(credential.expires_at)}
                   </p>
                 </div>
@@ -533,7 +533,7 @@ export const CredentialDetailModal = ({
 
             {credential.tags.length > 0 && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Tags</label>
+                <label className="text-sm font-medium text-neutral-300">Tags</label>
                 <div className="flex flex-wrap gap-2">
                   {credential.tags.map((tag) => (
                     <Badge
@@ -550,8 +550,8 @@ export const CredentialDetailModal = ({
 
             {credential.notes && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Notes</label>
-                <p className="text-gray-200 p-3 bg-gray-800/50 rounded-md border border-gray-700 whitespace-pre-wrap">
+                <label className="text-sm font-medium text-neutral-300">Notes</label>
+                <p className="text-neutral-200 p-3 bg-neutral-800/50 rounded-md border border-neutral-700 whitespace-pre-wrap">
                   {credential.notes}
                 </p>
               </div>
@@ -560,26 +560,26 @@ export const CredentialDetailModal = ({
             {/* Timestamps */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div className="space-y-1">
-                <label className="text-gray-400">Created</label>
-                <p className="text-gray-300">{formatDate(credential.created_at)}</p>
+                <label className="text-neutral-400">Created</label>
+                <p className="text-neutral-300">{formatDate(credential.created_at)}</p>
               </div>
               <div className="space-y-1">
-                <label className="text-gray-400">Updated</label>
-                <p className="text-gray-300">{formatDate(credential.updated_at)}</p>
+                <label className="text-neutral-400">Updated</label>
+                <p className="text-neutral-300">{formatDate(credential.updated_at)}</p>
               </div>
               {credential.last_accessed && (
                 <div className="space-y-1">
-                  <label className="text-gray-400 flex items-center">
+                  <label className="text-neutral-400 flex items-center">
                     <Clock className="h-3 w-3 mr-1" />
                     Last Accessed
                   </label>
-                  <p className="text-gray-300">{formatDate(credential.last_accessed)}</p>
+                  <p className="text-neutral-300">{formatDate(credential.last_accessed)}</p>
                 </div>
               )}
             </div>
 
             {/* Actions */}
-            <div className="flex justify-between pt-4 border-t border-gray-700">
+            <div className="flex justify-between pt-4 border-t border-neutral-700">
               <Button
                 onClick={handleDelete}
                 disabled={loading}
@@ -594,12 +594,12 @@ export const CredentialDetailModal = ({
                 <Button
                   variant="outline"
                   onClick={onClose}
-                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                  className="border-neutral-600 text-neutral-300 hover:bg-neutral-800"
                 >
                   Close
                 </Button>
                 <Button
-                  className="bg-cyan-600 hover:bg-cyan-700 text-white"
+                  className="bg-white hover:bg-neutral-200 text-black"
                   onClick={() => setIsEditModalOpen(true)}
                 >
                   <Edit className="h-4 w-4 mr-2" />

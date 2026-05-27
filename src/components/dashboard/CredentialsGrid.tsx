@@ -59,7 +59,7 @@ export const CredentialsGrid = ({
       case 'low':
         return 'bg-green-600 text-white';
       default:
-        return 'bg-gray-600 text-white';
+        return 'bg-neutral-600 text-white';
     }
   };
 
@@ -75,14 +75,14 @@ export const CredentialsGrid = ({
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
         {[...Array(10)].map((_, i) => (
-          <Card key={i} className="bg-gray-800/50 border-gray-700">
+          <Card key={i} className="bg-neutral-900/60 border-neutral-800">
             <CardHeader>
-              <Skeleton className="h-4 w-3/4 bg-gray-700" />
-              <Skeleton className="h-3 w-1/2 bg-gray-700" />
+              <Skeleton className="h-4 w-3/4 bg-neutral-800" />
+              <Skeleton className="h-3 w-1/2 bg-neutral-800" />
             </CardHeader>
             <CardContent>
-              <Skeleton className="h-3 w-full bg-gray-700 mb-2" />
-              <Skeleton className="h-3 w-2/3 bg-gray-700" />
+              <Skeleton className="h-3 w-full bg-neutral-800 mb-2" />
+              <Skeleton className="h-3 w-2/3 bg-neutral-800" />
             </CardContent>
           </Card>
         ))}
@@ -93,9 +93,9 @@ export const CredentialsGrid = ({
   if (credentials.length === 0) {
     return (
       <div className="text-center py-12">
-        <Shield className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-gray-300 mb-2">No credentials found</h3>
-        <p className="text-gray-500">Add your first credential to get started</p>
+        <Shield className="h-16 w-16 text-neutral-600 mx-auto mb-4" />
+        <h3 className="text-xl font-semibold text-neutral-300 mb-2">No credentials found</h3>
+        <p className="text-neutral-500">Add your first credential to get started</p>
       </div>
     );
   }
@@ -105,14 +105,14 @@ export const CredentialsGrid = ({
       {credentials.map((credential) => (
         <Card 
           key={credential.id}
-          className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-colors cursor-pointer group"
+          className="bg-neutral-900/60 border-neutral-800 hover:bg-neutral-900/80 transition-colors cursor-pointer group"
           onClick={() => onCredentialClick(credential)}
         >
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
               <div className="flex items-center space-x-2">
                 {getTypeIcon(credential.credential_type)}
-                <CardTitle className="text-lg text-white group-hover:text-cyan-400 transition-colors">
+                <CardTitle className="text-lg text-white group-hover:text-neutral-300 transition-colors">
                   {credential.title}
                 </CardTitle>
               </div>
@@ -121,7 +121,7 @@ export const CredentialsGrid = ({
               </Badge>
             </div>
             {credential.description && (
-              <p className="text-sm text-gray-400 line-clamp-2">
+              <p className="text-sm text-neutral-400 line-clamp-2">
                 {credential.description}
               </p>
             )}
@@ -129,26 +129,26 @@ export const CredentialsGrid = ({
           
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">Type</span>
-              <span className="text-gray-300 capitalize">
+              <span className="text-neutral-500">Type</span>
+              <span className="text-neutral-300 capitalize">
                 {credential.credential_type.replace('_', ' ')}
               </span>
             </div>
 
             {credential.category && (
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-500">Category</span>
-                <span className="text-gray-300">{credential.category}</span>
+                <span className="text-neutral-500">Category</span>
+                <span className="text-neutral-300">{credential.category}</span>
               </div>
             )}
 
             {credential.expires_at && (
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-500 flex items-center">
+                <span className="text-neutral-500 flex items-center">
                   <Clock className="h-3 w-3 mr-1" />
                   Expires
                 </span>
-                <span className="text-gray-300">
+                <span className="text-neutral-300">
                   {formatDate(credential.expires_at)}
                 </span>
               </div>
@@ -168,7 +168,7 @@ export const CredentialsGrid = ({
                 {credential.tags.length > 3 && (
                   <Badge 
                     variant="secondary" 
-                    className="text-xs bg-gray-700 text-gray-300"
+                    className="text-xs bg-neutral-700 text-neutral-300"
                   >
                     +{credential.tags.length - 3}
                   </Badge>
@@ -176,14 +176,14 @@ export const CredentialsGrid = ({
               </div>
             )}
 
-            <div className="flex items-center justify-between pt-3 border-t border-gray-700">
-              <span className="text-xs text-gray-500">
+            <div className="flex items-center justify-between pt-3 border-t border-neutral-700">
+              <span className="text-xs text-neutral-500">
                 Updated {formatDate(credential.updated_at)}
               </span>
               <Button 
                 size="sm" 
                 variant="ghost" 
-                className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-950/50"
+                className="text-neutral-300 hover:text-neutral-300 hover:bg-neutral-800"
               >
                 <Eye className="h-4 w-4" />
               </Button>

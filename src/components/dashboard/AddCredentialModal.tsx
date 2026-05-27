@@ -347,12 +347,12 @@ export const AddCredentialModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700 text-white">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-black border-neutral-700 text-white">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-white">
             Add New Credential
           </DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-neutral-400">
             Store and organize your digital credentials securely
           </DialogDescription>
         </DialogHeader>
@@ -365,7 +365,7 @@ export const AddCredentialModal = ({
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="bg-gray-800 border-gray-700 text-white"
+                className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
                 placeholder="e.g., GitHub API Key"
               />
             </div>
@@ -376,10 +376,10 @@ export const AddCredentialModal = ({
                 value={formData.credential_type}
                 onValueChange={(value: CredentialType) => setFormData({ ...formData, credential_type: value })}
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectTrigger className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectContent className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500">
                   {credentialTypes.map((type) => (
                     <SelectItem key={type.value} value={type.value} className="text-white">
                       {type.label}
@@ -396,7 +396,7 @@ export const AddCredentialModal = ({
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
               placeholder="Brief description of this credential"
               rows={2}
             />
@@ -411,7 +411,7 @@ export const AddCredentialModal = ({
                     id="username"
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    className="bg-gray-800 border-gray-700 text-white"
+                    className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
                   />
                 </div>
                 <div className="space-y-2">
@@ -421,7 +421,7 @@ export const AddCredentialModal = ({
                     type="password"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="bg-gray-800 border-gray-700 text-white"
+                    className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
                   />
                 </div>
               </>
@@ -435,7 +435,7 @@ export const AddCredentialModal = ({
                   type="password"
                   value={formData.api_key}
                   onChange={(e) => setFormData({ ...formData, api_key: e.target.value })}
-                  className="bg-gray-800 border-gray-700 text-white"
+                  className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
                 />
               </div>
             )}
@@ -457,7 +457,7 @@ export const AddCredentialModal = ({
                         : { token_value: e.target.value }),
                     })
                   }
-                  className="bg-gray-800 border-gray-700 text-white"
+                  className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
                 />
               </div>
             )}
@@ -479,7 +479,7 @@ export const AddCredentialModal = ({
                       variant="outline"
                       size="sm"
                       onClick={() => certificateFileInputRef.current?.click()}
-                      className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                      className="border-neutral-600 text-neutral-300 hover:bg-neutral-800"
                     >
                       <Upload className="h-4 w-4 mr-2" />
                       Upload File
@@ -490,7 +490,7 @@ export const AddCredentialModal = ({
                   id="certificate_data"
                   value={formData.certificate_data}
                   onChange={(e) => setFormData({ ...formData, certificate_data: e.target.value })}
-                  className="bg-gray-800 border-gray-700 text-white font-mono text-sm"
+                  className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white font-mono text-sm"
                   placeholder="Paste certificate content here (PEM format)"
                   rows={7}
                 />
@@ -513,7 +513,7 @@ export const AddCredentialModal = ({
                     variant="outline"
                     size="sm"
                     onClick={() => documentFileInputRef.current?.click()}
-                    className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                    className="border-neutral-600 text-neutral-300 hover:bg-neutral-800"
                   >
                     <Upload className="h-4 w-4 mr-2" />
                     Upload Document
@@ -521,13 +521,13 @@ export const AddCredentialModal = ({
                 </div>
 
                 {formData.document_name ? (
-                  <div className="flex items-center justify-between rounded-md border border-gray-700 bg-gray-800/70 px-3 py-2">
+                  <div className="flex items-center justify-between rounded-md border border-neutral-700 bg-neutral-800/70 px-3 py-2">
                     <div className="min-w-0">
-                      <p className="text-sm text-gray-100 truncate flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-cyan-400" />
+                      <p className="text-sm text-neutral-100 truncate flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-white" />
                         {formData.document_name}
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-neutral-400">
                         {formatBytes(formData.document_size_bytes)}
                       </p>
                     </div>
@@ -536,13 +536,13 @@ export const AddCredentialModal = ({
                       variant="ghost"
                       size="icon"
                       onClick={clearDocument}
-                      className="text-gray-400 hover:text-white hover:bg-gray-700"
+                      className="text-neutral-400 hover:text-white hover:bg-neutral-700"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 ) : (
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-neutral-400">
                     Supported: PDF, DOC, DOCX, ODT, TXT, MD (up to {formatBytes(MAX_DOCUMENT_BYTES)}).
                   </p>
                 )}
@@ -556,7 +556,7 @@ export const AddCredentialModal = ({
                   id="misc_value"
                   value={formData.misc_value}
                   onChange={(e) => setFormData({ ...formData, misc_value: e.target.value })}
-                  className="bg-gray-800 border-gray-700 text-white font-mono text-sm"
+                  className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white font-mono text-sm"
                   placeholder="Paste any sensitive multiline text, scripts, or commands here"
                   rows={8}
                 />
@@ -569,7 +569,7 @@ export const AddCredentialModal = ({
                 id="url"
                 value={formData.url}
                 onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                className="bg-gray-800 border-gray-700 text-white"
+                className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
                 placeholder="https://example.com"
               />
             </div>
@@ -585,9 +585,9 @@ export const AddCredentialModal = ({
                       setNoExpiration(!!checked);
                       if (checked) setFormData({ ...formData, expires_at: '' });
                     }}
-                    className="border-gray-500 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                    className="border-neutral-500 data-[state=checked]:bg-white data-[state=checked]:border-white data-[state=checked]:text-black"
                   />
-                  <Label htmlFor="no_expiration" className="text-gray-400 text-xs cursor-pointer">No expiration</Label>
+                  <Label htmlFor="no_expiration" className="text-neutral-400 text-xs cursor-pointer">No expiration</Label>
                 </div>
               </div>
               <Input
@@ -596,7 +596,7 @@ export const AddCredentialModal = ({
                 value={formData.expires_at}
                 onChange={(e) => setFormData({ ...formData, expires_at: e.target.value })}
                 disabled={noExpiration}
-                className="bg-gray-800 border-gray-700 text-white disabled:opacity-40 disabled:cursor-not-allowed"
+                className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white disabled:opacity-40 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -608,10 +608,10 @@ export const AddCredentialModal = ({
                 value={formData.category}
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectTrigger className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectContent className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500">
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.name} className="text-white">
                       {category.name}
@@ -627,10 +627,10 @@ export const AddCredentialModal = ({
                 value={formData.priority}
                 onValueChange={(value: Priority) => setFormData({ ...formData, priority: value })}
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectTrigger className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectContent className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500">
                   {priorities.map((priority) => (
                     <SelectItem key={priority.value} value={priority.value} className="text-white">
                       {priority.label}
@@ -648,14 +648,14 @@ export const AddCredentialModal = ({
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="bg-gray-800 border-gray-700 text-white"
+                className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
                 placeholder="Add a tag"
               />
               <Button
                 type="button"
                 onClick={addTag}
                 size="sm"
-                className="bg-cyan-600 hover:bg-cyan-700"
+                className="bg-white hover:bg-neutral-200 text-black"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -672,7 +672,7 @@ export const AddCredentialModal = ({
                     <button
                       type="button"
                       onClick={() => removeTag(tag)}
-                      className="ml-1 hover:text-cyan-100"
+                      className="ml-1 hover:text-white"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -688,7 +688,7 @@ export const AddCredentialModal = ({
               id="notes"
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-black border-neutral-700 focus:ring-1 focus:ring-neutral-500 text-white"
               placeholder="Additional notes about this credential"
               rows={3}
             />
@@ -699,14 +699,14 @@ export const AddCredentialModal = ({
               type="button"
               variant="outline"
               onClick={onClose}
-              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+              className="border-neutral-600 text-neutral-300 hover:bg-neutral-800"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="bg-cyan-600 hover:bg-cyan-700 text-white"
+              className="bg-white hover:bg-neutral-200 text-black"
             >
               {loading ? 'Adding...' : 'Add Credential'}
             </Button>
