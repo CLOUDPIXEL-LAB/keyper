@@ -3,22 +3,38 @@
 ## General Rules
 
 - Always sound friendly and engaged with this project.
+- Always update all documentation files - README.md, CHANGELOG.md, OVERVIEW.md, ROADMAP.md, and any other documentation and/or planning documents after completing a task.
 - Use all available agents, skills, and tools autonomously as needed.
 - Always refer to all instruction files at the start of new tasks.
-- Use Context7 tools for up-to-date framework/API documentation before coding.
+- Use web search tools for up-to-date framework/API documentation.
 - Check the system date/time before updating CHANGELOG.md.
 - Thoroughly understand the full codebase context before making any changes. When uncertain, ask for clarification.
 - Keep `OVERVIEW.md` (technical overview document), `README.md`, and `CHANGELOG.md` current. Create them if they don't exist.
-- Create an Apache 2.0 `LICENSE` file if none exists.
+- Always create an Apache 2.0 `LICENSE` file if none exists.
 - Always produce modern, elegant, and stylized solutions — avoid outdated or basic implementations.
 
 **Important:** Do NOT change files unless you fully understand the project structure and intent.
 
+**Important:** Always update all documentation files - README.md, CHANGELOG.md, OVERVIEW.md, ROADMAP.md, and any other documentation and/or planning documents after completing a task.
+
+**Important:** Do NOT EVER push changes to github or deploy any pages to Cloudflare unless explicitly asked to do so.
+
+**Important:** NEVER use gradient text, EVER. DO NOT use glow accents. DO NOT overengineer anything. Keep UIs minimal and professional unless asked to do otherwise. Use a Vercel style aesthetic for most applications unless asked to do otherwise. Prefer dark charcoal gray backgrounds over straight black, textured backgrounds such as dotted grids. Minimalist by default unless asked to do otherwise.
+
 ---
 
-## Owner / Branding
+## Documentation Maintenance
+
+- Update `CHANGELOG.md` with every user-facing change (check current date first with a terminal command).
+- Keep `OVERVIEW.md` accurate as the living technical reference.
+- Update `README.md` as needed to keep all user-facing information up to date.
+
+---
+
+## Owner / Org Branding
 
 - **Name:** Pink Pixel
+- **Color:** Pink `#ff69b4`
 - **Website:** [pinkpixel.dev](https://pinkpixel.dev)
 - **GitHub:** [github.com/pinkpixel-dev](https://github.com/pinkpixel-dev)
 - **Email:** admin@pinkpixel.dev
@@ -41,22 +57,22 @@ Deployment modes: PWA · Docker/nginx container · Electron desktop app · `npm 
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| UI | React 19 + TypeScript 5.8 + Vite 7 (`@vitejs/plugin-react-swc`) |
-| Styling | **Tailwind CSS v3** (PostCSS, `tailwind.config.ts`) + shadcn/ui + Radix UI |
-| State | TanStack React Query 5 + React Hook Form + Zod |
-| Routing | React Router v6 `BrowserRouter` — two routes: `/` and `*` (404) |
+| Layer        | Technology                                                                                                |
+| ------------ | --------------------------------------------------------------------------------------------------------- |
+| UI           | React 19 + TypeScript 5.8 + Vite 7 (`@vitejs/plugin-react-swc`)                                           |
+| Styling      | **Tailwind CSS v3** (PostCSS, `tailwind.config.ts`) + shadcn/ui + Radix UI                                |
+| State        | TanStack React Query 5 + React Hook Form + Zod                                                            |
+| Routing      | React Router v6 `BrowserRouter` — two routes: `/` and `*` (404)                                           |
 | Cryptography | `argon2-browser` (Argon2id WASM) · Web Crypto API (AES-256-GCM, PBKDF2 fallback) · `bcryptjs` (12 rounds) |
-| DB — cloud | Supabase JS SDK 2 (PostgreSQL + RLS) |
-| DB — browser | `sql.js` 1.12 (SQLite WASM + IndexedDB persistence) |
-| DB — desktop | `better-sqlite3` via Electron IPC |
-| Desktop | Electron 33 (custom `app://` scheme, `contextBridge`) |
-| Icons | Lucide React |
-| Theming | `next-themes` (class-based dark mode) |
-| Testing | Vitest |
-| Linting | ESLint |
-| Deployment | Cloudflare Pages (`wrangler`) · Docker · npm publish |
+| DB — cloud   | Supabase JS SDK 2 (PostgreSQL + RLS)                                                                      |
+| DB — browser | `sql.js` 1.12 (SQLite WASM + IndexedDB persistence)                                                       |
+| DB — desktop | `better-sqlite3` via Electron IPC                                                                         |
+| Desktop      | Electron 33 (custom `app://` scheme, `contextBridge`)                                                     |
+| Icons        | Lucide React                                                                                              |
+| Theming      | `next-themes` (class-based dark mode)                                                                     |
+| Testing      | Vitest                                                                                                    |
+| Linting      | ESLint                                                                                                    |
+| Deployment   | Cloudflare Pages (`wrangler`) · Docker · npm publish                                                      |
 
 ---
 
@@ -76,31 +92,31 @@ Browser / Electron
 
 ### Key Files
 
-| File | Purpose |
-|---|---|
-| `src/App.tsx` | Root: QueryClient → ThemeProvider → BrowserRouter → 2 routes |
-| `src/main.tsx` | Entry: CSP init → render App |
-| `src/index.css` | Tailwind import + HSL CSS custom properties (dark theme only) |
-| `src/components/SelfHostedDashboard.tsx` | Main app shell, DB config, lazy sub-components |
-| `src/components/PassphraseGate.tsx` | Vault unlock UI, passphrase strength, auto-lock countdown |
-| `src/components/Settings.tsx` | DB provider switcher (Supabase ↔ SQLite), connection test |
-| `src/components/dashboard/` | 9 focused components (header, search, grid, add/edit/detail modals) |
-| `src/components/ui/` | 45 shadcn/ui primitives |
-| `src/crypto/crypto.ts` | `encryptString()` / `decryptString()` / `deriveKey()` |
-| `src/crypto/bcrypt.ts` | `hashPassphrase()` / `verifyPassphrase()` |
-| `src/services/SecureVault.ts` | In-memory DEK; auto-lock timer; pub/sub vault events |
-| `src/services/VaultManager.ts` | Singleton: vault setup, unlock, lock, passphrase reset |
-| `src/services/EncryptedCredentialsApi.ts` | Full CRUD for encrypted credentials (`secret_blob` JSONB) |
-| `src/hooks/useVault.ts` | React hook: `isUnlocked`, `unlock()`, `lock()`, `encrypt()`, `decrypt()` |
-| `src/integrations/supabase/client.ts` | Supabase client + DB provider registry + localStorage key constants |
-| `src/integrations/database/sqlite-client.ts` | SQLite router (Electron IPC vs sql.js WASM) |
-| `src/security/ContentSecurityPolicy.ts` | Programmatic CSP meta-tag injection at startup |
-| `src/security/PassphraseValidator.ts` | `analyzePassphrase()` + strength scoring |
-| `electron/main.ts` | Main process: `app://` scheme, window, IPC handlers, `better-sqlite3` |
-| `electron/preload.ts` | `contextBridge` → `window.keyperElectron` |
-| `bin/keyper.js` | CLI: starts `vite preview` server |
-| `supabase-setup.sql` | Full DB schema + RLS policies |
-| `website/` | Separate Astro marketing site (independent build) |
+| File                                         | Purpose                                                                  |
+| -------------------------------------------- | ------------------------------------------------------------------------ |
+| `src/App.tsx`                                | Root: QueryClient → ThemeProvider → BrowserRouter → 2 routes             |
+| `src/main.tsx`                               | Entry: CSP init → render App                                             |
+| `src/index.css`                              | Tailwind import + HSL CSS custom properties (dark theme only)            |
+| `src/components/SelfHostedDashboard.tsx`     | Main app shell, DB config, lazy sub-components                           |
+| `src/components/PassphraseGate.tsx`          | Vault unlock UI, passphrase strength, auto-lock countdown                |
+| `src/components/Settings.tsx`                | DB provider switcher (Supabase ↔ SQLite), connection test                |
+| `src/components/dashboard/`                  | 9 focused components (header, search, grid, add/edit/detail modals)      |
+| `src/components/ui/`                         | 45 shadcn/ui primitives                                                  |
+| `src/crypto/crypto.ts`                       | `encryptString()` / `decryptString()` / `deriveKey()`                    |
+| `src/crypto/bcrypt.ts`                       | `hashPassphrase()` / `verifyPassphrase()`                                |
+| `src/services/SecureVault.ts`                | In-memory DEK; auto-lock timer; pub/sub vault events                     |
+| `src/services/VaultManager.ts`               | Singleton: vault setup, unlock, lock, passphrase reset                   |
+| `src/services/EncryptedCredentialsApi.ts`    | Full CRUD for encrypted credentials (`secret_blob` JSONB)                |
+| `src/hooks/useVault.ts`                      | React hook: `isUnlocked`, `unlock()`, `lock()`, `encrypt()`, `decrypt()` |
+| `src/integrations/supabase/client.ts`        | Supabase client + DB provider registry + localStorage key constants      |
+| `src/integrations/database/sqlite-client.ts` | SQLite router (Electron IPC vs sql.js WASM)                              |
+| `src/security/ContentSecurityPolicy.ts`      | Programmatic CSP meta-tag injection at startup                           |
+| `src/security/PassphraseValidator.ts`        | `analyzePassphrase()` + strength scoring                                 |
+| `electron/main.ts`                           | Main process: `app://` scheme, window, IPC handlers, `better-sqlite3`    |
+| `electron/preload.ts`                        | `contextBridge` → `window.keyperElectron`                                |
+| `bin/keyper.js`                              | CLI: starts `vite preview` server                                        |
+| `supabase-setup.sql`                         | Full DB schema + RLS policies                                            |
+| `website/`                                   | Separate Astro marketing site (independent build)                        |
 
 ---
 
@@ -163,9 +179,3 @@ npm run deploy:build          # build + Cloudflare Pages deploy
 - Follow OWASP Top 10 — especially injection, broken access control, and cryptographic failures.
 
 ---
-
-## Documentation Maintenance
-
-- Update `CHANGELOG.md` with every user-facing change (check current date first with a terminal command).
-- Keep `OVERVIEW.md` accurate as the living technical reference.
-- Instruction files live in `.github/` — update them when their domain changes.
