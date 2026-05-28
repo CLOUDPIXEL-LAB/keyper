@@ -14,10 +14,11 @@ This page is a practical index of where behavior lives in the repository today.
 
 ## Configuration and Supabase integration
 
-- `src/integrations/supabase/client.ts`: local storage keys, credential persistence, client creation/refresh.
-- `src/components/Settings.tsx`: Supabase URL/key form, validation, connection test UX.
+- `src/integrations/supabase/client.ts`: local storage keys, provider routing, credential persistence, client creation/refresh.
+- `src/integrations/database/neon-client.ts`: Neon serverless query adapter for the Supabase-style compatibility surface.
+- `src/components/Settings.tsx`: Supabase, Neon, and SQLite configuration forms, validation, and connection test UX.
 - `src/components/dashboard/DashboardSettings.tsx`: user management UI, appearance theme selector, SQL scripts, and reset/system tools.
-- `supabase-setup.sql`: canonical schema, policies, triggers, helper functions.
+- `supabase-setup.sql`, `neon-setup.sql`: Postgres schemas, policies, triggers, helper functions.
 
 ## Vault and cryptography
 

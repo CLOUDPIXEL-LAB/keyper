@@ -8,8 +8,14 @@ import {
   testSqliteConnection,
   type DbResponse,
 } from '@/integrations/database/sqlite-client';
+import {
+  neonClient,
+  configureNeonProvider,
+  testNeonConnection,
+  type NeonMode,
+} from '@/integrations/database/neon-client';
 
-export type DatabaseProvider = 'supabase' | 'sqlite';
+export type DatabaseProvider = 'supabase' | 'sqlite' | 'neon';
 
 // Default Supabase configuration - placeholder values for self-hosted version
 const DEFAULT_SUPABASE_URL = 'https://your-project.supabase.co';
@@ -21,6 +27,8 @@ export const SUPABASE_URL_KEY = 'keyper-supabase-url';
 export const SUPABASE_KEY_KEY = 'keyper-supabase-key';
 export const SUPABASE_USERNAME_KEY = 'keyper-username';
 export const SQLITE_DB_PATH_KEY = 'keyper-sqlite-db-path';
+export const NEON_CONNECTION_STRING_KEY = 'keyper-neon-connection-string';
+export const NEON_MODE_KEY = 'keyper-neon-mode';
 
 function isBrowser(): boolean {
   return typeof window !== 'undefined';
@@ -33,6 +41,7 @@ export function isElectronApp(): boolean {
 export const getDatabaseProvider = (): DatabaseProvider => {
   if (!isBrowser()) return 'supabase';
   const provider = localStorage.getItem(DB_PROVIDER_KEY);
+  if (provider === 'neon') return 'neon';
   return provider === 'sqlite' ? 'sqlite' : 'supabase';
 };
 
@@ -78,6 +87,49 @@ export const clearSqliteDatabasePath = (): boolean => {
   }
 };
 
+export const getNeonConnectionString = (): string => {
+  if (!isBrowser()) return '';
+  return localStorage.getItem(NEON_CONNECTION_STRING_KEY) || '';
+};
+
+export const getNeonMode = (): NeonMode => {
+  if (!isBrowser()) return 'cloud';
+  return localStorage.getItem(NEON_MODE_KEY) === 'local' ? 'local' : 'cloud';
+};
+
+export const saveNeonCredentials = (connectionString: string, mode: NeonMode, username?: string): boolean => {
+  if (!isBrowser()) return false;
+  try {
+    localStorage.setItem(NEON_CONNECTION_STRING_KEY, connectionString.trim());
+    localStorage.setItem(NEON_MODE_KEY, mode);
+    localStorage.setItem(DB_PROVIDER_KEY, 'neon');
+    if (username) {
+      localStorage.setItem(SUPABASE_USERNAME_KEY, username);
+    }
+    configureNeonProvider({
+      connectionString: connectionString.trim(),
+      mode,
+    });
+    return true;
+  } catch (error) {
+    console.error('Error saving Neon credentials:', error);
+    return false;
+  }
+};
+
+export const clearNeonCredentials = (): boolean => {
+  if (!isBrowser()) return false;
+  try {
+    localStorage.removeItem(NEON_CONNECTION_STRING_KEY);
+    localStorage.removeItem(NEON_MODE_KEY);
+    configureNeonProvider(null);
+    return true;
+  } catch (error) {
+    console.error('Error clearing Neon credentials:', error);
+    return false;
+  }
+};
+
 // Helper function to get the current Supabase URL and key
 export const getSupabaseCredentials = () => {
   try {
@@ -110,6 +162,9 @@ export const hasConfiguredDatabase = () => {
   const provider = getDatabaseProvider();
   if (provider === 'sqlite') {
     return true;
+  }
+  if (provider === 'neon') {
+    return getNeonConnectionString().trim().length > 0;
   }
   return hasCustomSupabaseCredentials();
 };
@@ -165,6 +220,15 @@ export const saveSupabaseCredentials = (url: string, key: string, username?: str
   }
 };
 
+configureNeonProvider(
+  getNeonConnectionString()
+    ? {
+        connectionString: getNeonConnectionString(),
+        mode: getNeonMode(),
+      }
+    : null,
+);
+
 let supabaseClient: ReturnType<typeof createClient<Database>>;
 
 const initializeSupabaseClient = () => {
@@ -187,6 +251,9 @@ const getActiveClient = () => {
   const provider = getDatabaseProvider();
   if (provider === 'sqlite') {
     return sqliteClient;
+  }
+  if (provider === 'neon') {
+    return neonClient;
   }
   return supabaseClient;
 };
@@ -256,14 +323,35 @@ export const testSqliteProviderConnection = async (dbPath?: string): Promise<DbR
   return testSqliteConnection(dbPath || getSqliteDatabasePath());
 };
 
+export const testNeonProviderConnection = async (
+  connectionString = getNeonConnectionString(),
+  mode = getNeonMode(),
+): Promise<DbResponse<{ mode: NeonMode }>> => {
+  return testNeonConnection({ connectionString, mode });
+};
+
 // Function to refresh the active client after credentials/provider change
 export const refreshSupabaseClient = () => {
-  if (getDatabaseProvider() === 'sqlite') {
+  const provider = getDatabaseProvider();
+
+  if (provider === 'sqlite') {
     void initializeSqliteProvider().then((sqliteInit) => {
       if (sqliteInit.error) {
         console.error('Failed to initialize SQLite provider:', sqliteInit.error.message);
       }
     });
+    return supabase;
+  }
+
+  if (provider === 'neon') {
+    configureNeonProvider(
+      getNeonConnectionString()
+        ? {
+            connectionString: getNeonConnectionString(),
+            mode: getNeonMode(),
+          }
+        : null,
+    );
     return supabase;
   }
 

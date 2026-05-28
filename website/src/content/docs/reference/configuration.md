@@ -6,6 +6,7 @@ description: Build/runtime config points and where they live.
 ## Key application configs
 
 - Database provider router + Supabase client: `src/integrations/supabase/client.ts`
+- Neon serverless adapter: `src/integrations/database/neon-client.ts`
 - SQLite local engine (sql.js / IndexedDB): `src/integrations/database/sqlite-client.ts`
 - CSP runtime policy: `src/security/ContentSecurityPolicy.ts`
 - Build and chunk strategy: `vite.config.ts`
@@ -15,9 +16,10 @@ description: Build/runtime config points and where they live.
 
 ## SQL script sources
 
-> **Note:** SQL scripts are only required for the **Supabase** provider. SQLite schema is created and seeded automatically on first launch.
+> **Note:** SQL scripts are required for Postgres providers (**Supabase** and **Neon**). SQLite schema is created and seeded automatically on first launch.
 
-- Full setup script: `supabase-setup.sql`
+- Supabase setup script: `supabase-setup.sql`
+- Neon setup script: `neon-setup.sql`
 - Existing DB upgrade script: `migration-add-document-misc-types.sql`
 
 ## Docs site configs
@@ -28,4 +30,4 @@ description: Build/runtime config points and where they live.
 
 ## Versioning notes
 
-Current package version in app repo is `1.1.2`. Keep app docs, website docs, and distribution artifact references in sync at release time.
+Current package version in app repo is `1.1.4`. Keep app docs, website docs, and distribution artifact references in sync at release time.

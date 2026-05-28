@@ -7,7 +7,7 @@ This page covers the different ways to self-host Keyper and the runtime model th
 
 ## Runtime assumptions in app code
 
-- Supabase URL/key are supplied by the user at runtime and stored in local storage.
+- Supabase URL/key or Neon connection strings are supplied by the user at runtime and stored in local storage.
 - Username context is also local-storage driven (`keyper-username`).
 - Registration handoff uses local state (`keyper-show-registration`) to route from lock screen into new-user creation.
 - Credential and category table access is filtered by `user_id` in client queries.
@@ -54,7 +54,7 @@ docker build -t keyper .
 docker run -d -p 8080:80 --name keyper --restart unless-stopped keyper
 ```
 
-No environment variables or volumes are required. Configuration (Supabase credentials, provider selection, username context, optional SQLite path/name) is entered in-app. In browser-hosted usage, config is stored in browser `localStorage` and SQLite data persists in browser storage. In Electron, SQLite can also use a file on disk.
+No environment variables or volumes are required. Configuration (Supabase credentials, Neon connection strings, provider selection, username context, optional SQLite path/name) is entered in-app. In browser-hosted usage, config is stored in browser `localStorage` and SQLite data persists in browser storage. In Electron, SQLite can also use a file on disk.
 
 Multi-user onboarding is self-service in the app itself (lock screen **Create New User** or **Dashboard Settings → User Management → Add New User**). No admin account is required or available.
 
@@ -86,9 +86,9 @@ See [Install and Run](/getting-started/install-and-run/) for the currently publi
 ## Operational recommendations
 
 - Run Keyper over HTTPS in production.
-- Keep Supabase project credentials and policies tightly controlled.
+- Keep Supabase credentials, Neon connection strings, and Postgres policies tightly controlled.
 - Be explicit about SQLite storage mode in user-facing docs: browser/PWA uses browser-local persistence, while Electron can also use a disk-backed database file.
 - Validate that the SQL setup script matches the current app release before onboarding users.
 - For existing databases, apply release migrations (for example `migration-add-document-misc-types.sql`) before enabling new credential features in production.
 - Periodically audit docs against implementation to avoid security misunderstandings.
-- Row Level Security is enabled on all Supabase tables — do not disable it.
+- Row Level Security is enabled on all Supabase and Neon Postgres tables — do not disable it.

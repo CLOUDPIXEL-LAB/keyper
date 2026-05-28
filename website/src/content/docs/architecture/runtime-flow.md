@@ -11,10 +11,11 @@ description: Step-by-step application behavior from load to credential operation
 
 ## Configuration flow
 
-1. `getDatabaseProvider()` reads the selected provider (`supabase` or `sqlite`) from local storage.
+1. `getDatabaseProvider()` reads the selected provider (`supabase`, `neon`, or `sqlite`) from local storage.
 2. If no provider is configured, the database configuration UI is shown.
 3. For **Supabase**: credentials are tested and then persisted to local storage; the Supabase client is refreshed with new credentials.
-4. For **SQLite**: no credentials are needed; the sql.js engine initialises the schema automatically on first open.
+4. For **Neon**: the connection string and Cloud/Local mode are tested through the Neon serverless driver, then persisted to local storage.
+5. For **SQLite**: no credentials are needed; the sql.js engine initialises the schema automatically on first open.
 
 ## Vault flow
 

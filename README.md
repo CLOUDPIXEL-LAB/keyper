@@ -11,6 +11,7 @@
 [![React](https://img.shields.io/badge/React-19.1-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Ready-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
+[![Neon](https://img.shields.io/badge/Neon-Postgres-00E699?style=for-the-badge)](https://neon.tech/)
 [![SQLite](https://img.shields.io/badge/SQLite-Local--First-003B57?style=for-the-badge&logo=sqlite)](https://www.sqlite.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)](https://hub.docker.com/)
 [![Electron](https://img.shields.io/badge/Electron-v33-47848F?style=for-the-badge&logo=electron)](https://www.electronjs.org/)
@@ -110,6 +111,7 @@ Get Keyper running on your own infrastructure in under 5 minutes!
 - **Database (choose one)**:
   - 🗄️ **SQLite (local mode)** — no account or server required, zero configuration, works in browser and Electron desktop
   - ☁️ **Supabase** — free tier works perfectly for hosted/remote/multi-device usage
+  - 🐘 **Neon Postgres** — Neon Cloud or Neon Local Docker using a Postgres connection string
 - **Modern web browser** (Chrome, Firefox, Safari, Edge)
 
 ### ⚡ 1-Minute Installation
@@ -128,7 +130,7 @@ keyper --port 3000
 # 🌐 http://localhost:4173 (or your custom port)
 ```
 
-**That's it!** 🎉 Follow the in-app setup wizard to configure your database (choose **SQLite** for zero-config local storage, or **Supabase** for hosted cloud storage).
+**That's it!** 🎉 Follow the in-app setup wizard to configure your database (choose **SQLite** for zero-config local storage, **Supabase** for hosted cloud storage, or **Neon** for cloud/local Postgres).
 
 ### 🌐 Try the Demo
 
@@ -214,7 +216,7 @@ docker compose down
 docker compose logs -f
 ```
 
-> **Note:** Keyper stores all configuration (Supabase credentials or SQLite provider selection) in browser `localStorage` — no environment variables or volumes are required.
+> **Note:** Keyper stores all configuration (Supabase credentials, Neon connection strings, or SQLite provider selection) in browser `localStorage` — no environment variables or volumes are required.
 
 ### Method 5: ⚡ Electron Desktop App
 
@@ -253,16 +255,16 @@ Installers are output to `dist-electron/`.
 
 ## 🗄️ Database Setup
 
-Keyper supports two database backends — choose the one that fits your workflow:
+Keyper supports three database backends — choose the one that fits your workflow:
 
-| Feature                   | SQLite (Local)                                                         | Supabase (Cloud)              |
-| ------------------------- | ---------------------------------------------------------------------- | ----------------------------- |
-| Setup required            | None — auto-configured                                                 | Project creation + SQL script |
-| Internet connection       | ❌ Not required                                                        | ✅ Required                   |
-| Multi-device sync         | ❌ Not supported                                                       | ✅ Supported                  |
-| Works in browser/PWA      | ✅ Yes                                                                 | ✅ Yes                        |
-| Works in Electron desktop | ✅ Yes                                                                 | ✅ Yes                        |
-| Data location             | Your device (IndexedDB in browser/PWA, optional file path in Electron) | Your Supabase project         |
+| Feature                   | SQLite (Local)                                                         | Supabase (Cloud)              | Neon Postgres (Cloud/Local)           |
+| ------------------------- | ---------------------------------------------------------------------- | ----------------------------- | ------------------------------------- |
+| Setup required            | None — auto-configured                                                 | Project creation + SQL script | Connection string + Neon setup script |
+| Internet connection       | ❌ Not required                                                        | ✅ Required                   | ✅ Cloud / local proxy for Neon Local |
+| Multi-device sync         | ❌ Not supported                                                       | ✅ Supported                  | ✅ Supported                          |
+| Works in browser/PWA      | ✅ Yes                                                                 | ✅ Yes                        | ✅ Yes                                |
+| Works in Electron desktop | ✅ Yes                                                                 | ✅ Yes                        | ✅ Yes                                |
+| Data location             | Your device (IndexedDB in browser/PWA, optional file path in Electron) | Your Supabase project         | Neon Cloud or Neon Local branch       |
 
 ### Option A: SQLite (Local — Zero Config)
 
@@ -316,6 +318,24 @@ Keyper supports two database backends — choose the one that fits your workflow
 
 5. **Start Managing**: Add your first encrypted credential! 🎉
 
+### Option C: Neon Postgres (Cloud or Local)
+
+#### Step 1: Prepare Neon
+
+- **Neon Cloud**: Create or open a project at [neon.tech](https://neon.tech), then copy a pooled or direct Postgres connection string from the Neon dashboard.
+- **Neon Local**: Start the official Neon Local Docker container, then use its local Postgres connection string, for example `postgres://neon:npg@localhost:5432/neondb`.
+
+#### Step 2: Configure Keyper
+
+1. Start Keyper and open the setup wizard.
+2. Select **Neon Postgres** as the database provider.
+3. Choose **Neon Cloud** or **Neon Local Docker**.
+4. Paste the connection string.
+5. Copy and run `neon-setup.sql` in the Neon SQL Editor or any Postgres client connected to Neon.
+6. Test the connection, save, and continue into the vault.
+
+⚠️ **Important:** Neon connection strings include a database role password. Keyper stores the string locally in your browser or Electron profile. Sensitive credential values are still encrypted client-side before they are written to Neon.
+
 ---
 
 ## 📱 Progressive Web App
@@ -358,10 +378,12 @@ Keyper works as a Progressive Web App for a native app experience!
   - ✅ Custom: `https://supabase.mydomain.com`
 - Use **anon/public** key, not service_role
 - Check that your Supabase project is active
+- For Neon, verify the connection string is copied exactly and that `neon-setup.sql` has completed successfully
+- For Neon Local, make sure the Docker container is running and reachable from the browser or Electron app
 
 **❌ "relation 'credentials' does not exist"**
 
-- Run the complete SQL setup script in Supabase SQL Editor
+- Run the complete SQL setup script in Supabase SQL Editor or the Neon setup script in Neon SQL Editor
 - Ensure the script completed without errors
 
 **❌ New `document` or `misc` credentials fail to save**
@@ -458,7 +480,7 @@ Keyper works as a Progressive Web App for a native app experience!
 ### Your Data, Your Control
 
 - ✅ **Self-Hosted** - Run on your own infrastructure
-- ✅ **Private Database** - Your Supabase instance or local SQLite storage
+- ✅ **Private Database** - Your Supabase instance, Neon database, or local SQLite storage
 - ✅ **No Tracking** - Zero telemetry or analytics
 - ✅ **Open Source** - Fully auditable code
 
@@ -484,7 +506,7 @@ Keyper works as a Progressive Web App for a native app experience!
 - **Frontend**: React 19.1 + TypeScript
 - **Build Tool**: Vite 7.0
 - **Styling**: Tailwind CSS + shadcn/ui
-- **Database**: Supabase (PostgreSQL + Auth) or SQLite (sql.js / IndexedDB)
+- **Database**: Supabase (PostgreSQL + Auth), Neon Postgres, or SQLite (sql.js / IndexedDB)
 - **State Management**: TanStack Query
 - **Forms**: React Hook Form + Zod
 - **PWA**: Vite PWA Plugin + Workbox

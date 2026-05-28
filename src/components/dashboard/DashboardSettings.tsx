@@ -25,9 +25,10 @@ import {
  Monitor
 } from 'lucide-react';
 import { useToast} from '@/hooks/use-toast';
-import { getCurrentUsername, clearSupabaseCredentials, getDatabaseProvider} from '@/integrations/supabase/client';
+import { getCurrentUsername, clearSupabaseCredentials, getDatabaseProvider, getNeonMode} from '@/integrations/supabase/client';
 import { THEME_OPTIONS} from '@/lib/theme-options';
 import setupSqlScript from '/supabase-setup.sql?raw';
+import neonSetupSqlScript from '/neon-setup.sql?raw';
 import updateSqlScript from '/update-db.sql?raw';
 import UserSwitcher from '@/components/UserSwitcher';
 
@@ -41,6 +42,7 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCont
  const { toast} = useToast();
  const currentUser = getCurrentUsername();
  const dbProvider = getDatabaseProvider();
+ const neonMode = getNeonMode();
 
  const { theme, setTheme} = useTheme();
  const [currentFont, setCurrentFont] = useState(() => localStorage.getItem('keyper-font-preference') || 'font-sans');
@@ -105,6 +107,9 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCont
  description: `${label} copied to clipboard.`,
 });
 };
+
+ const activeSetupScript = dbProvider === 'neon' ? neonSetupSqlScript : setupSqlScript;
+ const activeProviderLabel = dbProvider === 'neon' ? `Neon ${neonMode === 'local' ? 'Local' : 'Cloud'}` : 'Supabase';
 
  return (
  <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -283,21 +288,21 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCont
  Full Database Setup Script
  </CardTitle>
  <CardDescription>
- Use this when setting up a brand-new Supabase database for Keyper. (Supabase only — SQLite schema is created automatically.)
+ Use this when setting up a brand-new {activeProviderLabel} database for Keyper. (Postgres providers only — SQLite schema is created automatically.)
  </CardDescription>
  </CardHeader>
  <CardContent className="space-y-3">
  <div className="flex gap-3 flex-wrap">
  <Button
  variant="outline"
- onClick={() => window.open('https://supabase.com/dashboard', '_blank')}
+ onClick={() => window.open(dbProvider === 'neon' ? 'https://console.neon.tech' : 'https://supabase.com/dashboard', '_blank')}
  className="flex items-center gap-2"
  >
  <ExternalLink className="h-4 w-4" />
- Open Supabase Dashboard
+ Open {dbProvider === 'neon' ? 'Neon Console' : 'Supabase Dashboard'}
  </Button>
  <Button
- onClick={() => copyToClipboard(setupSqlScript, 'Full setup SQL script')}
+ onClick={() => copyToClipboard(activeSetupScript, `${activeProviderLabel} setup SQL script`)}
  className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
  >
  <Copy className="h-4 w-4" />
@@ -314,7 +319,7 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCont
 
  {showSetupSqlScript && (
  <div className="bg-card p-4 rounded-lg max-h-56 overflow-y-auto border border-border">
- <pre className="text-xs text-foreground whitespace-pre-wrap">{setupSqlScript}</pre>
+ <pre className="text-xs text-foreground whitespace-pre-wrap">{activeSetupScript}</pre>
  </div>
  )}
  </CardContent>
@@ -417,6 +422,15 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCont
  <li>Navigate to the <code>vault_config</code> table, find your user row</li>
  <li>Paste the new hash into the <code>bcrypt_hash</code> column and save</li>
  </ol>
+ ) : dbProvider === 'neon' ? (
+ <ol className="text-sm text-foreground space-y-2 list-decimal list-inside pl-4">
+ <li>Visit <a href="https://bcrypt-generator.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">https://bcrypt-generator.com/</a></li>
+ <li>Under"Text to Hash", enter your <strong>new desired passphrase</strong></li>
+ <li>Click"Generate" and copy the resulting bcrypt hash</li>
+ <li>{neonMode === 'local' ? 'Open a Postgres GUI or psql session connected to your Neon Local connection string' : 'Open the Neon Console SQL Editor or Table view'}</li>
+ <li>Navigate to the <code>vault_config</code> table, find your user row</li>
+ <li>Paste the new hash into the <code>bcrypt_hash</code> column and save</li>
+ </ol>
  ) : (
  <ol className="text-sm text-foreground space-y-2 list-decimal list-inside pl-4">
  <li>Login to your <strong>Supabase Dashboard</strong></li>
@@ -514,6 +528,14 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCont
  <div className="space-y-1">
  <Label className="text-sm font-medium">App Version</Label>
  <p className="text-sm text-muted-foreground">0.1.0</p>
+ </div>
+ </div>
+ <div className="p-4 bg-muted/50 rounded-lg">
+ <div className="space-y-1">
+ <Label className="text-sm font-medium">Database Provider</Label>
+ <p className="text-sm text-muted-foreground font-mono">
+ {dbProvider === 'neon' ? activeProviderLabel : dbProvider === 'sqlite' ? 'SQLite' : 'Supabase'}
+ </p>
  </div>
  </div>
  <div className="p-4 bg-muted/50 rounded-lg">

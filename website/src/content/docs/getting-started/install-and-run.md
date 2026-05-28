@@ -47,7 +47,7 @@ Prerequisites: Docker.
 # Run the latest version on port 8080
 docker run -d -p 8080:80 --name keyper --restart unless-stopped pinkpixeldev/keyper:latest
 ```
-Access at `http://localhost:8080`. The container exposes the compiled SPA on port 80 internally. No volumes or environment variables are needed — all configuration (Supabase credentials or SQLite provider selection) is entered in-app and stored in browser `localStorage`.
+Access at `http://localhost:8080`. The container exposes the compiled SPA on port 80 internally. No volumes or environment variables are needed — all configuration (Supabase credentials, Neon connection strings, or SQLite provider selection) is entered in-app and stored in browser `localStorage`.
 
 **With Docker Compose (Local Build):**
 
@@ -105,6 +105,7 @@ npm run electron:build:win     # NSIS installer
 2. In the setup wizard, **choose your database provider**:
    - **SQLite (Local)** — zero-config, no account required; schema is created automatically. In browser/PWA mode it persists locally in IndexedDB. In Electron it can also target a file on disk.
    - **Supabase** — enter your Supabase URL and anon/publishable key, then run the SQL setup script to create required tables/policies. Existing users should also run `migration-add-document-misc-types.sql` to enable `document` and `misc` credential types.
+   - **Neon Postgres** — enter your Neon Cloud or Neon Local Docker connection string, then run `neon-setup.sql` to create required tables/policies.
 3. Return to the app, test connection, and save.
 4. Unlock or initialize your vault using your master passphrase.
 5. For additional users, choose **Create New User** on the lock screen or use **Dashboard Settings → User Management → Add New User**.

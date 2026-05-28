@@ -25,14 +25,19 @@ import {
 import { useToast} from '@/hooks/use-toast';
 import {
  DB_PROVIDER_KEY,
+ NEON_CONNECTION_STRING_KEY,
+ NEON_MODE_KEY,
  SQLITE_DB_PATH_KEY,
  type DatabaseProvider,
  isElectronApp,
  saveDatabaseProvider,
  saveSupabaseCredentials,
  clearSupabaseCredentials,
+ clearNeonCredentials,
  clearSqliteDatabasePath,
  createTestSupabaseClient,
+ testNeonProviderConnection,
+ saveNeonCredentials,
  testSqliteProviderConnection,
  initializeSqliteProvider,
  refreshSupabaseClient,
@@ -40,6 +45,7 @@ import {
  SUPABASE_KEY_KEY,
  SUPABASE_USERNAME_KEY
 } from '@/integrations/supabase/client';
+import neonSetupSqlScript from '/neon-setup.sql?raw';
 
 interface SettingsProps {
  onConfigurationComplete?: () => void;
@@ -49,7 +55,7 @@ export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete}) =>
  const runningInElectron = isElectronApp();
  const [databaseProvider, setDatabaseProvider] = useState<DatabaseProvider>(() => {
  const provider = localStorage.getItem(DB_PROVIDER_KEY);
- return provider === 'sqlite' ? 'sqlite' : 'supabase';
+ return provider === 'sqlite' || provider === 'neon' ? provider : 'supabase';
 });
  const [sqliteDbPath, setSqliteDbPath] = useState<string>(() => {
  return localStorage.getItem(SQLITE_DB_PATH_KEY) || '';
@@ -60,6 +66,12 @@ export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete}) =>
 });
  const [supabaseKey, setSupabaseKey] = useState<string>(() => {
  return localStorage.getItem(SUPABASE_KEY_KEY) || '';
+});
+ const [neonConnectionString, setNeonConnectionString] = useState<string>(() => {
+ return localStorage.getItem(NEON_CONNECTION_STRING_KEY) || '';
+});
+ const [neonMode, setNeonMode] = useState<'cloud' | 'local'>(() => {
+ return localStorage.getItem(NEON_MODE_KEY) === 'local' ? 'local' : 'cloud';
 });
  const [username, setUsername] = useState<string>(() => {
  return localStorage.getItem(SUPABASE_USERNAME_KEY) || '';
@@ -95,6 +107,18 @@ export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete}) =>
  localStorage.removeItem(SQLITE_DB_PATH_KEY);
 }
  localStorage.setItem(SUPABASE_USERNAME_KEY, finalUsername);
+} else if (databaseProvider === 'neon') {
+ if (!neonConnectionString.trim()) {
+ throw new Error('Please enter your Neon connection string');
+}
+
+ const neonResult = await testNeonProviderConnection(neonConnectionString.trim(), neonMode);
+ if (neonResult.error) {
+ throw new Error(neonResult.error.message);
+}
+
+ const finalUsername = username.trim() || 'self-hosted-user';
+ saveNeonCredentials(neonConnectionString.trim(), neonMode, finalUsername);
 } else {
  if (!supabaseUrl || !supabaseKey) {
  throw new Error('Please enter both Supabase URL and API key');
@@ -124,6 +148,8 @@ export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete}) =>
  title:"Connection Successful! 🎉",
  description: databaseProvider === 'sqlite'
  ? 'Successfully connected to your SQLite database.'
+ : databaseProvider === 'neon'
+ ? `Successfully connected to Neon ${neonMode === 'local' ? 'Local' : 'Cloud'}.`
  : 'Successfully connected to your Supabase instance.',
 });
 } catch (error) {
@@ -142,10 +168,13 @@ export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete}) =>
 
  const clearConfiguration = () => {
  clearSupabaseCredentials();
+ clearNeonCredentials();
  clearSqliteDatabasePath();
  localStorage.removeItem(DB_PROVIDER_KEY);
  setSupabaseUrl('');
  setSupabaseKey('');
+ setNeonConnectionString('');
+ setNeonMode('cloud');
  setSqliteDbPath('');
  setDatabaseProvider('supabase');
  setUsername('');
@@ -185,6 +214,12 @@ export const Settings: React.FC<SettingsProps> = ({ onConfigurationComplete}) =>
  toast({
  title:"Settings Saved! 💾",
  description:"SQLite has been configured for this device.",
+});
+} else if (databaseProvider === 'neon' && neonConnectionString.trim()) {
+ saveNeonCredentials(neonConnectionString.trim(), neonMode, finalUsername);
+ toast({
+ title:"Settings Saved! 💾",
+ description:`Neon ${neonMode === 'local' ? 'Local' : 'Cloud'} has been configured.`,
 });
 } else if (supabaseUrl && supabaseKey) {
  saveSupabaseCredentials(supabaseUrl, supabaseKey, finalUsername);
@@ -642,7 +677,7 @@ ALTER TABLE credentials
  Database Provider Configuration
  </CardTitle>
  <CardDescription>
- Configure Supabase for hosted or remote usage, or SQLite for local-first storage on this device.
+ Configure Supabase or Neon for hosted Postgres storage, or SQLite for local-first storage on this device.
  </CardDescription>
  </CardHeader>
  <CardContent className="space-y-4">
@@ -652,7 +687,7 @@ ALTER TABLE credentials
  id="database-provider"
  value={databaseProvider}
  onChange={(e) => {
- const provider = e.target.value === 'sqlite' ? 'sqlite' : 'supabase';
+ const provider = e.target.value === 'sqlite' || e.target.value === 'neon' ? e.target.value : 'supabase';
  setDatabaseProvider(provider);
  setConnectionStatus('idle');
  setErrorMessage('');
@@ -660,6 +695,7 @@ ALTER TABLE credentials
  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
  >
  <option value="supabase">Supabase (Web/PWA + Desktop)</option>
+ <option value="neon">Neon Postgres (Cloud or Local)</option>
  <option value="sqlite">SQLite (Local-First: Browser + Desktop)</option>
  </select>
  </div>
@@ -670,6 +706,15 @@ ALTER TABLE credentials
  <AlertDescription className="text-amber-200">
  SQLite keeps data local to this device. In the browser or PWA it is stored locally in browser storage.
  In the desktop app it can also use a file on disk.
+ </AlertDescription>
+ </Alert>
+ )}
+
+ {databaseProvider === 'neon' && (
+ <Alert className="border-blue-500 bg-blue-950/20">
+ <AlertCircle className="h-4 w-4 text-blue-400" />
+ <AlertDescription className="text-blue-100">
+ Neon connection strings include a database role password. Keyper stores this string locally in this browser or Electron profile.
  </AlertDescription>
  </Alert>
  )}
@@ -693,6 +738,56 @@ ALTER TABLE credentials
  : 'Leave empty to use Keyper\'s default browser-local SQLite database. A custom name creates a separate local database in this browser.'}
  </p>
  </div>
+ ) : databaseProvider === 'neon' ? (
+ <>
+ <div className="space-y-2">
+ <Label htmlFor="neon-mode">Neon Mode</Label>
+ <select
+ id="neon-mode"
+ value={neonMode}
+ onChange={(e) => setNeonMode(e.target.value === 'local' ? 'local' : 'cloud')}
+ className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+ >
+ <option value="cloud">Neon Cloud</option>
+ <option value="local">Neon Local Docker</option>
+ </select>
+ <p className="text-sm text-muted-foreground">
+ {neonMode === 'local'
+ ? 'Start the official Neon Local Docker container first, then paste its local Postgres connection string.'
+ : 'Use either a pooled or direct Neon Postgres connection string from the Neon dashboard.'}
+ </p>
+ </div>
+
+ <div className="space-y-2">
+ <Label htmlFor="neon-connection-string">Neon Connection String</Label>
+ <Input
+ id="neon-connection-string"
+ type="password"
+ placeholder={neonMode === 'local' ? 'postgres://neon:npg@localhost:5432/neondb' : 'postgresql://user:password@ep-example.us-east-2.aws.neon.tech/neondb?sslmode=require'}
+ value={neonConnectionString}
+ onChange={(e) => setNeonConnectionString(e.target.value)}
+ className="font-mono"
+ />
+ <p className="text-sm text-muted-foreground">
+ For Neon Local with the serverless driver, Keyper derives the local HTTP endpoint from this host and port.
+ </p>
+ </div>
+
+ <div className="space-y-2">
+ <Label htmlFor="username">Username</Label>
+ <Input
+ id="username"
+ type="text"
+ placeholder="e.g., john, admin, team1 (leave empty for default)"
+ value={username}
+ onChange={(e) => setUsername(e.target.value)}
+ className="font-mono"
+ />
+ <p className="text-sm text-muted-foreground">
+ Usernames separate vault configuration, credentials, and categories inside your Neon database.
+ </p>
+ </div>
+ </>
  ) : (
  <>
  <div className="space-y-2">
@@ -758,7 +853,8 @@ ALTER TABLE credentials
  onClick={testConnection}
  disabled={
  isConnecting ||
- (databaseProvider === 'supabase' && (!supabaseUrl || !supabaseKey))
+ (databaseProvider === 'supabase' && (!supabaseUrl || !supabaseKey)) ||
+ (databaseProvider === 'neon' && !neonConnectionString.trim())
 }
  className="flex items-center gap-2"
  >
@@ -786,7 +882,8 @@ ALTER TABLE credentials
  onClick={handleSaveAndClose}
  className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
  disabled={
- (databaseProvider === 'supabase' && (!supabaseUrl || !supabaseKey))
+ (databaseProvider === 'supabase' && (!supabaseUrl || !supabaseKey)) ||
+ (databaseProvider === 'neon' && !neonConnectionString.trim())
 }
  >
  <CheckCircle className="h-4 w-4" />
@@ -824,6 +921,8 @@ ALTER TABLE credentials
  {connectionStatus === 'success'
  ? databaseProvider === 'sqlite'
  ? 'Successfully connected to SQLite! Your local database is ready.'
+ : databaseProvider === 'neon'
+ ? `Successfully connected to Neon ${neonMode === 'local' ? 'Local' : 'Cloud'}! Your Postgres database is ready.`
  : 'Successfully connected to Supabase! Your credentials are saved.'
  : `Connection failed: ${errorMessage}`
 }
@@ -867,6 +966,79 @@ ALTER TABLE credentials
  SQLite stays local to the current device. Browser/PWA usage stores the database locally in that browser, while the desktop app can also target a file on disk.
  </AlertDescription>
  </Alert>
+ </>
+ ) : databaseProvider === 'neon' ? (
+ <>
+ <div className="space-y-3">
+ <p className="text-sm text-foreground">
+ <strong>Step 1:</strong> {neonMode === 'local' ? 'Start the official Neon Local Docker container.' : 'Create or open your Neon project.'}
+ </p>
+ <p className="text-sm text-foreground">
+ <strong>Step 2:</strong> Copy your {neonMode === 'local' ? 'Neon Local' : 'Neon Cloud'} connection string into Keyper.
+ </p>
+ <p className="text-sm text-foreground">
+ <strong>Step 3:</strong> Run the Neon setup script below in the Neon SQL Editor or a Postgres client connected to Neon.
+ </p>
+ <p className="text-sm text-foreground">
+ <strong>Step 4:</strong> Test the connection, save your configuration, and continue into the vault.
+ </p>
+ </div>
+
+ <Alert className="border-blue-500 bg-blue-950/20">
+ <AlertCircle className="h-4 w-4 text-blue-400" />
+ <AlertDescription className="text-blue-100">
+ Neon Local uses Docker to expose a local Postgres endpoint while Neon manages the branch behind it. Keyper only connects to the string you provide.
+ </AlertDescription>
+ </Alert>
+
+ <div className="flex gap-3 flex-wrap">
+ <Button
+ variant="outline"
+ onClick={() => window.open('https://console.neon.tech', '_blank')}
+ className="flex items-center gap-2"
+ >
+ <ExternalLink className="h-4 w-4" />
+ Open Neon Console
+ </Button>
+
+ <Button
+ onClick={() => copyToClipboard(neonSetupSqlScript, 'Neon setup SQL script')}
+ className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+ >
+ <Copy className="h-4 w-4" />
+ Copy Neon SQL Script
+ </Button>
+ </div>
+
+ {showSqlScript && (
+ <div className="mt-4">
+ <Label className="text-sm font-medium mb-2 block">Neon SQL Script Preview:</Label>
+ <div className="bg-card p-4 rounded-lg max-h-40 overflow-y-auto">
+ <pre className="text-xs text-foreground whitespace-pre-wrap">
+ {neonSetupSqlScript.substring(0, 500)}...
+ </pre>
+ </div>
+ <Button
+ variant="ghost"
+ size="sm"
+ onClick={() => setShowSqlScript(false)}
+ className="mt-2"
+ >
+ Hide Preview
+ </Button>
+ </div>
+ )}
+
+ {!showSqlScript && (
+ <Button
+ variant="ghost"
+ size="sm"
+ onClick={() => setShowSqlScript(true)}
+ className="text-primary hover:text-primary/80"
+ >
+ Show Neon SQL Script Preview
+ </Button>
+ )}
  </>
  ) : (
  <>

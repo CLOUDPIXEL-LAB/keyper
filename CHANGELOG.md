@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Updated** Dotted background pattern and core accent styles to adapt automatically to all configured themes
 - **Protected** Keyper branding logo from being affected by global custom font selections
 
+### 🗄️ **Neon Postgres Provider**
+
+- **Added** Neon Postgres as a third database provider with Neon Cloud and Neon Local Docker modes.
+- **Added** `@neondatabase/serverless` integration using the HTTP query path and Keyper's existing `supabase.from(...)` compatibility surface.
+- **Added** `neon-setup.sql` for Neon Postgres schema, indexes, triggers, permissive self-hosted RLS policies, helper functions, and default categories.
+- **Updated** first-run database setup, Dashboard Settings SQL tools, reset guidance, and system information to be provider-aware for Supabase, SQLite, and Neon.
+- **Added** targeted Neon query-builder, provider-routing, and schema-alignment tests.
+
 ## [1.1.4] - 2026-05-26 - 🔒 **Security Vulnerability Fix**
 
 ### 🔒 **Security Updates**

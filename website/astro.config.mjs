@@ -54,6 +54,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Cloudflare Deployment', slug: 'operations/cloudflare-deployment' },
 						{ label: 'Self-Hosting', slug: 'operations/self-hosting' },
+						{ label: 'Neon Postgres', slug: 'operations/neon-postgres' },
 						{ label: 'Troubleshooting', slug: 'operations/troubleshooting' },
 					],
 				},

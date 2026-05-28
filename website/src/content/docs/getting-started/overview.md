@@ -3,7 +3,7 @@ title: Overview
 description: What Keyper is, who it is for, and how the app is structured.
 ---
 
-Keyper is a self-hosted credential manager built as a browser-first application with client-side encryption and configurable database persistence (Supabase or SQLite).
+Keyper is a self-hosted credential manager built as a browser-first application with client-side encryption and configurable database persistence (Supabase, Neon, or SQLite).
 
 Published desktop downloads for the current release include a Windows NSIS installer plus Linux AppImage and `.deb` packages.
 
@@ -27,7 +27,7 @@ _Keyper v1.1.4 dashboard showing a populated vault with saved credentials, categ
 - Frontend framework: React + TypeScript + Vite.
 - UI shell: single-route app (`/`) with lazy-loaded dashboard modules.
 - Appearance: Light, Dark, System, Charcoal, Medium Gray, Light Gray, Warm Light, Blue, Midnight Blue, and Deep Purple themes are selectable from Dashboard Settings and persist locally.
-- Data backend: **Supabase (Postgres)** or **SQLite (sql.js / IndexedDB)** — selectable at runtime via in-app settings.
+- Data backend: **Supabase (Postgres)**, **Neon Postgres**, or **SQLite (sql.js / IndexedDB)** — selectable at runtime via in-app settings.
 - Security gate: passphrase-based vault unlock before secret operations, with a built-in **Create New User** registration path.
 
 ## Primary modules
@@ -38,7 +38,7 @@ _Keyper v1.1.4 dashboard showing a populated vault with saved credentials, categ
 - Registration: `src/components/UserRegistration.tsx`
 - User management: `src/components/UserSwitcher.tsx`, `src/components/dashboard/DashboardSettings.tsx`
 - Crypto and vault: `src/crypto/*`, `src/services/VaultManager.ts`, `src/services/SecureVault.ts`
-- Database integration: `src/integrations/supabase/client.ts` (provider router + Supabase client), `src/integrations/database/sqlite-client.ts` (SQLite / sql.js local engine)
+- Database integration: `src/integrations/supabase/client.ts` (provider router + Supabase client), `src/integrations/database/neon-client.ts` (Neon serverless adapter), `src/integrations/database/sqlite-client.ts` (SQLite / sql.js local engine)
 
 ## Important behavioral note
 

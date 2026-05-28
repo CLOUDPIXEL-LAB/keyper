@@ -71,6 +71,7 @@ graph TB
     subgraph "Database Layer"
         Router{DB Provider Router}
         Supabase[Supabase]
+        Neon[Neon Serverless]
         SQLite[SQLite / sql.js]
         PG[(PostgreSQL)]
         IDB[(IndexedDB)]
@@ -80,10 +81,12 @@ graph TB
     UI --> Crypto
     Crypto --> Router
     Router -->|Supabase mode| Supabase
+    Router -->|Neon mode| Neon
     Router -->|SQLite mode| SQLite
     CLI --> Vite
     Vite --> UI
     Supabase --> PG
+    Neon --> PG
     PG --> RLS
     SQLite --> IDB
 ```
@@ -159,6 +162,7 @@ sequenceDiagram
 | ------------------ | ------- | ------------------------------------------- |
 | **Node.js**        | 18+     | Runtime for CLI and build tools             |
 | **Supabase**       | 2.53.0  | Backend-as-a-Service platform (cloud mode)  |
+| **Neon**           | 1.x     | Serverless Postgres provider (cloud/local)  |
 | **PostgreSQL**     | 15+     | Relational database with advanced features  |
 | **sql.js**         | 1.12.0  | SQLite compiled to WebAssembly (local mode) |
 | **Docker / nginx** | 1.27+   | Containerised SPA serving                   |
@@ -216,14 +220,15 @@ keyper/
 │   ├── 📁 hooks/              # React hooks
 │   ├── 📁 integrations/       # External service integrations
 │   │   ├── 📁 supabase/       # Supabase client + provider router
-│   │   └── 📁 database/       # SQLite / sql.js client (local mode)
+│   │   └── 📁 database/       # SQLite and Neon provider adapters
 │   ├── 📁 lib/                # Utility libraries
 │   ├── 📁 pages/              # Route components
 │   ├── 📁 security/           # Security utilities
 │   ├── 📁 services/           # Business logic
 │   └── 📁 types/              # TypeScript definitions
 ├── 📁 supabase/               # Database configuration
-├── 📄 supabase-setup.sql      # Database initialization script
+├── 📄 supabase-setup.sql      # Supabase/Postgres initialization script
+├── 📄 neon-setup.sql          # Neon Postgres initialization script
 ├── 📄 package.json            # Project configuration
 ├── 📄 vite.config.ts          # Build configuration
 ├── 📄 tailwind.config.ts      # Styling configuration
@@ -458,7 +463,7 @@ docker build -t keyper .
 docker run -d -p 8080:80 --name keyper --restart unless-stopped keyper
 ```
 
-The container serves the compiled Vite/React SPA on port 80 internally. No Node.js or environment variables required on the host — all configuration (Supabase credentials or SQLite provider selection) is entered in-app and stored in browser `localStorage`.
+The container serves the compiled Vite/React SPA on port 80 internally. No Node.js or environment variables required on the host — all configuration (Supabase credentials, Neon connection strings, or SQLite provider selection) is entered in-app and stored in browser `localStorage`.
 
 ### Electron Desktop App
 
@@ -514,7 +519,7 @@ npm run electron:build:win     # NSIS / Windows build tooling required
 - **Status**: Stable Production Release 🟢
 - **License**: Apache 2.0
   | **User Interface** | ✅ Complete | Full responsive design |
-  | **Database Layer** | ✅ Complete | Supabase + SQLite dual-provider |
+  | **Database Layer** | ✅ Complete | Supabase + Neon + SQLite provider routing |
   | **SQLite Support** | ✅ Complete | Local-first, zero-config (browser/PWA + Electron) |
   | **PWA Features** | ✅ Complete | Full offline support |
   | **CLI Tools** | ✅ Complete | Multi-platform support |

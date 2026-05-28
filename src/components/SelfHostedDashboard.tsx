@@ -318,14 +318,14 @@ export const SelfHostedDashboard: React.FC = () => {
  <div className="shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">1</div>
  <div>
  <h4 className="font-medium">Choose your database provider</h4>
- <p className="text-sm text-muted-foreground">Use SQLite for local-first storage on this device, or Supabase for hosted and remote storage.</p>
+ <p className="text-sm text-muted-foreground">Use SQLite for local-first storage, Supabase for hosted storage, or Neon for cloud/local Postgres.</p>
  </div>
  </div>
  <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
  <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">2</div>
  <div>
  <h4 className="font-medium">Configure connection</h4>
- <p className="text-sm text-muted-foreground">SQLite can be created locally by Keyper. Supabase requires your project URL, anon/publishable key, and setup script.</p>
+ <p className="text-sm text-muted-foreground">SQLite is created by Keyper. Supabase and Neon require connection details plus the matching setup script.</p>
  </div>
  </div>
  <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">

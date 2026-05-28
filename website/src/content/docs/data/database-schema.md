@@ -37,7 +37,7 @@ Stores user/category metadata used by dashboard filtering.
 
 ## RLS behavior
 
-The setup script enables RLS on all three tables. Current self-hosted policies are permissive (`USING (true)`), while app-level filtering is performed by `user_id` in client queries.
+The Supabase and Neon setup scripts enable RLS on all three tables. Current self-hosted policies are permissive (`USING (true)`), while app-level filtering is performed by `user_id` in client queries.
 
 ## Functions and triggers
 
@@ -47,6 +47,6 @@ The setup script enables RLS on all three tables. Current self-hosted policies a
 
 ## Source of truth
 
-See `supabase-setup.sql` for canonical schema definitions shipped with current releases.
+See `supabase-setup.sql` and `neon-setup.sql` for canonical Postgres schema definitions shipped with current releases.
 
 For existing deployments, apply `migration-add-document-misc-types.sql` to upgrade the `credential_type` CHECK constraint without recreating tables or losing data.
