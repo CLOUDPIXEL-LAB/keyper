@@ -74,7 +74,7 @@ Scroll down to see other installation options.
 
 ### 🎨 **Personalized Workspace**
 
-- 🖥️ **Theme Choices** - Light, Dark, System, Charcoal, Light Gray, Warm Light, and Blue appearance modes
+- 🖥️ **Theme Choices** - Light, Dark, System, Charcoal, Medium Gray, Light Gray, Warm Light, Blue, Midnight Blue, and Deep Purple appearance modes
 - 🎛️ **Persistent Preferences** - Theme and font choices are saved locally and restored across sessions
 - 🧭 **Adaptive UI Accents** - Core dashboard controls, tags, and backgrounds follow the selected palette
 

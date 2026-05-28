@@ -32,6 +32,12 @@ export const THEME_OPTIONS = [
     swatchClass: 'theme-swatch-light-gray',
   },
   {
+    value: 'theme-medium-gray',
+    label: 'Medium Gray',
+    description: 'Balanced middle contrast',
+    swatchClass: 'theme-swatch-medium-gray',
+  },
+  {
     value: 'theme-warm-light',
     label: 'Warm Light',
     description: 'Soft warm workspace',
@@ -42,6 +48,18 @@ export const THEME_OPTIONS = [
     label: 'Blue',
     description: 'Cool blue focus',
     swatchClass: 'theme-swatch-blue',
+  },
+  {
+    value: 'theme-midnight-blue',
+    label: 'Midnight Blue',
+    description: 'Deep blue dark mode',
+    swatchClass: 'theme-swatch-midnight-blue',
+  },
+  {
+    value: 'theme-deep-purple',
+    label: 'Deep Purple',
+    description: 'Quiet purple dark mode',
+    swatchClass: 'theme-swatch-deep-purple',
   },
 ] as const;
 

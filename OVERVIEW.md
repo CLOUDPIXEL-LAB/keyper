@@ -333,7 +333,7 @@ CREATE TABLE categories (
 
 ### Design System
 
-- **Theme**: Light, dark, system, charcoal, light gray, warm light, and blue modes powered by `next-themes`
+- **Theme**: Light, dark, system, charcoal, medium gray, light gray, warm light, blue, midnight blue, and deep purple modes powered by `next-themes`
 - **Colors**: CSS-variable palettes with semantic color coding and adaptive dashboard accents
 - **Typography**: Clean, readable fonts with proper hierarchy
 - **Layout**: Responsive grid system with mobile-first approach

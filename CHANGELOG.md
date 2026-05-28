@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Added** Comprehensive Light Mode theme across the entire application with cohesive styling
 - **Added** Four additional appearance themes: Charcoal, Light Gray, Warm Light, and Blue
+- **Added** Three more comfort themes: Medium Gray, Midnight Blue, and Deep Purple
 - **Added** Custom Font selection (Inter, Roboto, Outfit, Playfair Display, Fira Code)
 - **Added** New "Appearance" settings tab to manage Theme and Font preferences with swatch-based theme choices
 - **Updated** Dotted background pattern and core accent styles to adapt automatically to all configured themes

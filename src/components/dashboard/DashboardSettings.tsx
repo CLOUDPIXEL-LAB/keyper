@@ -51,8 +51,11 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCont
  system: Monitor,
  'theme-charcoal': Moon,
  'theme-light-gray': Circle,
+ 'theme-medium-gray': Circle,
  'theme-warm-light': Sun,
  'theme-blue': Palette,
+ 'theme-midnight-blue': Moon,
+ 'theme-deep-purple': Moon,
 };
 
  const handleFontChange = (fontClass: string) => {
