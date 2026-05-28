@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Added** Three more comfort themes: Medium Gray, Midnight Blue, and Deep Purple
 - **Added** Custom Font selection (Inter, Roboto, Outfit, Playfair Display, Fira Code)
 - **Added** New "Appearance" settings tab to manage Theme and Font preferences with swatch-based theme choices
+- **Added** Website documentation page for appearance settings, covering all built-in themes and font choices beyond the dark/light screenshots
 - **Updated** Dotted background pattern and core accent styles to adapt automatically to all configured themes
 - **Protected** Keyper branding logo from being affected by global custom font selections
 

@@ -25,6 +25,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Overview', slug: 'getting-started/overview' },
 						{ label: 'Screenshots', slug: 'getting-started/screenshots' },
+						{ label: 'Appearance Settings', slug: 'getting-started/appearance-settings' },
 						{ label: 'Install and Run', slug: 'getting-started/install-and-run' },
 					],
 				},

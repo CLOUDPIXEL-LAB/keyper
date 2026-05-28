@@ -11,6 +11,7 @@ This page is a practical index of where behavior lives in the repository today.
 - `src/App.tsx`: providers, custom `next-themes` theme list, and router wiring.
 - `src/lib/theme-options.ts`: appearance theme labels, class names, descriptions, and swatch classes.
 - `src/components/SelfHostedDashboard.tsx`: main runtime shell and view switching.
+- `website/src/content/docs/getting-started/appearance-settings.md`: user-facing website docs for theme and font preferences.
 
 ## Configuration and Supabase integration
 

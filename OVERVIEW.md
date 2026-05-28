@@ -340,7 +340,7 @@ CREATE TABLE categories (
 
 - **Theme**: Light, dark, system, charcoal, medium gray, light gray, warm light, blue, midnight blue, and deep purple modes powered by `next-themes`
 - **Colors**: CSS-variable palettes with semantic color coding and adaptive dashboard accents
-- **Typography**: Clean, readable fonts with proper hierarchy
+- **Typography**: Inter, Roboto, Outfit, Playfair Display, and Fira Code application font choices stored as local preferences
 - **Layout**: Responsive grid system with mobile-first approach
 - **Accessibility**: ARIA labels, keyboard navigation, screen reader support
 

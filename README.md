@@ -78,6 +78,7 @@ Scroll down to see other installation options.
 - 🖥️ **Theme Choices** - Light, Dark, System, Charcoal, Medium Gray, Light Gray, Warm Light, Blue, Midnight Blue, and Deep Purple appearance modes
 - 🎛️ **Persistent Preferences** - Theme and font choices are saved locally and restored across sessions
 - 🧭 **Adaptive UI Accents** - Core dashboard controls, tags, and backgrounds follow the selected palette
+- 📚 **Appearance Docs** - The website docs include an [Appearance Settings](https://keyper.icu/getting-started/appearance-settings/) guide covering all built-in themes and fonts
 
 ### 🛡️ **Enterprise-Grade Security**
 

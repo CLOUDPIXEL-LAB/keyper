@@ -26,7 +26,7 @@ _Keyper v1.1.4 dashboard showing a populated vault with saved credentials, categ
 
 - Frontend framework: React + TypeScript + Vite.
 - UI shell: single-route app (`/`) with lazy-loaded dashboard modules.
-- Appearance: Light, Dark, System, Charcoal, Medium Gray, Light Gray, Warm Light, Blue, Midnight Blue, and Deep Purple themes are selectable from Dashboard Settings and persist locally.
+- Appearance: the docs screenshots show the default dark and light themes, but Dashboard Settings also includes Charcoal, Medium Gray, Light Gray, Warm Light, Blue, Midnight Blue, and Deep Purple themes plus five local font choices; see [Appearance Settings](/getting-started/appearance-settings/).
 - Data backend: **Supabase (Postgres)**, **Neon Postgres**, or **SQLite (sql.js / IndexedDB)** — selectable at runtime via in-app settings.
 - Security gate: passphrase-based vault unlock before secret operations, with a built-in **Create New User** registration path.
 

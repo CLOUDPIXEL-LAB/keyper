@@ -13,6 +13,16 @@ description: Build/runtime config points and where they live.
 - PWA manifest and caching: `vite.config.ts` (`VitePWA` section)
 - In-app setup SQL script surface: `src/components/Settings.tsx`
 - In-app operational SQL tab (setup + migration scripts): `src/components/dashboard/DashboardSettings.tsx`
+- In-app appearance preferences: `src/components/dashboard/DashboardSettings.tsx`, `src/lib/theme-options.ts`, and `src/App.tsx`
+
+## Appearance preference storage
+
+Appearance settings are local UI preferences:
+
+- Theme: `theme`
+- Font: `keyper-font-preference`
+
+These values are stored in the browser or Electron profile. They do not affect credential encryption or database schema.
 
 ## SQL script sources
 
