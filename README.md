@@ -72,6 +72,12 @@ Scroll down to see other installation options.
 - 👁️ **Inline Text Document Preview** - Text-like document credentials (`.txt`, `.md`, `text/*`) can be previewed inline in credential detail view
 - ⬇️ **Secure Document Download** - All document credentials can be downloaded from detail view
 
+### 🎨 **Personalized Workspace**
+
+- 🖥️ **Theme Choices** - Light, Dark, System, Charcoal, Light Gray, Warm Light, and Blue appearance modes
+- 🎛️ **Persistent Preferences** - Theme and font choices are saved locally and restored across sessions
+- 🧭 **Adaptive UI Accents** - Core dashboard controls, tags, and backgrounds follow the selected palette
+
 ### 🛡️ **Enterprise-Grade Security**
 
 - 🔒 **Row Level Security (RLS)** - Database-level isolation

@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { THEME_STORAGE_KEY, THEME_VALUES } from "@/lib/theme-options";
 
 // Lazy load main route components
 const SelfHostedDashboard = React.lazy(() => import("@/components/SelfHostedDashboard").then(module => ({ default: module.SelfHostedDashboard })));
@@ -35,7 +36,9 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider
       attribute="class"
+      themes={THEME_VALUES}
       defaultTheme="system"
+      storageKey={THEME_STORAGE_KEY}
       enableSystem
       disableTransitionOnChange
     >
@@ -46,8 +49,8 @@ const App = () => {
           <Suspense fallback={
             <div className="min-h-screen bg-dot-pattern text-foreground flex items-center justify-center">
               <div className="flex flex-col items-center gap-4">
-                <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-cyan-400 animate-pulse">Loading Keyper...</p>
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-primary animate-pulse">Loading Keyper...</p>
               </div>
             </div>
           }>

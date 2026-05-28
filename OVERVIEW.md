@@ -333,8 +333,8 @@ CREATE TABLE categories (
 
 ### Design System
 
-- **Theme**: Dark-first with glassmorphism aesthetics
-- **Colors**: Cyan-focused palette with semantic color coding
+- **Theme**: Light, dark, system, charcoal, light gray, warm light, and blue modes powered by `next-themes`
+- **Colors**: CSS-variable palettes with semantic color coding and adaptive dashboard accents
 - **Typography**: Clean, readable fonts with proper hierarchy
 - **Layout**: Responsive grid system with mobile-first approach
 - **Accessibility**: ARIA labels, keyboard navigation, screen reader support
@@ -346,7 +346,7 @@ CREATE TABLE categories (
 | **PassphraseGate**    | Vault security checkpoint | Unlock flow + create-new-user entrypoint        |
 | **UserRegistration**  | New account onboarding    | Username validation + passphrase confirmation   |
 | **UserSwitcher**      | Multi-user controls       | Registered-user list + secure context switching |
-| **DashboardSettings** | Settings shell            | User Management tab + security messaging        |
+| **DashboardSettings** | Settings shell            | User Management, appearance themes, security messaging |
 | **DashboardHeader**   | Navigation and branding   | Search, user profile, actions                   |
 | **CredentialsGrid**   | Main credential display   | Filtering, sorting, infinite scroll             |
 | **CredentialModal**   | Detailed credential view  | Reveal, copy, edit, delete actions              |
@@ -508,9 +508,9 @@ npm run electron:build:win     # NSIS / Windows build tooling required
 
 ### Version Information
 
-- **Current Version**: 1.1.2
-- **Release Date**: March 2026
-- **Last Updated**: March 2026
+- **Current Version**: 1.1.4
+- **Release Date**: May 2026
+- **Last Updated**: May 2026
 - **Status**: Stable Production Release 🟢
 - **License**: Apache 2.0
   | **User Interface** | ✅ Complete | Full responsive design |

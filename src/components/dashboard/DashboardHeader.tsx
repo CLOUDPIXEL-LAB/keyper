@@ -17,7 +17,7 @@ export const DashboardHeader = ({ user, onAddCredential, onRefresh}: DashboardHe
  <div className="w-full max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
  <div className="flex items-center justify-between h-16">
  <div className="flex items-center space-x-3">
- <div className="p-1 bg-cyan-500/20 rounded-lg border border-cyan-500/30">
+ <div className="p-1 bg-primary/15 rounded-lg border border-primary/30">
  <img
  src="/logo.png"
  alt="Keyper Logo"
@@ -32,7 +32,7 @@ export const DashboardHeader = ({ user, onAddCredential, onRefresh}: DashboardHe
 
  <div className="flex items-center space-x-4">
  <div className="flex items-center space-x-2 text-sm text-foreground">
- <Shield className="h-4 w-4 text-cyan-400" />
+ <Shield className="h-4 w-4 text-primary" />
  <span className="hidden sm:inline">Self-Hosted Keyper</span>
  </div>
 
@@ -60,7 +60,7 @@ export const DashboardHeader = ({ user, onAddCredential, onRefresh}: DashboardHe
 
  <Button
  onClick={onAddCredential}
- className="bg-cyan-600 hover:bg-cyan-700 text-white"
+ className="bg-primary text-primary-foreground hover:bg-primary/90"
  size="sm"
  >
  <Plus className="h-4 w-4 mr-2" />

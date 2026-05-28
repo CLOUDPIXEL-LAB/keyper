@@ -292,7 +292,7 @@ export const SelfHostedDashboard: React.FC = () => {
  <CardHeader className="text-center">
  {/* Keyper Logo and Title */}
  <div className="flex items-center justify-center gap-3 mb-4">
- <div className="p-1 bg-cyan-500/20 rounded-lg border border-cyan-500/30">
+ <div className="p-1 bg-primary/15 rounded-lg border border-primary/30">
  <img
  src="/logo.png"
  alt="Keyper Logo"
@@ -302,8 +302,8 @@ export const SelfHostedDashboard: React.FC = () => {
  <h1 className="text-xl font-bold text-foreground font-sans">Keyper</h1>
  </div>
 
- <div className="mx-auto mb-4 p-3 bg-cyan-500/10 rounded-full w-fit">
- <Database className="h-8 w-8 text-cyan-500" />
+ <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
+ <Database className="h-8 w-8 text-primary" />
  </div>
  <CardTitle className="text-2xl">
  Database Configuration Required
@@ -315,14 +315,14 @@ export const SelfHostedDashboard: React.FC = () => {
  <CardContent className="space-y-4">
  <div className="space-y-3">
  <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
- <div className="shrink-0 w-6 h-6 bg-cyan-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
+ <div className="shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">1</div>
  <div>
  <h4 className="font-medium">Choose your database provider</h4>
  <p className="text-sm text-muted-foreground">Use SQLite for local-first storage on this device, or Supabase for hosted and remote storage.</p>
  </div>
  </div>
  <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
- <div className="flex-shrink-0 w-6 h-6 bg-cyan-500 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
+ <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">2</div>
  <div>
  <h4 className="font-medium">Configure connection</h4>
  <p className="text-sm text-muted-foreground">SQLite can be created locally by Keyper. Supabase requires your project URL, anon/publishable key, and setup script.</p>

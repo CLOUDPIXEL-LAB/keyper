@@ -137,8 +137,8 @@ export const SearchAndFilters = ({
  variant={selectedTags.includes(tag) ?"default" :"secondary"}
  className={`cursor-pointer transition-colors border ${
  selectedTags.includes(tag)
- ? 'bg-cyan-600 hover:bg-cyan-700 text-white border-cyan-500'
- : 'bg-cyan-100 hover:bg-cyan-200 text-cyan-900 border-cyan-300 dark:bg-cyan-900/50 dark:hover:bg-cyan-800/50 dark:text-cyan-300 dark:border-cyan-700'
+ ? 'bg-primary text-primary-foreground border-primary hover:bg-primary/90'
+ : 'bg-primary/10 hover:bg-primary/15 text-primary border-primary/25'
 }`}
  onClick={() => toggleTag(tag)}
  >

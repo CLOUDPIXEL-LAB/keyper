@@ -311,7 +311,7 @@ useEffect(() => {
  <CardHeader className="text-center">
  {/* Keyper Logo and Title */}
  <div className="flex items-center justify-center gap-3 mb-4">
- <div className="p-1 bg-cyan-500/20 rounded-lg border border-cyan-500/30">
+ <div className="p-1 bg-primary/15 rounded-lg border border-primary/30">
  <img
  src="/logo.png"
  alt="Keyper Logo"

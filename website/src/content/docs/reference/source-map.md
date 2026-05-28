@@ -8,14 +8,15 @@ This page is a practical index of where behavior lives in the repository today.
 ## App shell and routing
 
 - `src/main.tsx`: bootstrap, security initialization, root render.
-- `src/App.tsx`: providers and router wiring.
+- `src/App.tsx`: providers, custom `next-themes` theme list, and router wiring.
+- `src/lib/theme-options.ts`: appearance theme labels, class names, descriptions, and swatch classes.
 - `src/components/SelfHostedDashboard.tsx`: main runtime shell and view switching.
 
 ## Configuration and Supabase integration
 
 - `src/integrations/supabase/client.ts`: local storage keys, credential persistence, client creation/refresh.
 - `src/components/Settings.tsx`: Supabase URL/key form, validation, connection test UX.
-- `src/components/dashboard/DashboardSettings.tsx`: user management UI, SQL scripts, and reset/system tools.
+- `src/components/dashboard/DashboardSettings.tsx`: user management UI, appearance theme selector, SQL scripts, and reset/system tools.
 - `supabase-setup.sql`: canonical schema, policies, triggers, helper functions.
 
 ## Vault and cryptography

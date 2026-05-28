@@ -82,7 +82,7 @@ export default function UserSwitcher({ onUserSwitched}: UserSwitcherProps) {
  <Card>
  <CardHeader>
  <CardTitle className="flex items-center gap-2">
- <Users className="h-5 w-5 text-cyan-400" />
+ <Users className="h-5 w-5 text-primary" />
  User Management
  </CardTitle>
  <CardDescription>

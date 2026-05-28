@@ -539,7 +539,7 @@ export const CredentialDetailModal = ({
  <Badge
  key={tag}
  variant="secondary"
- className="bg-cyan-100 text-cyan-900 border-cyan-300 dark:bg-cyan-900/50 dark:text-cyan-300 dark:border-cyan-700"
+ className="bg-primary/10 text-primary border-primary/25"
  >
  {tag}
  </Badge>

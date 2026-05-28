@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState} from 'react';
 import { useTheme} from 'next-themes';
 import { Button} from '@/components/ui/button';
 import { Label} from '@/components/ui/label';
@@ -19,12 +19,14 @@ import {
  Copy,
  ExternalLink,
  Palette,
+ Circle,
  Moon,
  Sun,
  Monitor
 } from 'lucide-react';
 import { useToast} from '@/hooks/use-toast';
 import { getCurrentUsername, clearSupabaseCredentials, getDatabaseProvider} from '@/integrations/supabase/client';
+import { THEME_OPTIONS} from '@/lib/theme-options';
 import setupSqlScript from '/supabase-setup.sql?raw';
 import updateSqlScript from '/update-db.sql?raw';
 import UserSwitcher from '@/components/UserSwitcher';
@@ -41,11 +43,17 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCont
  const dbProvider = getDatabaseProvider();
 
  const { theme, setTheme} = useTheme();
- const [currentFont, setCurrentFont] = useState('font-sans');
+ const [currentFont, setCurrentFont] = useState(() => localStorage.getItem('keyper-font-preference') || 'font-sans');
 
- useEffect(() => {
- setCurrentFont(localStorage.getItem('keyper-font-preference') || 'font-sans');
-}, []);
+ const themeIcons = {
+ light: Sun,
+ dark: Moon,
+ system: Monitor,
+ 'theme-charcoal': Moon,
+ 'theme-light-gray': Circle,
+ 'theme-warm-light': Sun,
+ 'theme-blue': Palette,
+};
 
  const handleFontChange = (fontClass: string) => {
  localStorage.setItem('keyper-font-preference', fontClass);
@@ -98,7 +106,7 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCont
  return (
  <div className="max-w-4xl mx-auto p-6 space-y-6">
  <div className="flex items-center gap-3 mb-6">
- <Settings className="h-8 w-8 text-cyan-400" />
+ <Settings className="h-8 w-8 text-primary" />
  <div>
  <h1 className="text-3xl font-bold text-foreground">Dashboard Settings</h1>
  <p className="text-muted-foreground">User management and system controls</p>
@@ -132,7 +140,7 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCont
  <TabsContent value="appearance" className="space-y-6">
  <Card>
  <CardHeader>
- <CardTitle className="flex items-center gap-2 text-cyan-400">
+ <CardTitle className="flex items-center gap-2 text-primary">
  <Palette className="h-5 w-5" />
  Theme & Appearance
  </CardTitle>
@@ -144,29 +152,34 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCont
  <div className="space-y-4">
  <div className="space-y-2">
  <Label>Theme Preference</Label>
- <p className="text-sm text-muted-foreground">Choose between light, dark, or system default mode.</p>
- <div className="flex flex-wrap gap-3 mt-2">
- <Button 
- variant={theme === 'light' ? 'default' : 'outline'} 
- onClick={() => setTheme('light')}
- className="flex items-center gap-2"
+ <p className="text-sm text-muted-foreground">Choose a saved theme or let Keyper follow your system preference.</p>
+ <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-2">
+ {THEME_OPTIONS.map((themeOption) => {
+ const Icon = themeIcons[themeOption.value] || Palette;
+ const isActive = theme === themeOption.value;
+
+ return (
+ <Button
+ key={themeOption.value}
+ type="button"
+ variant={isActive ? 'default' : 'outline'}
+ onClick={() => setTheme(themeOption.value)}
+ aria-pressed={isActive}
+ className="h-auto min-h-20 justify-start gap-3 whitespace-normal p-3 text-left"
  >
- <Sun className="h-4 w-4" /> Light
+ <span className={`h-9 w-9 shrink-0 rounded-md border border-border ${themeOption.swatchClass}`} aria-hidden="true" />
+ <span className="min-w-0 flex-1">
+ <span className="flex items-center gap-2 font-medium leading-tight">
+ <Icon className="h-4 w-4 shrink-0" />
+ {themeOption.label}
+ </span>
+ <span className="mt-1 block text-xs leading-snug opacity-80">
+ {themeOption.description}
+ </span>
+ </span>
  </Button>
- <Button 
- variant={theme === 'dark' ? 'default' : 'outline'} 
- onClick={() => setTheme('dark')}
- className="flex items-center gap-2"
- >
- <Moon className="h-4 w-4" /> Dark
- </Button>
- <Button 
- variant={theme === 'system' ? 'default' : 'outline'} 
- onClick={() => setTheme('system')}
- className="flex items-center gap-2"
- >
- <Monitor className="h-4 w-4" /> System Default
- </Button>
+);
+})}
  </div>
  </div>
 
@@ -263,7 +276,7 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCont
  <Card>
  <CardHeader>
  <CardTitle className="flex items-center gap-2">
- <Database className="h-5 w-5 text-cyan-400" />
+ <Database className="h-5 w-5 text-primary" />
  Full Database Setup Script
  </CardTitle>
  <CardDescription>
@@ -282,7 +295,7 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCont
  </Button>
  <Button
  onClick={() => copyToClipboard(setupSqlScript, 'Full setup SQL script')}
- className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700"
+ className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
  >
  <Copy className="h-4 w-4" />
  Copy Setup Script
@@ -290,7 +303,7 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCont
  <Button
  variant="ghost"
  onClick={() => setShowSetupSqlScript((prev) => !prev)}
- className="text-cyan-300 hover:text-cyan-200"
+ className="text-primary hover:text-primary/80"
  >
  {showSetupSqlScript ? 'Hide Script' : 'View Script'}
  </Button>
@@ -465,7 +478,7 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({ onUserCont
  <Card>
  <CardHeader>
  <CardTitle className="flex items-center gap-2">
- <Database className="h-5 w-5 text-cyan-400" />
+ <Database className="h-5 w-5 text-primary" />
  System Information
  </CardTitle>
  <CardDescription>

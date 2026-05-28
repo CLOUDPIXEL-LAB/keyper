@@ -611,7 +611,7 @@ ALTER TABLE credentials
  return (
  <div className="max-w-4xl mx-auto p-6 space-y-6">
  <div className="flex items-center gap-3 mb-6">
- <SettingsIcon className="h-8 w-8 text-cyan-400" />
+ <SettingsIcon className="h-8 w-8 text-primary" />
  <div>
  <h1 className="text-3xl font-bold text-foreground">Keyper Settings</h1>
  <p className="text-muted-foreground">Choose and configure your Keyper database provider</p>
@@ -638,7 +638,7 @@ ALTER TABLE credentials
  <Card>
  <CardHeader>
  <CardTitle className="flex items-center gap-2">
- <Database className="h-5 w-5 text-cyan-400" />
+ <Database className="h-5 w-5 text-primary" />
  Database Provider Configuration
  </CardTitle>
  <CardDescription>
@@ -784,7 +784,7 @@ ALTER TABLE credentials
  <div className="flex gap-3 pt-6 border-t border-border">
  <Button
  onClick={handleSaveAndClose}
- className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700"
+ className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
  disabled={
  (databaseProvider === 'supabase' && (!supabaseUrl || !supabaseKey))
 }
@@ -885,9 +885,9 @@ ALTER TABLE credentials
  </p>
  </div>
 
- <Alert className="border-cyan-500 bg-cyan-950/20">
- <AlertCircle className="h-4 w-4 text-cyan-400" />
- <AlertDescription className="text-cyan-200">
+ <Alert className="border-primary/50 bg-primary/10">
+ <AlertCircle className="h-4 w-4 text-primary" />
+ <AlertDescription className="text-foreground">
  <strong>Important:</strong> After successful connection, click"Refresh App" to load your dashboard properly, especially when using the PWA version.
  </AlertDescription>
  </Alert>
@@ -911,7 +911,7 @@ ALTER TABLE credentials
 
  <Button
  onClick={() => copyToClipboard(sqlScript, 'Complete SQL setup script')}
- className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700"
+ className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
  >
  <Copy className="h-4 w-4" />
  Copy Complete SQL Script
@@ -950,7 +950,7 @@ ALTER TABLE credentials
  variant="ghost"
  size="sm"
  onClick={() => setShowSqlScript(true)}
- className="text-cyan-400 hover:text-cyan-300"
+ className="text-primary hover:text-primary/80"
  >
  Show SQL Script Preview
  </Button>
