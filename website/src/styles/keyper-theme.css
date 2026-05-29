@@ -12,9 +12,9 @@
   --sl-color-gray-3: #737373;
   --sl-color-gray-4: #404040;
   --sl-color-gray-5: #262626;
-  --sl-color-gray-6: #171717;
+  --sl-color-gray-6: #0e0e0e;
   --sl-color-black: #000000;
-  --sl-color-bg: #000000;
+  --sl-color-bg: #080808;
 }
 
 html {
@@ -35,7 +35,7 @@ html {
   --sl-color-gray-5: #a3a3a3;
   --sl-color-gray-6: #e5e5e5;
   --sl-color-black: #ffffff;
-  --sl-color-bg: #ffffff;
+  --sl-color-bg: #f6f6f6;
 }
 
 [data-theme='light'] html {

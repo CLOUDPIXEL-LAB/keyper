@@ -65,7 +65,6 @@ export default defineConfig({
 						{ label: 'Configuration', slug: 'reference/configuration' },
 						{ label: 'Testing and Quality', slug: 'reference/testing-and-quality' },
 						{ label: 'Source Map', slug: 'reference/source-map' },
-						{ label: 'Known Gaps', slug: 'reference/known-gaps' },
 					],
 				},
 			],
