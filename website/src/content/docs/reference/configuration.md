@@ -40,4 +40,4 @@ These values are stored in the browser or Electron profile. They do not affect c
 
 ## Versioning notes
 
-Current package version in app repo is `1.1.4`. Keep app docs, website docs, and distribution artifact references in sync at release time.
+Current package version in app repo is `1.2.0`. Keep app docs, website docs, and distribution artifact references in sync at release time.

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-05-28 - 🎨 **Appearance Themes · 🗄️ Neon Provider · 🔒 Dependency Security**
+
 ### 🎨 **Appearance Themes & Custom Fonts**
 
 - **Added** Comprehensive Light Mode theme across the entire application with cohesive styling
@@ -25,6 +27,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Added** `neon-setup.sql` for Neon Postgres schema, indexes, triggers, permissive self-hosted RLS policies, helper functions, and default categories.
 - **Updated** first-run database setup, Dashboard Settings SQL tools, reset guidance, and system information to be provider-aware for Supabase, SQLite, and Neon.
 - **Added** targeted Neon query-builder, provider-routing, and schema-alignment tests.
+
+### 🔒 **Dependency Security**
+
+- **Updated** root application dependency lockfile so the Electron packaging chain resolves `tmp@0.2.7`, fixing the high-severity `tmp` path traversal advisory.
+- **Updated** docs site dependencies to `astro@6.4.2` and `@astrojs/starlight@0.39.2`.
+- **Resolved** docs site audit findings across Astro, Vite, h3, defu, devalue, picomatch, PostCSS, smol-toml, and SVGO transitive dependencies.
+- **Verified** both the root application dependency audit and website dependency audit report `0 vulnerabilities`.
 
 ## [1.1.4] - 2026-05-26 - 🔒 **Security Vulnerability Fix**
 
