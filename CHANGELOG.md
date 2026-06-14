@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 📊 Documentation Site Analytics
+- **Added** PostHog integration to the Astro Starlight documentation website.
+- **Added** Custom Starlight `Head.astro` override component to bundle `posthog-js` on the client.
+- **Added** Automatic environment variable injection from server-side/build-time context to the client bundle via data-attributes.
+- **Added** Event tracking for installer downloads, capturing the platform (Windows/Linux) and package type (EXE/AppImage/DEB).
+- **Added** Event tracking for code snippet copies (e.g., terminal commands and database setup scripts).
+- **Added** Event tracking for search queries in the Starlight Pagefind dialog, with debouncing to avoid event spam.
+
 ## [1.2.0] - 2026-05-28 - 🎨 **Appearance Themes · 🗄️ Neon Provider · 🔒 Dependency Security**
 
 ### 🎨 **Appearance Themes & Custom Fonts**

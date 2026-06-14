@@ -482,7 +482,7 @@ Keyper works as a Progressive Web App for a native app experience!
 
 - ✅ **Self-Hosted** - Run on your own infrastructure
 - ✅ **Private Database** - Your Supabase instance, Neon database, or local SQLite storage
-- ✅ **No Tracking** - Zero telemetry or analytics
+- ✅ **No Tracking in App** - Zero telemetry or analytics inside the Keyper application. (The public documentation website uses basic analytics to track downloads and pages view counts)
 - ✅ **Open Source** - Fully auditable code
 
 ### Security Features

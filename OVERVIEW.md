@@ -121,7 +121,7 @@ graph TB
 - 👤 **Per-User Vault Isolation**: Independent vault metadata and encrypted payloads per `user_id`
 - 🚫 **No Admin Backdoors**: Registration and user switching never bypass passphrase verification
 - 🔒 **Content Security Policy**: Browser-level protection against XSS
-- 🚫 **No Telemetry**: Zero tracking or data collection
+- 🚫 **No Telemetry in App**: Zero tracking, telemetry, or data collection within the Keyper credential manager application itself. (The documentation website uses basic PostHog analytics to count total downloads and search query frequency).
 
 ### Encryption Workflow
 
@@ -175,13 +175,14 @@ sequenceDiagram
 | **Web Crypto API** | Browser-native cryptographic operations |
 | **Zod**            | Runtime type validation                 |
 
-### Development Tools
+### Development & Analytics Tools
 
-| Tool         | Purpose                      |
-| ------------ | ---------------------------- |
-| **ESLint**   | Code linting and quality     |
-| **Vitest**   | Unit and integration testing |
-| **Wrangler** | Cloudflare deployment        |
+| Tool          | Purpose                            |
+| ------------- | ---------------------------------- |
+| **ESLint**    | Code linting and quality           |
+| **Vitest**    | Unit and integration testing       |
+| **Wrangler**  | Cloudflare deployment              |
+| **PostHog**   | Docs site usage & download metrics |
 
 ---
 

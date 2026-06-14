@@ -1,0 +1,111 @@
+---
+import Default from '@astrojs/starlight/components/Head.astro';
+
+// Read the VITE_ prefixed environment variables at build time (Node context)
+const posthogToken = import.meta.env.VITE_POSTHOG_PROJECT_TOKEN || process.env.VITE_POSTHOG_PROJECT_TOKEN || '';
+const posthogHost = import.meta.env.VITE_POSTHOG_HOST || process.env.VITE_POSTHOG_HOST || 'https://us.i.posthog.com';
+---
+<Default {...Astro.props} />
+
+{posthogToken && (
+  <div
+    id="posthog-config"
+    data-token={posthogToken}
+    data-host={posthogHost}
+    style="display: none;"
+  />
+)}
+
+<script>
+  import posthog from 'posthog-js';
+
+  const configEl = document.getElementById('posthog-config');
+  if (configEl) {
+    const token = configEl.dataset.token;
+    const host = configEl.dataset.host || 'https://us.i.posthog.com';
+
+    if (token) {
+      posthog.init(token, {
+        api_host: host,
+        person_profiles: 'identified_only',
+        capture_pageview: true, // Automatically captures pageviews
+      });
+
+      // 1. Track installer download clicks
+      document.addEventListener('click', (event) => {
+        const target = (event.target as Element)?.closest('a');
+        if (!target) return;
+
+        const href = target.getAttribute('href') || '';
+        if (
+          href.includes('r2.dev') ||
+          href.endsWith('.exe') ||
+          href.endsWith('.AppImage') ||
+          href.endsWith('.deb')
+        ) {
+          const parts = href.split('/');
+          const fileName = parts[parts.length - 1];
+
+          let platform = 'unknown';
+          let fileType = 'unknown';
+          if (fileName.endsWith('.exe')) {
+            platform = 'windows';
+            fileType = 'exe';
+          } else if (fileName.endsWith('.AppImage')) {
+            platform = 'linux';
+            fileType = 'appimage';
+          } else if (fileName.endsWith('.deb')) {
+            platform = 'linux';
+            fileType = 'deb';
+          }
+
+          posthog.capture('app_downloaded', {
+            file_name: fileName,
+            url: href,
+            platform: platform,
+            file_type: fileType,
+            location: window.location.pathname,
+          });
+        }
+      });
+
+      // 2. Track copying of code snippets
+      document.addEventListener('click', (event) => {
+        const button = (event.target as Element)?.closest('button');
+        if (!button) return;
+
+        const title = button.getAttribute('title') || '';
+        if (title === 'Copy to clipboard') {
+          const codeSnippet = button.getAttribute('data-code') || '';
+          posthog.capture('copy_code_clicked', {
+            doc_slug: window.location.pathname,
+            code_block: codeSnippet.slice(0, 100), // Safety check to prevent huge payloads
+          });
+        }
+      });
+
+      // 3. Track search queries (debounced)
+      let searchTimeout: ReturnType<typeof setTimeout>;
+      document.addEventListener('input', (event) => {
+        const target = event.target as HTMLInputElement;
+        if (
+          target &&
+          target.tagName === 'INPUT' &&
+          (target.type === 'search' ||
+            target.id === 'pagefind-search' ||
+            target.closest('#starlight__search'))
+        ) {
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(() => {
+            const query = target.value.trim();
+            if (query.length > 2) {
+              posthog.capture('doc_search_used', {
+                query: query,
+              });
+            }
+          }, 1000);
+        }
+      });
+    }
+  }
+</script>

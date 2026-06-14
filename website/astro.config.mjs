@@ -15,6 +15,9 @@ export default defineConfig({
 			},
 			favicon: '/favicon.png',
 			customCss: ['./src/styles/keyper-theme.css'],
+			components: {
+				Head: './src/components/Head.astro',
+			},
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/pinkpixel-dev/keyper' },
 				{ icon: 'external', label: 'Web App', href: 'https://app.keyper.icu' },
