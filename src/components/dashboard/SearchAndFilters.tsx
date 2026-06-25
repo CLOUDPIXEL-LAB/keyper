@@ -10,7 +10,7 @@ import {
  SelectTrigger,
  SelectValue,
 } from '@/components/ui/select';
-import { Search, Filter, X} from 'lucide-react';
+import { Search, Filter, X, LayoutGrid, List} from 'lucide-react';
 import { Category} from '../SelfHostedDashboard';
 
 interface SearchAndFiltersProps {
@@ -24,6 +24,8 @@ interface SearchAndFiltersProps {
  setSelectedTags: (tags: string[]) => void;
  categories: Category[];
  allTags: string[];
+ viewMode?: 'grid' | 'list';
+ onViewModeChange?: (mode: 'grid' | 'list') => void;
 }
 
 export const SearchAndFilters = ({
@@ -37,6 +39,8 @@ export const SearchAndFilters = ({
  setSelectedTags,
  categories,
  allTags,
+ viewMode = 'grid',
+ onViewModeChange,
 }: SearchAndFiltersProps) => {
  const credentialTypes = [
  { value: 'api_key', label: 'API Key'},
@@ -124,6 +128,27 @@ export const SearchAndFilters = ({
  Clear
  </Button>
  )}
+
+ <div className="flex items-center border border-border rounded-lg p-0.5 bg-card/60 sm:ml-auto">
+   <Button
+     variant="ghost"
+     size="icon"
+     onClick={() => onViewModeChange?.('grid')}
+     className={`h-7 w-7 p-0 ${viewMode === 'grid' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-transparent'}`}
+     title="Grid View"
+   >
+     <LayoutGrid className="h-4 w-4" />
+   </Button>
+   <Button
+     variant="ghost"
+     size="icon"
+     onClick={() => onViewModeChange?.('list')}
+     className={`h-7 w-7 p-0 ${viewMode === 'list' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-transparent'}`}
+     title="List View"
+   >
+     <List className="h-4 w-4" />
+   </Button>
+ </div>
  </div>
 
  {/* Tags */}

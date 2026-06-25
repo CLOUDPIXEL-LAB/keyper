@@ -16,3 +16,5 @@ Live app: [app.keyper.icu](https://app.keyper.icu)
 ![Keyper Screenshot 4](/screenshots/screenshot4.png)
 
 ![Keyper Screenshot 5](/screenshots/screenshot5.png)
+
+![Keyper Screenshot 6](/screenshots/screenshot6.png)

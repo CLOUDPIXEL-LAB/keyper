@@ -7,13 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### 📊 Documentation Site Analytics
+## [1.2.1] - 2026-06-24 - 🎨 **Grid/List Layout · 🔒 Dependency Security**
+
+### 🎨 Dashboard UX & Layout
 - **Added** PostHog integration to the Astro Starlight documentation website.
 - **Added** Custom Starlight `Head.astro` override component to bundle `posthog-js` on the client.
 - **Added** Automatic environment variable injection from server-side/build-time context to the client bundle via data-attributes.
 - **Added** Event tracking for installer downloads, capturing the platform (Windows/Linux) and package type (EXE/AppImage/DEB).
 - **Added** Event tracking for code snippet copies (e.g., terminal commands and database setup scripts).
 - **Added** Event tracking for search queries in the Starlight Pagefind dialog, with debouncing to avoid event spam.
+
+### 🎨 Dashboard UX & Layout
+- **Added** Grid/List view toggle to the dashboard with state persistence in `localStorage`.
+- **Added** Sleek, compact list view layout for credentials, complete with responsive fields and hover reveal action.
+- **Added** Custom list-specific loading skeletons for the lazy-loaded credentials panel.
 
 ### 🔒 Dependency Security
 - **Fixed** Path traversal security vulnerability in documentation website `esbuild` dependency (GHSA-g7r4-m6w7-qqqr) by configuring a dependency override to `0.28.1`.

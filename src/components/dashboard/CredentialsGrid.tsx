@@ -20,12 +20,14 @@ interface CredentialsGridProps {
  credentials: Credential[];
  loading: boolean;
  onCredentialClick: (credential: Credential) => void;
+ viewMode?: 'grid' | 'list';
 }
 
 export const CredentialsGrid = ({ 
  credentials, 
  loading, 
- onCredentialClick 
+ onCredentialClick,
+ viewMode = 'grid'
 }: CredentialsGridProps) => {
  const getTypeIcon = (type: string) => {
  switch (type) {
@@ -71,24 +73,47 @@ export const CredentialsGrid = ({
 });
 };
 
- if (loading) {
- return (
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
- {[...Array(10)].map((_, i) => (
- <Card key={i} className="bg-card/60 border-border">
- <CardHeader>
- <Skeleton className="h-4 w-3/4 bg-muted" />
- <Skeleton className="h-3 w-1/2 bg-muted" />
- </CardHeader>
- <CardContent>
- <Skeleton className="h-3 w-full bg-muted mb-2" />
- <Skeleton className="h-3 w-2/3 bg-muted" />
- </CardContent>
- </Card>
- ))}
- </div>
- );
-}
+  if (loading) {
+    if (viewMode === 'list') {
+      return (
+        <div className="space-y-2">
+          {[...Array(10)].map((_, i) => (
+            <div key={i} className="flex items-center justify-between p-4 bg-card/40 border border-border/50 rounded-lg">
+              <div className="flex items-center space-x-4 flex-1">
+                <Skeleton className="h-8 w-8 rounded bg-muted" />
+                <div className="space-y-2 flex-1 max-w-xs">
+                  <Skeleton className="h-4 w-3/4 bg-muted" />
+                  <Skeleton className="h-3 w-1/2 bg-muted animate-pulse" />
+                </div>
+              </div>
+              <div className="flex items-center space-x-6">
+                <Skeleton className="h-4 w-16 bg-muted hidden md:block" />
+                <Skeleton className="h-4 w-20 bg-muted hidden sm:block" />
+                <Skeleton className="h-8 w-8 rounded bg-muted animate-pulse" />
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+        {[...Array(10)].map((_, i) => (
+          <Card key={i} className="bg-card/60 border-border">
+            <CardHeader>
+              <Skeleton className="h-4 w-3/4 bg-muted" />
+              <Skeleton className="h-3 w-1/2 bg-muted" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-3 w-full bg-muted mb-2" />
+              <Skeleton className="h-3 w-2/3 bg-muted" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
  if (credentials.length === 0) {
  return (
@@ -99,6 +124,90 @@ export const CredentialsGrid = ({
  </div>
  );
 }
+
+  if (viewMode === 'list') {
+    return (
+      <div className="space-y-2">
+        {credentials.map((credential) => (
+          <div
+            key={credential.id}
+            className="flex items-center justify-between p-4 bg-card/60 hover:bg-card/80 border border-border rounded-lg transition-colors cursor-pointer group"
+            onClick={() => onCredentialClick(credential)}
+          >
+            {/* Left side: Icon, Title, Priority, Description */}
+            <div className="flex items-center space-x-4 min-w-0 flex-1">
+              <div className="shrink-0 p-2 rounded-md bg-muted text-muted-foreground group-hover:text-foreground transition-colors">
+                {getTypeIcon(credential.credential_type)}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium text-foreground truncate">{credential.title}</span>
+                  <Badge className={`${getPriorityColor(credential.priority)} text-[10px] py-0 px-1.5`}>
+                    {credential.priority}
+                  </Badge>
+                </div>
+                {credential.description && (
+                  <p className="text-xs text-muted-foreground truncate max-w-xl mt-0.5">
+                    {credential.description}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Right side: Category, Tags, Expiration, Updated, Action */}
+            <div className="flex items-center space-x-6 text-sm text-muted-foreground ml-4 shrink-0">
+              {credential.category && (
+                <span className="hidden md:inline-block bg-muted/40 px-2 py-0.5 rounded text-xs text-foreground">
+                  {credential.category}
+                </span>
+              )}
+              
+              {credential.tags.length > 0 && (
+                <div className="hidden lg:flex items-center space-x-1">
+                  {credential.tags.slice(0, 2).map((tag) => (
+                    <Badge 
+                      key={tag} 
+                      variant="secondary" 
+                      className="text-[10px] py-0 px-1 bg-primary/10 text-primary border-primary/20"
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                  {credential.tags.length > 2 && (
+                    <Badge 
+                      variant="secondary" 
+                      className="text-[10px] py-0 px-1 bg-muted text-foreground"
+                    >
+                      +{credential.tags.length - 2}
+                    </Badge>
+                  )}
+                </div>
+              )}
+
+              {credential.expires_at && (
+                <span className="hidden sm:flex items-center text-xs text-muted-foreground">
+                  <Clock className="h-3 w-3 mr-1" />
+                  {formatDate(credential.expires_at)}
+                </span>
+              )}
+
+              <span className="text-xs hidden sm:inline-block">
+                Updated {formatDate(credential.updated_at)}
+              </span>
+
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                className="text-foreground hover:text-foreground hover:bg-accent opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
  return (
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
@@ -183,7 +292,7 @@ export const CredentialsGrid = ({
  <Button 
  size="sm" 
  variant="ghost" 
- className="text-foreground hover:text-foreground hover:bg-accent hover:text-accent-foreground"
+ className="text-foreground hover:bg-accent hover:text-accent-foreground"
  >
  <Eye className="h-4 w-4" />
  </Button>

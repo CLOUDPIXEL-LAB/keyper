@@ -9,10 +9,10 @@ Published desktop downloads for the current release include a Windows NSIS insta
 
 ## Current app view
 
-![Keyper v1.2.0 dashboard with saved credentials](/screenshots/screenshot-dashboard.png)
-![Keyper v1.2.0 dashboard light mode](/screenshots/screenshot-dashboard-light.png)
+![Keyper v1.2.1 dashboard with saved credentials](/screenshots/screenshot-dashboard.png)
+![Keyper v1.2.1 dashboard light mode](/screenshots/screenshot-dashboard-light.png)
 
-_Keyper v1.2.0 dashboard showing a populated vault with saved credentials, categories, and tags._
+_Keyper v1.2.1 dashboard showing a populated vault with saved credentials, categories, and tags._
 
 ## Product goals
 

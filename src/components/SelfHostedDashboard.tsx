@@ -100,7 +100,15 @@ export const SelfHostedDashboard: React.FC = () => {
  const [selectedTags, setSelectedTags] = useState<string[]>([]);
  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
  const [selectedCredential, setSelectedCredential] = useState<Credential | null>(null);
+ const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+    return (localStorage.getItem('keyper-view-mode') as 'grid' | 'list') || 'grid';
+  });
  const { toast} = useToast();
+
+ const handleSetViewMode = (mode: 'grid' | 'list') => {
+    setViewMode(mode);
+    localStorage.setItem('keyper-view-mode', mode);
+  };
 
  // Check if a database provider is configured on component mount
  useEffect(() => {
@@ -322,14 +330,14 @@ export const SelfHostedDashboard: React.FC = () => {
  </div>
  </div>
  <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
- <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">2</div>
+ <div className="shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">2</div>
  <div>
  <h4 className="font-medium">Configure connection</h4>
  <p className="text-sm text-muted-foreground">SQLite is created by Keyper. Supabase and Neon require connection details plus the matching setup script.</p>
  </div>
  </div>
  <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
- <div className="flex-shrink-0 w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
+ <div className="shrink-0 w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
  <div>
  <h4 className="font-medium">Secure vault setup</h4>
  <p className="text-sm text-muted-foreground">Create your master passphrase to encrypt and protect your credentials</p>
@@ -402,27 +410,44 @@ export const SelfHostedDashboard: React.FC = () => {
 
  <div className="w-full max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
  <Suspense fallback={<div className="h-16 bg-muted/50 rounded-lg animate-pulse mb-6" />}>
- <SearchAndFilters
- searchTerm={searchTerm}
- setSearchTerm={setSearchTerm}
- selectedCategory={selectedCategory}
- setSelectedCategory={setSelectedCategory}
- selectedType={selectedType}
- setSelectedType={setSelectedType}
- selectedTags={selectedTags}
- setSelectedTags={setSelectedTags}
- categories={categories}
- allTags={allTags}
- />
- </Suspense>
+  <SearchAndFilters
+  searchTerm={searchTerm}
+  setSearchTerm={setSearchTerm}
+  selectedCategory={selectedCategory}
+  setSelectedCategory={setSelectedCategory}
+  selectedType={selectedType}
+  setSelectedType={setSelectedType}
+  selectedTags={selectedTags}
+  setSelectedTags={setSelectedTags}
+  categories={categories}
+  allTags={allTags}
+  viewMode={viewMode}
+  onViewModeChange={handleSetViewMode}
+  />
+  </Suspense>
 
- <Suspense fallback={<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><div className="h-48 bg-muted/50 rounded-lg animate-pulse"></div><div className="h-48 bg-muted/50 rounded-lg animate-pulse"></div><div className="h-48 bg-muted/50 rounded-lg animate-pulse"></div></div>}>
- <CredentialsGrid
- credentials={filteredCredentials}
- loading={loading}
- onCredentialClick={setSelectedCredential}
- />
- </Suspense>
+  <Suspense fallback={
+    viewMode === 'list' ? (
+      <div className="space-y-3">
+        <div className="h-16 bg-muted/50 rounded-lg animate-pulse"></div>
+        <div className="h-16 bg-muted/50 rounded-lg animate-pulse"></div>
+        <div className="h-16 bg-muted/50 rounded-lg animate-pulse"></div>
+      </div>
+    ) : (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="h-48 bg-muted/50 rounded-lg animate-pulse"></div>
+        <div className="h-48 bg-muted/50 rounded-lg animate-pulse"></div>
+        <div className="h-48 bg-muted/50 rounded-lg animate-pulse"></div>
+      </div>
+    )
+  }>
+  <CredentialsGrid
+  credentials={filteredCredentials}
+  loading={loading}
+  onCredentialClick={setSelectedCredential}
+  viewMode={viewMode}
+  />
+  </Suspense>
  </div>
 
  <Suspense fallback={null}>

@@ -29,3 +29,18 @@
 
 ### What was rejected and why
 - **Upgrading Astro to v7.0.2**: Rejected due to high risk of build breakage and major version upgrade overhead.
+
+## 2026-06-24: Grid/List View Toggle Implementation
+
+### What was decided
+- Implement a view mode toggle ('grid' | 'list') for the main credentials display on the self-hosted dashboard.
+- Persist user preference in `localStorage` under `keyper-view-mode`.
+- Design a compact list item component inside `CredentialsGrid.tsx` using flexbox and responsive utilities (hiding tags on smaller screens, using badges, showing actions on hover).
+
+### Why
+- Card views are visually rich but consume significant vertical space, making it harder to scan a long list of credentials.
+- List views offer a structured, data-dense alternative that allows users to quickly locate and copy credentials.
+- Persisting state ensures a consistent preference across browser sessions.
+
+### What was rejected and why
+- **Traditional HTML tables (`<table>`)**: Rejected because table rendering on mobile requires heavy responsive restructuring (e.g. converting `display: table` to `display: block`). Flexbox layouts are more natively fluid and responsive.
