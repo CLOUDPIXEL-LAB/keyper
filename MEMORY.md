@@ -16,3 +16,16 @@
 - **Inline script snippet in `astro.config.mjs`**: Rejected because it clutters the configuration and bypasses Vite's native bundler.
 - **Renaming env variables to `PUBLIC_`**: Rejected because the user already set up their Cloudflare Pages environment variables, and adapting the codebase to existing variables is cleaner and more seamless.
 - **Injecting manual React click handlers**: Rejected because Astro Starlight pages are built as static HTML and do not hydrate React context for basic content blocks.
+
+## 2026-06-24: Website Dependency Security Resolution (esbuild)
+
+### What was decided
+- Use npm dependency `overrides` in the documentation website's `package.json` to lock `esbuild` to version `0.28.1`.
+
+### Why
+- The `esbuild` development server had a path traversal vulnerability (GHSA-g7r4-m6w7-qqqr) on Windows affecting versions `0.27.3 - 0.28.0`.
+- Running `npm audit fix --force` proposed upgrading Astro to `v7.0.2`, which is a major version bump and a breaking change for the website.
+- Overriding `esbuild` to `0.28.1` directly resolves the security vulnerability while preserving the stability of the Astro `v6.x` documentation site without config/routing breaking changes.
+
+### What was rejected and why
+- **Upgrading Astro to v7.0.2**: Rejected due to high risk of build breakage and major version upgrade overhead.

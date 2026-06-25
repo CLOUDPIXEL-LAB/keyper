@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Added** Event tracking for code snippet copies (e.g., terminal commands and database setup scripts).
 - **Added** Event tracking for search queries in the Starlight Pagefind dialog, with debouncing to avoid event spam.
 
+### 🔒 Dependency Security
+- **Fixed** Path traversal security vulnerability in documentation website `esbuild` dependency (GHSA-g7r4-m6w7-qqqr) by configuring a dependency override to `0.28.1`.
+
 ## [1.2.0] - 2026-05-28 - 🎨 **Appearance Themes · 🗄️ Neon Provider · 🔒 Dependency Security**
 
 ### 🎨 **Appearance Themes & Custom Fonts**
